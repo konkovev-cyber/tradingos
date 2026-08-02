@@ -1,0 +1,24 @@
+{
+  "timestamp": "2026-08-02T06:03:13.315990+00:00",
+  "source": "BINGX_API_HMAC",
+  "mode": "PROFIT_WATCH_SHADOW",
+  "execution": "BLOCKED",
+  "summary": {
+    "total_positions": 0,
+    "total_unrealized": 0,
+    "profitable_count": 0,
+    "losing_count": 0,
+    "analyze_count": 0
+  },
+  "largest_opportunity": {
+    "symbol": "",
+    "pnl": 0,
+    "pnl_pct": 0
+  },
+  "largest_risk": {
+    "symbol": "",
+    "pnl": 0,
+    "pnl_pct": 0
+  },
+  "positions": []
+}
