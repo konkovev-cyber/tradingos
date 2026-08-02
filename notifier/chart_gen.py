@@ -417,10 +417,12 @@ def _build(symbol, epx, etm, ext, xtm, side, sl, tp, interval, lev, pnl, kls, **
 
         # Draw MAX label at actual max candle
         if max_idx > 0 and max_idx < n - 1:
+            # Use raw price (not rounded) for label, then round only for display
+            raw_max_price = float(h[max_idx])
             ax.annotate(
-                f"MAX {max_r:+.2f}R",
-                xy=(max_idx, actual_max_price), xytext=(0, 18), textcoords="offset points",
-                fontsize=8, fontweight="bold", color=GRN,
+                f"MAX {max_r:+.2f}R ({raw_max_price:.6f})",
+                xy=(max_idx, raw_max_price), xytext=(0, 18), textcoords="offset points",
+                fontsize=7, fontweight="bold", color=GRN,
                 ha="center", va="bottom",
                 arrowprops=dict(arrowstyle="->", color=GRN, lw=1.2),
                 zorder=12,
@@ -428,10 +430,11 @@ def _build(symbol, epx, etm, ext, xtm, side, sl, tp, interval, lev, pnl, kls, **
 
         # Draw MIN label at actual min candle (allow edge candles)
         if min_idx != max_idx:
+            raw_min_price = float(l[min_idx])
             ax.annotate(
-                f"MIN {min_r:+.2f}R",
-                xy=(min_idx, actual_min_price), xytext=(0, -18), textcoords="offset points",
-                fontsize=8, fontweight="bold", color=RED,
+                f"MIN {min_r:+.2f}R ({raw_min_price:.6f})",
+                xy=(min_idx, raw_min_price), xytext=(0, -18), textcoords="offset points",
+                fontsize=7, fontweight="bold", color=RED,
                 ha="center", va="top",
                 arrowprops=dict(arrowstyle="->", color=RED, lw=1.2),
                 zorder=12,
