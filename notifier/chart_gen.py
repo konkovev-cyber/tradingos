@@ -125,6 +125,8 @@ def _generate_synthetic_klines(entry_price, exit_price, entry_time, exit_time,
     prices[-1] = exit_price
     
     # Генерируем OHLCV из close
+    # Use 8 decimals to preserve precision for small-priced assets (e.g. 0.00468)
+    DECIMALS = 8
     klines = []
     for i in range(num_candles):
         close = prices[i]
@@ -137,10 +139,10 @@ def _generate_synthetic_klines(entry_price, exit_price, entry_time, exit_time,
         ts = int(times[i].timestamp())
         klines.append({
             "timestamp": ts,
-            "open": round(open_price, 2),
-            "high": round(high, 2),
-            "low": round(low, 2),
-            "close": round(close, 2),
+            "open": round(open_price, DECIMALS),
+            "high": round(high, DECIMALS),
+            "low": round(low, DECIMALS),
+            "close": round(close, DECIMALS),
             "Volume": volume,
         })
     
@@ -218,12 +220,35 @@ def _build(symbol, epx, etm, ext, xtm, side, sl, tp, interval, lev, pnl, kls, **
         is_profit = pnl is not None and pnl > 0 if abs(pnl or 0) > 1e-9 else pnl_pct > 0
         is_be = not (abs(pnl or 0) > 1e-9 or abs(pnl_pct) > 0.01)
         pa = abs(pnl) if pnl and abs(pnl) > 1e-9 else (abs(pnl_pct) / 100 * epx * max(1, lev) if ext else 0)
-        
-        # Y range
-        y_lo, y_hi = df["Low"].min(), df["High"].max()
+
+        # Y range — MUST include entry, exit, max, min, SL, TP
+        all_prices = list(df["Low"].values) + list(df["High"].values)
+        if epx and epx > 0:
+            all_prices.append(epx)
+        if ext and ext > 0:
+            all_prices.append(ext)
+        if sl and sl > 0:
+            all_prices.append(sl)
+        if tp and tp > 0:
+            all_prices.append(tp)
+        y_lo, y_hi = min(all_prices), max(all_prices)
         rng = y_hi - y_lo
         if rng == 0: rng = max(abs(y_hi), 1.0) * 0.01
-        pad = rng * 0.20
+
+        # ADAPTIVE PADDING: smaller for low-volatility (flat) trades
+        # If price moved < 1%, use small padding so candles are visible
+        # If price moved > 5%, use larger padding for readability
+        if epx and epx > 0:
+            price_move_pct = rng / epx * 100
+            if price_move_pct < 1.0:
+                pad_pct = 0.05  # 5% padding for flat trades
+            elif price_move_pct < 5.0:
+                pad_pct = 0.10
+            else:
+                pad_pct = 0.20
+        else:
+            pad_pct = 0.20
+        pad = rng * pad_pct
         y_lo -= pad; y_hi += pad
         
         # ─── FIGURE 800x800 ─────────────────────────────────

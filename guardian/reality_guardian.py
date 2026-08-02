@@ -333,6 +333,32 @@ def _enqueue_telegram_event(event_type, symbol, side, entry, new_sl, r, peak_r):
     threading.Thread(target=runner, daemon=True).start()
 
 
+def _enqueue_telegram_open(symbol, side, entry_price, qty, sl, tp, reason="", leverage=1):
+    """Fire trade open to Telegram in background thread."""
+    _ensure_telegram_started()
+    if not _tg_ready:
+        logger.warning(f"TG fire OPEN skipped (not ready): {symbol}")
+        return
+    import threading
+    def runner():
+        try:
+            from tradingos.guardian.telegram_notifier import send_trade_open
+            fut = asyncio.run_coroutine_threadsafe(
+                send_trade_open(
+                    symbol=symbol, side=side,
+                    entry_price=entry_price, qty=qty,
+                    sl=sl, tp=tp, reason=reason,
+                    leverage=leverage
+                ),
+                _tg_loop
+            )
+            fut.result(timeout=60)
+            logger.info(f"TG open sent for {symbol}")
+        except Exception as e:
+            logger.error(f"Telegram open send failed: {e}")
+    threading.Thread(target=runner, daemon=True).start()
+
+
 def _enqueue_telegram_timeout(symbol, side, hold_hours):
     """Fire TIMEOUT alert to Telegram in background thread."""
     _ensure_telegram_started()
@@ -356,7 +382,7 @@ def _enqueue_telegram_timeout(symbol, side, hold_hours):
 
 def _enqueue_telegram_close(symbol, side, entry_price, exit_price, qty, pnl,
                               fees, holding_hours, reason, sl=0.0, tp=0.0,
-                              mfe_r=0.0, mae_r=0.0):
+                              mfe_r=0.0, mae_r=0.0, entry_time=0, exit_time=0):
     """Fire trade close to Telegram in background thread.
 
     Direct async call with send_trade_close → notify_trade_close generates chart+caption.
@@ -376,7 +402,8 @@ def _enqueue_telegram_close(symbol, side, entry_price, exit_price, qty, pnl,
                     qty=qty, pnl=pnl, fees=fees,
                     holding_hours=holding_hours, reason=reason,
                     sl=sl, tp=tp,
-                    mfe_r=mfe_r, mae_r=mae_r
+                    mfe_r=mfe_r, mae_r=mae_r,
+                    entry_time=entry_time, exit_time=exit_time
                 ),
                 _tg_loop
             )
@@ -428,7 +455,8 @@ def _process_position(pos, state):
 
     # Per-symbol state (with defensive checks)
     sym_state = state.get(symbol)
-    if not isinstance(sym_state, dict):
+    is_new_position = sym_state is None or not isinstance(sym_state, dict)
+    if is_new_position:
         sym_state = {"be_fired": False, "partial_fired": False, "tight_fired": False, "mfe_peak": 0.0}
 
     # Store initial risk per unit for later "saved amount" calculation
@@ -436,6 +464,24 @@ def _process_position(pos, state):
     sym_state["side"] = side
     sym_state["entry"] = entry
     sym_state["size"] = size
+    # Store entry_time for chart generation
+    open_time = float(pos.get("createdTime", time.time() * 1000)) / 1000
+    sym_state["entry_time"] = open_time
+
+    # Send OPEN notification on first sight
+    if is_new_position:
+        # Read real leverage from position (not hardcoded)
+        try:
+            real_leverage = int(float(pos.get("leverage", 1)))
+        except (ValueError, TypeError):
+            real_leverage = 1
+        _enqueue_telegram_open(
+            symbol=symbol, side=side,
+            entry_price=entry, qty=size,
+            sl=sl, tp=tp, reason="OPEN",
+            leverage=real_leverage
+        )
+        logger.info(f"🟢 OPEN detected: {symbol} {side} @ {entry} qty={size} lev={real_leverage}x SL={sl} TP={tp}")
 
     # Update MFE peak (max profit reached)
     if r_multiple > sym_state.get("mfe_peak", 0):
@@ -748,6 +794,8 @@ def _record_trade_closure(symbol, state_entry):
     # Include SL/TP/mfe_r/mae_r so chart and text use SAME source of truth
     sl_price = entry - original_risk if side == "Buy" else entry + original_risk
     tp_price = 0  # tp not in state, skip
+    entry_ts = state_entry.get("entry_time", 0)
+    exit_ts = time.time()
     _enqueue_telegram_close(
         symbol=symbol, side=side,
         entry_price=entry, exit_price=close_price,
@@ -755,7 +803,8 @@ def _record_trade_closure(symbol, state_entry):
         holding_hours=state_entry.get("hold_hours", 0) or 0,
         reason=outcome,
         sl=sl_price, tp=tp_price,
-        mfe_r=peak_r, mae_r=trough_r
+        mfe_r=peak_r, mae_r=trough_r,
+        entry_time=entry_ts, exit_time=exit_ts
     )
 
 

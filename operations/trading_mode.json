@@ -1,0 +1,14 @@
+{
+  "mode": "AUTO",
+  "sell_disabled": true,
+  "risk_per_trade": 0.25,
+  "max_positions": 4,
+  "max_same_side_positions": 2,
+  "max_position_size_usd": 4.0,
+  "max_leverage": 5,
+  "throttle_seconds": 120,
+  "night_ban_start": 0,
+  "night_ban_end": 6,
+  "blacklist_min_trades": 3,
+  "blacklist_max_pf": 0.5
+}

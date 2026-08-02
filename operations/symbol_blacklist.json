@@ -1,0 +1,5 @@
+{
+  "FLOWUSDT": {"reason": "PF < 0.5 after 2+ trades", "blocked_at": "2026-08-02T08:00:00Z"},
+  "SAHARAUSDT": {"reason": "PF < 0.5 after 2+ trades", "blocked_at": "2026-08-02T08:00:00Z"},
+  "HOMEUSDT": {"reason": "PF < 0.5 after 2+ trades", "blocked_at": "2026-08-02T08:00:00Z"}
+}

@@ -60,11 +60,15 @@ def is_enabled() -> bool:
 async def send_trade_open(symbol: str, side: str, entry_price: float,
                          qty: float, sl: Optional[float] = None,
                          tp: Optional[float] = None,
-                         reason: str = "") -> bool:
+                         reason: str = "",
+                         leverage: int = 1,
+                         entry_time: float = 0) -> bool:
     """Send trade open card to Telegram."""
     if not _notifier:
         return False
     try:
+        from datetime import datetime, timezone
+        et = datetime.fromtimestamp(entry_time, tz=timezone.utc) if entry_time > 0 else None
         await _notifier.notify_trade_open(
             symbol=symbol,
             side=side,
@@ -73,6 +77,8 @@ async def send_trade_open(symbol: str, side: str, entry_price: float,
             sl=sl,
             tp=tp,
             reason=reason,
+            leverage=leverage,
+            entry_time=et,
             exchange=_exchange,
         )
         return True
@@ -87,11 +93,15 @@ async def send_trade_close(symbol: str, side: str, entry_price: float,
                           holding_hours: float = 0.0,
                           reason: str = "",
                           sl: float = 0.0, tp: float = 0.0,
-                          mfe_r: float = 0.0, mae_r: float = 0.0) -> bool:
+                          mfe_r: float = 0.0, mae_r: float = 0.0,
+                          entry_time: float = 0, exit_time: float = 0) -> bool:
     """Send trade close card to Telegram."""
     if not _notifier:
         return False
     try:
+        from datetime import datetime, timezone
+        et = datetime.fromtimestamp(entry_time, tz=timezone.utc) if entry_time > 0 else None
+        xt = datetime.fromtimestamp(exit_time, tz=timezone.utc) if exit_time > 0 else None
         await _notifier.notify_trade_close(
             symbol=symbol,
             side=side,
@@ -106,6 +116,8 @@ async def send_trade_close(symbol: str, side: str, entry_price: float,
             tp=tp,
             mfe_r=mfe_r,
             mae_r=mae_r,
+            entry_time=et,
+            exit_time=xt,
             exchange=_exchange,
         )
         return True
