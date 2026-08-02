@@ -132,17 +132,27 @@ async def send_trade_close(symbol: str, side: str, entry_price: float,
 
 async def send_guardian_event(symbol: str, event_type: str,
                              current_sl: float, entry_price: float,
-                             peak_r: float) -> bool:
-    """Send Guardian event (BE/Partial/Tight) to Telegram."""
+                             peak_r: float, old_sl: float = 0.0,
+                             current_price: float = 0.0,
+                             side: str = "BUY", leverage: int = 1,
+                             entry_time: float = 0) -> bool:
+    """Send Guardian event (BE/Partial/Tight) to Telegram with chart."""
     if not _notifier:
         return False
     try:
+        from datetime import datetime, timezone
+        et = datetime.fromtimestamp(entry_time, tz=timezone.utc) if entry_time > 0 else None
         await _notifier.notify_guardian_event(
             symbol=symbol,
             event_type=event_type,
             current_sl=current_sl,
             entry_price=entry_price,
             peak_r=peak_r,
+            old_sl=old_sl,
+            current_price=current_price,
+            side=side,
+            leverage=leverage,
+            entry_time=et,
         )
         return True
     except Exception as e:

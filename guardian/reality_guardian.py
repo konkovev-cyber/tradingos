@@ -36,6 +36,18 @@ BE_THRESHOLD = 0.8  # R multiple to move SL to breakeven
 PARTIAL_THRESHOLD = 1.0  # R multiple to move SL to entry + 0.5*ATR
 TIGHT_THRESHOLD = 1.5  # R multiple to move SL to entry + 1.0*ATR
 
+# ─── Trailing stop (DISABLED until validation completes) ───
+# Why disabled: Reality Pilot v3 validation (decision_criteria_v1.json) requires
+# UNCHANGED exit rules (BE/PARTIAL/TIGHT only). Enabling trailing now would mix
+# two exit regimes and invalidate the BUY-vs-SELL comparison.
+# Enable after 30+ BUY trades collected and LOCKED criteria applied.
+TRAILING_ENABLED = False          # master switch — flip to True post-validation
+TRAIL_DISTANCE_R = 0.5            # SL = peak - 0.5R (locked profit from peak)
+TRAIL_MIN_STEP_R = 0.1            # only move SL when peak gains >= 0.1R (avoid API spam)
+TRAIL_MOVE_TP = True              # also raise TP when trailing: TP = peak + 1.0R
+TRAIL_TP_DISTANCE_R = 1.0         # TP sits 1.0R above peak
+TRAIL_START_AFTER = "TIGHT"       # trailing only active after TIGHT fired
+
 
 def _load_credentials():
     ak, as_ = "", ""
@@ -306,7 +318,8 @@ def _ensure_telegram_started():
             return None
 
 
-def _enqueue_telegram_event(event_type, symbol, side, entry, new_sl, r, peak_r):
+def _enqueue_telegram_event(event_type, symbol, side, entry, new_sl, r, peak_r,
+                             old_sl=0.0, current_price=0.0, leverage=1, entry_time=0):
     """Fire Guardian event (BE/Partial/Tight) to Telegram in background thread.
 
     Direct async call via run_coroutine_threadsafe (no separate worker process).
@@ -322,7 +335,9 @@ def _enqueue_telegram_event(event_type, symbol, side, entry, new_sl, r, peak_r):
             fut = asyncio.run_coroutine_threadsafe(
                 send_guardian_event(
                     symbol=symbol, event_type=event_type,
-                    current_sl=new_sl, entry_price=entry, peak_r=peak_r
+                    current_sl=new_sl, entry_price=entry, peak_r=peak_r,
+                    old_sl=old_sl, current_price=current_price,
+                    side=side, leverage=leverage, entry_time=entry_time,
                 ),
                 _tg_loop
             )
@@ -470,13 +485,14 @@ def _process_position(pos, state):
     open_time = float(pos.get("createdTime", time.time() * 1000)) / 1000
     sym_state["entry_time"] = open_time
 
+    # Read real leverage from position
+    try:
+        real_leverage = int(float(pos.get("leverage", 1)))
+    except (ValueError, TypeError):
+        real_leverage = 1
+
     # Send OPEN notification on first sight
     if is_new_position:
-        # Read real leverage from position (not hardcoded)
-        try:
-            real_leverage = int(float(pos.get("leverage", 1)))
-        except (ValueError, TypeError):
-            real_leverage = 1
         _enqueue_telegram_open(
             symbol=symbol, side=side,
             entry_price=entry, qty=size,
@@ -519,7 +535,8 @@ def _process_position(pos, state):
             _log_profit_alert(alert)
             logger.info(f"🟢 BE fired: {symbol} {side} at +{r_multiple:.2f}R, SL→{new_sl:.5f}")
             # Telegram notification (enqueue for guaranteed delivery)
-            _enqueue_telegram_event("BE", symbol, side, entry, new_sl, r_multiple, sym_state.get("mfe_peak", 0))
+            _enqueue_telegram_event("BE", symbol, side, entry, new_sl, r_multiple, sym_state.get("mfe_peak", 0),
+                                     old_sl=sl, current_price=current, leverage=real_leverage, entry_time=open_time)
 
     # Rule 2: Partial lock at +1.0R (SL = entry + 0.5*ATR/2)
     if sym_state["mfe_peak"] >= PARTIAL_THRESHOLD and not sym_state.get("partial_fired", False):
@@ -546,7 +563,8 @@ def _process_position(pos, state):
             _log_profit_alert(alert)
             logger.info(f"🟡 PARTIAL fired: {symbol} {side} at +{r_multiple:.2f}R, SL→{new_sl:.5f}")
             # Telegram notification (enqueue for guaranteed delivery)
-            _enqueue_telegram_event("PARTIAL", symbol, side, entry, new_sl, r_multiple, sym_state.get("mfe_peak", 0))
+            _enqueue_telegram_event("PARTIAL", symbol, side, entry, new_sl, r_multiple, sym_state.get("mfe_peak", 0),
+                                     old_sl=sl, current_price=current, leverage=real_leverage, entry_time=open_time)
 
     # Rule 3: Tight lock at +1.5R
     if sym_state["mfe_peak"] >= TIGHT_THRESHOLD and not sym_state.get("tight_fired", False):
@@ -572,7 +590,72 @@ def _process_position(pos, state):
             _log_profit_alert(alert)
             logger.info(f"🟢 TIGHT fired: {symbol} {side} at +{r_multiple:.2f}R, SL→{new_sl:.5f}")
             # Telegram notification (enqueue for guaranteed delivery)
-            _enqueue_telegram_event("TIGHT", symbol, side, entry, new_sl, r_multiple, sym_state.get("mfe_peak", 0))
+            _enqueue_telegram_event("TIGHT", symbol, side, entry, new_sl, r_multiple, sym_state.get("mfe_peak", 0),
+                                     old_sl=sl, current_price=current, leverage=real_leverage, entry_time=open_time)
+
+    # Rule 3.5: Trailing stop (DISABLED by default — see config above)
+    # Activates after TIGHT fires. Tracks peak with a constant 0.5R trail behind.
+    # Optionally raises TP to keep profit target ahead of price.
+    if TRAILING_ENABLED and sym_state.get("tight_fired", False):
+        peak_r = sym_state.get("mfe_peak", 0)
+        last_trail_peak_r = sym_state.get("trail_last_peak_r", 0)
+        # Only act when peak gained at least TRAIL_MIN_STEP_R since last trail move
+        if peak_r - last_trail_peak_r >= TRAIL_MIN_STEP_R:
+            trail_distance_price = risk_per_unit * TRAIL_DISTANCE_R
+            # New SL = peak - TRAIL_DISTANCE_R (in price units, on the favorable side)
+            if side == "Sell":
+                # SELL: profit when price goes DOWN → peak is below entry
+                # SL sits trail_distance ABOVE the current price (or peak)
+                peak_price = entry - peak_r * risk_per_unit
+                new_trail_sl = peak_price + trail_distance_price
+            else:
+                # BUY: profit when price goes UP → peak is above entry
+                peak_price = entry + peak_r * risk_per_unit
+                new_trail_sl = peak_price - trail_distance_price
+            # Only move SL forward (never backwards)
+            current_sl_on_exchange = float(pos.get("stopLoss", 0))
+            only_forward = (
+                (side == "Buy" and new_trail_sl > current_sl_on_exchange) or
+                (side == "Sell" and new_trail_sl < current_sl_on_exchange) or
+                current_sl_on_exchange == 0
+            )
+            if only_forward and new_trail_sl > 0:
+                new_tp = None
+                if TRAIL_MOVE_TP:
+                    if side == "Sell":
+                        new_tp = peak_price - risk_per_unit * TRAIL_TP_DISTANCE_R
+                    else:
+                        new_tp = peak_price + risk_per_unit * TRAIL_TP_DISTANCE_R
+                if _set_trading_stop(symbol, stop_loss=new_trail_sl, take_profit=new_tp):
+                    sym_state["trail_last_peak_r"] = peak_r
+                    sym_state["trail_last_sl"] = new_trail_sl
+                    sym_state["trail_last_tp"] = new_tp if new_tp else 0
+                    actions.append(
+                        f"Trail SL→{new_trail_sl:.6f} (peak {peak_r:.2f}R)"
+                        + (f" TP→{new_tp:.6f}" if new_tp else "")
+                    )
+                    alert = {
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                        "type": "GUARDIAN_TRAIL",
+                        "symbol": symbol,
+                        "side": side,
+                        "entry": entry,
+                        "r_multiple": round(peak_r, 3),
+                        "new_sl": new_trail_sl,
+                        "new_tp": new_tp,
+                        "action": "Trailing stop moved",
+                    }
+                    _log_profit_alert(alert)
+                    logger.info(
+                        f"📈 TRAIL fired: {symbol} {side} peak +{peak_r:.2f}R, "
+                        f"SL→{new_trail_sl:.6f}"
+                        + (f" TP→{new_tp:.6f}" if new_tp else "")
+                    )
+                    _enqueue_telegram_event(
+                        "TRAIL", symbol, side, entry, new_trail_sl, peak_r, peak_r,
+                        old_sl=current_sl_on_exchange, current_price=current,
+                        leverage=real_leverage, entry_time=open_time,
+                    )
 
     # Rule 4: Timeout check (open_time heuristic)
     open_time = float(pos.get("createdTime", time.time() * 1000)) / 1000
@@ -799,7 +882,7 @@ def _record_trade_closure(symbol, state_entry):
     entry_ts = state_entry.get("entry_time", 0)
     exit_ts = time.time()
     # RAW prices from Bybit for accurate pnl_pct calculation
-    raw_entry = float(pos.get("avgPrice", 0))
+    raw_entry = entry
     raw_exit = close_price
     _enqueue_telegram_close(
         symbol=symbol, side=side,

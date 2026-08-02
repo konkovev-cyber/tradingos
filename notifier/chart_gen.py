@@ -494,6 +494,203 @@ def _build(symbol, epx, etm, ext, xtm, side, sl, tp, interval, lev, pnl, kls, **
             plt.close(fig)
 
 
+async def generate_guardian_chart(
+    symbol, entry_price, side="BUY",
+    old_sl=0.0, new_sl=0.0, current_price=0.0,
+    peak_r=0.0, event_type="BE",
+    leverage=1, entry_time=None,
+) -> Optional[bytes]:
+    """Generate a chart for Guardian events (BE/Partial/Tight).
+    
+    Shows: entry, old SL (red dashed), new SL (green solid), current price.
+    """
+    if entry_time is None:
+        return None
+    if current_price <= 0:
+        current_price = entry_price
+
+    is_long = side.upper() in ("BUY", "LONG")
+    sym = symbol.upper()
+    for sf in ["-USDT", "/USDT", "USDT"]:
+        if sym.endswith(sf): sym = sym[:-len(sf)]; break
+
+    # Build synthetic klines: simple path from entry to current
+    exit_time = entry_time + timedelta(hours=6)
+    r_val = abs(entry_price - old_sl) if old_sl > 0 else abs(entry_price) * 0.01
+    mfe_r = peak_r if peak_r > 0 else 0.5
+    kls = _generate_synthetic_klines(
+        entry_price, current_price, entry_time, exit_time,
+        old_sl, 0, is_long, mfe_r, 0.0,
+    )
+    if not kls or len(kls) < 5:
+        return None
+
+    fig = None
+    try:
+        df = pd.DataFrame(kls)
+        ts_col, cm = None, {}
+        for c in df.columns:
+            cl = c.lower()
+            if cl == "timestamp": ts_col = c
+            elif cl in ("open", "high", "low", "close"): cm[c] = cl.title()
+        if ts_col: cm[ts_col] = "timestamp"
+        df = df.rename(columns=cm)
+        cols = ["Open", "High", "Low", "Close"]
+        if "timestamp" in df.columns: cols.append("timestamp")
+        df = df[cols].dropna()
+        if len(df) < 5: return None
+        if "timestamp" in df.columns:
+            ts = df["timestamp"].values.astype(float)
+            if ts[0] > 1e12: ts /= 1000
+            idx = pd.to_datetime(ts, unit="s", utc=True)
+        else:
+            idx = pd.date_range(end=pd.Timestamp.now(tz="UTC"), periods=len(df), freq="15min")
+        df = df.set_index(idx)[["Open", "High", "Low", "Close"]].dropna()
+        df = df.sort_index()
+        if len(df) < 5: return None
+
+        n = len(df)
+        o, h, l, c_arr = df["Open"].values, df["High"].values, df["Low"].values, df["Close"].values
+
+        # Y range
+        all_p = list(l) + list(h) + [entry_price, current_price, old_sl, new_sl]
+        y_lo, y_hi = min(all_p), max(all_p)
+        rng = y_hi - y_lo
+        if rng == 0: rng = max(abs(y_hi), 1.0) * 0.01
+        pad = rng * 0.25
+        y_lo -= pad; y_hi += pad
+
+        fig = plt.figure(figsize=(8, 8), facecolor=BG, dpi=100)
+
+        # Header
+        event_names = {"BE": "Безубыток (БУ)", "PARTIAL": "Частичная фиксация", "TIGHT": "Жёсткая защита"}
+        event_name = event_names.get(event_type, event_type)
+        sc = GRN if is_long else RED
+        fig.text(0.06, 0.915, f"{sym}/USDT", fontsize=18, fontweight="bold", color=TXT)
+        fig.text(0.06, 0.885, f"{'▲' if is_long else '▼'} {'LONG' if is_long else 'SHORT'} ×{max(1, leverage)}",
+                 fontsize=10, fontweight="bold", color=sc)
+        fig.text(0.50, 0.915, "🛡️ GUARDIAN", fontsize=7, color=SEC, ha="center", weight="bold")
+        fig.text(0.50, 0.890, event_name, fontsize=11, color="#2563EB", ha="center", weight="bold")
+        fig.text(0.50, 0.870, f"Пик R: {peak_r:+.2f}R", fontsize=7, color=SEC, ha="center")
+
+        # Chart
+        ax = fig.add_axes([0.10, 0.20, 0.80, 0.55])
+        ax.set_facecolor(CARD)
+        bw = min(0.70, 8 / n)
+        for i in range(n):
+            is_up = c_arr[i] >= o[i]
+            clr = GRN if is_up else RED
+            bh = max(abs(c_arr[i] - o[i]), rng * 0.0006)
+            body_low = min(o[i], c_arr[i])
+            ax.plot([i, i], [l[i], h[i]], color=clr, linewidth=1.5, solid_capstyle="butt", zorder=2)
+            ax.add_patch(Rectangle(
+                (i - bw / 2, body_low), bw, bh,
+                facecolor=clr, edgecolor=clr, linewidth=1.0, alpha=1.0, zorder=3,
+            ))
+
+        ax.set_axisbelow(True)
+        ax.grid(True, axis="y", color=GRID, linewidth=0.5, alpha=0.7)
+        ax.set_ylim(y_lo, y_hi)
+        ax.set_xlim(-0.5, n - 0.5)
+        step = max(1, n // 5)
+        ticks = list(range(0, n, step))
+        if ticks[-1] != n - 1: ticks.append(n - 1)
+        tls = [df.index[i].strftime("%H:%M") for i in ticks if i < n]
+        ax.set_xticks(ticks[:len(tls)])
+        ax.set_xticklabels(tls, fontsize=8, color=SEC, weight="bold", rotation=30, ha="right")
+        for sp in ax.spines.values(): sp.set_visible(False)
+        ax.tick_params(axis="y", labelsize=8, colors=SEC, length=0, pad=4)
+
+        # Entry marker
+        ax.plot(0, c_arr[0], "o", markersize=12, color=ENT,
+                markeredgecolor=CARD, markeredgewidth=2.5, zorder=10)
+        ax.axhline(y=entry_price, color=ENT, linewidth=1.2, linestyle=(0, (4, 3)),
+                   alpha=0.6, zorder=1)
+        ax.annotate(
+            f" ВХОД {entry_price:.4f} ",
+            xy=(0, c_arr[0]), xytext=(-10, -22), textcoords="offset points",
+            fontsize=9, fontweight="bold", color="#FFFFFF",
+            va="top", ha="left",
+            bbox=dict(boxstyle="round,pad=0.3", fc=ENT, ec="none"),
+            arrowprops=dict(arrowstyle="-", color=ENT, lw=0.8, alpha=0.6),
+            zorder=12,
+        )
+
+        # Current price marker
+        xi = n - 1
+        ax.plot(xi, c_arr[-1], "o", markersize=12, color=SEC,
+                markeredgecolor=CARD, markeredgewidth=2.5, zorder=10)
+        ax.annotate(
+            f" ТЕКУЩАЯ {current_price:.4f} ",
+            xy=(xi, c_arr[-1]), xytext=(10, 22), textcoords="offset points",
+            fontsize=9, fontweight="bold", color="#FFFFFF",
+            va="bottom", ha="right",
+            bbox=dict(boxstyle="round,pad=0.3", fc=SEC, ec="none"),
+            arrowprops=dict(arrowstyle="-", color=SEC, lw=0.8, alpha=0.6),
+            zorder=12,
+        )
+
+        # OLD SL (red dashed line)
+        if old_sl > 0:
+            ax.axhline(y=old_sl, color=RED, linewidth=2.0, linestyle="--",
+                       alpha=0.8, zorder=5)
+            ax.annotate(
+                f" СТАРЫЙ SL {old_sl:.4f} ",
+                xy=(n//3, old_sl), xytext=(0, 12), textcoords="offset points",
+                fontsize=9, fontweight="bold", color=RED,
+                ha="center", va="bottom",
+                bbox=dict(boxstyle="round,pad=0.2", fc="#FFFFFF", ec=RED, lw=1.2),
+                zorder=12,
+            )
+
+        # NEW SL (green solid line)
+        if new_sl > 0 and abs(new_sl - old_sl) > 1e-9:
+            nc = GRN
+            ax.axhline(y=new_sl, color=nc, linewidth=2.5, linestyle="-",
+                       alpha=0.9, zorder=5)
+            ax.annotate(
+                f" НОВЫЙ SL {new_sl:.4f} ",
+                xy=(n*2//3, new_sl), xytext=(0, -12), textcoords="offset points",
+                fontsize=9, fontweight="bold", color=nc,
+                ha="center", va="top",
+                bbox=dict(boxstyle="round,pad=0.2", fc="#FFFFFF", ec=nc, lw=1.2),
+                zorder=12,
+            )
+
+        # Path line
+        path_color = GRN if current_price >= entry_price else RED
+        ax.plot(range(n), c_arr, color=path_color, linewidth=2.0,
+                alpha=0.5, zorder=4, solid_capstyle="round")
+
+        ax.set_ylabel("Цена (USDT)", fontsize=8, color=SEC, weight="bold")
+
+        # Footer
+        ft = [
+            ("ВХОД",   _fp(entry_price), TXT),
+            ("СТАРЫЙ SL", _fp(old_sl) if old_sl > 0 else "—", RED),
+            ("НОВЫЙ SL", _fp(new_sl) if new_sl > 0 else "—", GRN),
+            ("ПИК R", f"{peak_r:+.2f}R", "#2563EB"),
+        ]
+        n_ft = len(ft)
+        fw = 0.88 / n_ft
+        for i, (lb, vl, cl) in enumerate(ft):
+            x = 0.06 + i * fw
+            fig.text(x, 0.115, lb, fontsize=7, color=SEC, va="center", weight="bold")
+            fig.text(x, 0.075, vl, fontsize=12, color=cl, va="center", weight="bold")
+
+        buf = io.BytesIO()
+        fig.savefig(buf, format="png", dpi=100, facecolor=BG, edgecolor="none",
+                    pad_inches=0, bbox_inches=None)
+        buf.seek(0)
+        return buf.getvalue()
+    except Exception as e:
+        log.error(f"Guardian chart error: {e}", exc_info=True)
+        return None
+    finally:
+        if fig is not None:
+            plt.close(fig)
+
+
 async def generate_trade_chart(
     exchange, symbol, entry_price, entry_time=None,
     exit_price=None, exit_time=None, side="BUY",

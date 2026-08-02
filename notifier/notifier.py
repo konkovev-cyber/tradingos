@@ -252,8 +252,9 @@ class Notifier:
     def _format_close_text(self, symbol, side, entry_price, exit_price,
                             pnl, fees, holding_seconds, reason, trade_id,
                             leverage, score, sl, tp, mfe_r, mae_r, balance, qty=0,
-                            entry_price_raw=None, exit_price_raw=None):
-        """v22: clean Russian HTML. Uses RAW prices for pnl_pct if provided."""
+                            entry_price_raw=None, exit_price_raw=None,
+                            mfe_price=None, mae_price=None):
+        """v23: chart/text sync. Uses RAW prices + candle mfe/mae if provided."""
         is_long = side.upper() in ("BUY", "LONG")
         direction_text = "LONG (покупка)" if is_long else "SHORT (продажа)"
         is_profit = (pnl is not None and pnl > 0)
@@ -272,7 +273,7 @@ class Notifier:
         reason_text = reason_map.get(reason or "", reason or "—")
         pnl_abs = abs(pnl) if pnl is not None else 0.0
         pnl_pct = 0.0
-        # FIX v22: Use RAW prices for pnl_pct (not rounded display values)
+        # FIX v23: pnl_pct from RAW prices, not rounded display values
         ep_raw = entry_price_raw if (entry_price_raw and entry_price_raw > 0) else entry_price
         xp_raw = exit_price_raw if (exit_price_raw and exit_price_raw > 0) else exit_price
         if pnl is not None and ep_raw and ep_raw > 0 and xp_raw and xp_raw > 0 and leverage and leverage > 0:
@@ -305,33 +306,58 @@ class Notifier:
             else:
                 r_mult = (entry_price - exit_price) / r_dist
             lines.append(f"📊 <b>R-multiple:</b> <code>{r_mult:+.2f}R (R={r_dist:.5f})</code>")
-        if mfe_r is not None:
-            # Reject absurd mfe_r values
-            if abs(mfe_r) > 10:
-                log.warning(f"rejected mfe_r={mfe_r} in text too")
-            else:
-                # Use max of mfe_r and exit-based R (chart uses candle data)
-                if sl and sl > 0 and abs(entry_price - sl) > 0:
-                    r_dist = abs(entry_price - sl)
-                    exit_r = (exit_price - entry_price) / r_dist if is_long else (entry_price - exit_price) / r_dist
-                    display_r = max(mfe_r, exit_r) if mfe_r > 0 else mfe_r
+        if mfe_r is not None or mfe_price is not None:
+            # v23: prefer candle price (mfe_price) for accurate R-multiple
+            r_dist_text = abs(entry_price - sl) if (sl and sl > 0) else 0
+            if mfe_price is not None and r_dist_text > 0:
+                if is_long:
+                    display_r = (mfe_price - entry_price) / r_dist_text
                 else:
-                    display_r = mfe_r
-                r_text = f"+{display_r:.2f}R" if display_r >= 0 else f"{display_r:.2f}R"
-                lines.append(f"📈 <b>Максимум:</b> <code>{r_text}</code>")
-        if mae_r is not None:
-            if abs(mae_r) > 10:
-                log.warning(f"rejected mae_r={mae_r} in text too")
+                    display_r = (entry_price - mfe_price) / r_dist_text
+                display_price = mfe_price
+                mfe_text = f"+{display_r:.2f}R ({display_price:.6f})"
             else:
-                # Use min of mae_r and exit-based R
-                if sl and sl > 0 and abs(entry_price - sl) > 0:
-                    r_dist = abs(entry_price - sl)
-                    exit_r = (exit_price - entry_price) / r_dist if is_long else (entry_price - exit_price) / r_dist
-                    display_r = min(mae_r, exit_r) if mae_r < 0 else mae_r
+                # Fallback to mfe_r from Guardian
+                if abs(mfe_r) > 10:
+                    log.warning(f"rejected mfe_r={mfe_r} in text too")
                 else:
-                    display_r = mae_r
-                r_text = f"+{display_r:.2f}R" if display_r >= 0 else f"{display_r:.2f}R"
-                lines.append(f"📉 <b>Просадка:</b> <code>{r_text}</code>")
+                    if sl and sl > 0 and abs(entry_price - sl) > 0:
+                        r_dist_text2 = abs(entry_price - sl)
+                        exit_r = (exit_price - entry_price) / r_dist_text2 if is_long else (entry_price - exit_price) / r_dist_text2
+                        display_r = max(mfe_r, exit_r) if mfe_r > 0 else mfe_r
+                    else:
+                        display_r = mfe_r
+                    r_text = f"+{display_r:.2f}R" if display_r >= 0 else f"{display_r:.2f}R"
+                    lines.append(f"📈 <b>Максимум:</b> <code>{r_text}</code>")
+                    # skip the line append below and continue
+                    mfe_text = None
+            if mfe_text is not None:
+                lines.append(f"📈 <b>Максимум:</b> <code>{mfe_text}</code>")
+        if mae_r is not None or mae_price is not None:
+            # v23: prefer candle price (mae_price)
+            r_dist_text = abs(entry_price - sl) if (sl and sl > 0) else 0
+            if mae_price is not None and r_dist_text > 0:
+                if is_long:
+                    display_r = (mae_price - entry_price) / r_dist_text
+                else:
+                    display_r = (entry_price - mae_price) / r_dist_text
+                display_price = mae_price
+                mae_text = f"{display_r:.2f}R ({display_price:.6f})"
+            else:
+                if abs(mae_r) > 10:
+                    log.warning(f"rejected mae_r={mae_r} in text too")
+                else:
+                    if sl and sl > 0 and abs(entry_price - sl) > 0:
+                        r_dist_text2 = abs(entry_price - sl)
+                        exit_r = (exit_price - entry_price) / r_dist_text2 if is_long else (entry_price - exit_price) / r_dist_text2
+                        display_r = min(mae_r, exit_r) if mae_r < 0 else mae_r
+                    else:
+                        display_r = mae_r
+                    r_text = f"+{display_r:.2f}R" if display_r >= 0 else f"{display_r:.2f}R"
+                    lines.append(f"📉 <b>Просадка:</b> <code>{r_text}</code>")
+                    mae_text = None
+            if mae_text is not None:
+                lines.append(f"📉 <b>Просадка:</b> <code>{mae_text}</code>")
         if fees and fees > 0:
             lines.append(f"💸 <b>Комиссия:</b> <code>${fees:.2f}</code>")
         if holding_seconds and holding_seconds > 0:
@@ -515,6 +541,11 @@ class Notifier:
         current_sl: float,
         entry_price: float,
         peak_r: float,
+        old_sl: float = 0.0,
+        current_price: float = 0.0,
+        side: str = "BUY",
+        leverage: int = 1,
+        entry_time=None,
     ):
         """Уведомление о Guardian событии (BE / Partial / Tight / Timeout).
 
@@ -535,6 +566,9 @@ class Notifier:
             "TIGHT":   ("🔐", "Жёсткая защита",
                        "Стоп значительно поднят. Большая часть прибыли зафиксирована. "
                        "Сделка максимально защищена."),
+            "TRAIL":   ("📈", "Трейлинг-стоп",
+                       "Стоп движется вслед за ценой (пик − 0.5R). "
+                       "Прибыль автоматически фиксируется при развороте."),
             "TIMEOUT": ("⏰", "Таймаут",
                        "Позиция держится дольше 48 часов. Рекомендуется ручная проверка."),
         }
@@ -546,8 +580,27 @@ class Notifier:
             f"<b>Метрики:</b>\n"
             f"├ Цена входа: <code>{entry_price:.4f}</code>\n"
             f"├ Пик R: <code>{peak_r:+.2f}R</code>\n"
+            f"├ Старый SL: <code>{old_sl:.4f}</code>\n"
             f"└ Новый SL: <code>{current_sl:.4f}</code>"
         )
+
+        # Generate chart for BE/PARTIAL/TIGHT (not TIMEOUT)
+        if event_type != "TIMEOUT" and entry_time is not None:
+            try:
+                from tradingos.notifier.chart_gen import generate_guardian_chart
+                chart_bytes = await generate_guardian_chart(
+                    symbol=symbol, entry_price=entry_price,
+                    side=side, old_sl=old_sl, new_sl=current_sl,
+                    current_price=current_price or entry_price,
+                    peak_r=peak_r, event_type=event_type,
+                    leverage=leverage, entry_time=entry_time,
+                )
+                if chart_bytes:
+                    await self.send_photo(chart_bytes, caption=text)
+                    return
+            except Exception as e:
+                log.warning(f"Guardian chart gen failed: {e}")
+
         await self.send(text)
 
     async def notify_error(self, source: str, error: str):
