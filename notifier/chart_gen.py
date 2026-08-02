@@ -150,11 +150,12 @@ def _generate_synthetic_klines(entry_price, exit_price, entry_time, exit_time,
 
 
 def _build(symbol, epx, etm, ext, xtm, side, sl, tp, interval, lev, pnl, kls, **kw):
-    """v18: рисует график по синтетическим данным.
-    
-    Временная шкала = реальная длительность сделки.
-    Entry слева, exit справа.
-    """
+    """v22: text uses RAW prices (entry_price_raw, exit_price_raw) for pnl_pct."""
+    # Raw prices from Guardian — for accurate pnl_pct in chart text
+    epx_raw_chart = kw.get("entry_price_raw", None)
+    xp_raw_chart = kw.get("exit_price_raw", None)
+    epx_for_chart = epx_raw_chart if (epx_raw_chart and epx_raw_chart > 0) else epx
+    xp_for_chart = xp_raw_chart if (xp_raw_chart and xp_raw_chart > 0) else ext
     fig = None
     try:
         if not kls or len(kls) < 5:
@@ -203,20 +204,22 @@ def _build(symbol, epx, etm, ext, xtm, side, sl, tp, interval, lev, pnl, kls, **
                 if (is_long and ext >= tp * 0.995) or (not is_long and ext <= tp * 1.005):
                     reason = "Тейк-профит"
         
-        # FIX: PnL% should be on INVESTED CAPITAL (margin), not price
+        # FIX v22: PnL% from RAW prices (passed via kw), not rounded display
         # qty might not be available here, so use leverage=lev
-        # margin = epx * qty / lev. If qty is not given, use pnl / epx * lev approx
         pnl_pct = 0.0
-        if pnl is not None and abs(pnl) > 1e-9 and epx > 0:
-            # Use leverage for sensible %: pnl% ≈ price move% × leverage
-            price_move_pct = ((ext - epx) / epx * 100) if is_long else ((epx - ext) / epx * 100) if ext else 0
-            pnl_pct = price_move_pct * max(1, lev)
-            # Sanity clamp: pnl_pct should match PnL sign
-            if (pnl > 0 and pnl_pct < 0) or (pnl < 0 and pnl_pct > 0):
-                pnl_pct = -pnl_pct
-        elif ext and epx > 0:
-            price_move_pct = ((ext - epx) / epx * 100) if is_long else ((epx - ext) / epx * 100)
-            pnl_pct = price_move_pct * max(1, lev)
+        if pnl is not None and abs(pnl) > 1e-9:
+            if epx_for_chart and epx_for_chart > 0 and xp_for_chart and xp_for_chart > 0 and lev and lev > 0:
+                if is_long:
+                    pnl_pct = ((xp_for_chart / epx_for_chart) - 1.0) * 100 * lev
+                else:
+                    pnl_pct = ((epx_for_chart / xp_for_chart) - 1.0) * 100 * lev
+                # Sanity clamp: pnl_pct should match PnL sign
+                if (pnl > 0 and pnl_pct < 0) or (pnl < 0 and pnl_pct > 0):
+                    pnl_pct = -pnl_pct
+            elif ext and epx > 0 and lev and lev > 0:
+                # Fallback if raw prices not provided
+                price_move_pct = ((ext - epx) / epx * 100) if is_long else ((epx - ext) / epx * 100)
+                pnl_pct = price_move_pct * max(1, lev)
         is_profit = pnl is not None and pnl > 0 if abs(pnl or 0) > 1e-9 else pnl_pct > 0
         is_be = not (abs(pnl or 0) > 1e-9 or abs(pnl_pct) > 0.01)
         pa = abs(pnl) if pnl and abs(pnl) > 1e-9 else (abs(pnl_pct) / 100 * epx * max(1, lev) if ext else 0)
@@ -541,8 +544,11 @@ async def generate_trade_chart(
         return None
 
     # Pass through the NORMALIZED values so chart and text agree
+    entry_raw = kw.get("entry_price_raw", None)
+    exit_raw = kw.get("exit_price_raw", None)
     with _LOCK:
         return _build(symbol, entry_price, entry_time, exit_price, exit_time,
                       side, sl, tp, interval, leverage, pnl, kls,
                       holding_hours=kw.get("holding_hours", 0),
-                      mfe_r=mfe_r, mae_r=mae_r)
+                      mfe_r=mfe_r, mae_r=mae_r,
+                      entry_price_raw=entry_raw, exit_price_raw=exit_raw)
