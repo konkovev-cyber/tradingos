@@ -251,8 +251,9 @@ class Notifier:
 
     def _format_close_text(self, symbol, side, entry_price, exit_price,
                             pnl, fees, holding_seconds, reason, trade_id,
-                            leverage, score, sl, tp, mfe_r, mae_r, balance, qty=0):
-        """v20: clean Russian HTML with correct margin-based pnl_pct."""
+                            leverage, score, sl, tp, mfe_r, mae_r, balance, qty=0,
+                            entry_price_raw=None, exit_price_raw=None):
+        """v22: clean Russian HTML. Uses RAW prices for pnl_pct if provided."""
         is_long = side.upper() in ("BUY", "LONG")
         direction_text = "LONG (покупка)" if is_long else "SHORT (продажа)"
         is_profit = (pnl is not None and pnl > 0)
@@ -271,14 +272,14 @@ class Notifier:
         reason_text = reason_map.get(reason or "", reason or "—")
         pnl_abs = abs(pnl) if pnl is not None else 0.0
         pnl_pct = 0.0
-        # FIX: pnl_pct = price move % × leverage (matches chart and user expectation)
-        # For LONG: ((exit/entry) - 1) × 100 × leverage
-        # For SHORT: ((entry/exit) - 1) × 100 × leverage
-        if pnl is not None and entry_price and entry_price > 0 and exit_price and exit_price > 0 and leverage and leverage > 0:
+        # FIX v22: Use RAW prices for pnl_pct (not rounded display values)
+        ep_raw = entry_price_raw if (entry_price_raw and entry_price_raw > 0) else entry_price
+        xp_raw = exit_price_raw if (exit_price_raw and exit_price_raw > 0) else exit_price
+        if pnl is not None and ep_raw and ep_raw > 0 and xp_raw and xp_raw > 0 and leverage and leverage > 0:
             if is_long:
-                pnl_pct = ((exit_price / entry_price) - 1.0) * 100 * leverage
+                pnl_pct = ((xp_raw / ep_raw) - 1.0) * 100 * leverage
             else:
-                pnl_pct = ((entry_price / exit_price) - 1.0) * 100 * leverage
+                pnl_pct = ((ep_raw / xp_raw) - 1.0) * 100 * leverage
             # Ensure sign matches PnL direction
             if (pnl > 0 and pnl_pct < 0) or (pnl < 0 and pnl_pct > 0):
                 pnl_pct = -pnl_pct
@@ -432,8 +433,10 @@ class Notifier:
         balance: Optional[float] = None,
         mfe_r: Optional[float] = None,
         mae_r: Optional[float] = None,
+        entry_price_raw: float = None,
+        exit_price_raw: float = None,
     ):
-        """v18: отправляет фото (synthetic chart) + текстовое сообщение."""
+        """v22: chart + text, uses RAW prices for pnl_pct when provided."""
         try:
             from tradingos.notifier.chart_gen import generate_trade_chart
             # Adaptive timeframe based on holding duration
@@ -473,6 +476,7 @@ class Notifier:
                 trade_id=trade_id, leverage=leverage, score=score,
                 sl=sl, tp=tp, mfe_r=mfe_r, mae_r=mae_r, balance=balance,
                 qty=qty,
+                entry_price_raw=entry_price_raw, exit_price_raw=exit_price_raw,
             )
             # CRITICAL: Send photo WITH caption so user sees graph + text in ONE message
             if chart_bytes:
@@ -500,6 +504,7 @@ class Notifier:
             trade_id=trade_id, leverage=leverage, score=score,
             sl=sl, tp=tp, mfe_r=mfe_r, mae_r=mae_r, balance=balance,
             qty=qty,
+            entry_price_raw=entry_price_raw, exit_price_raw=exit_price_raw,
         )
         await self.send(text)
 

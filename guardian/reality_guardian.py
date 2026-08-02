@@ -382,7 +382,8 @@ def _enqueue_telegram_timeout(symbol, side, hold_hours):
 
 def _enqueue_telegram_close(symbol, side, entry_price, exit_price, qty, pnl,
                               fees, holding_hours, reason, sl=0.0, tp=0.0,
-                              mfe_r=0.0, mae_r=0.0, entry_time=0, exit_time=0):
+                              mfe_r=0.0, mae_r=0.0, entry_time=0, exit_time=0,
+                              entry_price_raw=None, exit_price_raw=None):
     """Fire trade close to Telegram in background thread.
 
     Direct async call with send_trade_close → notify_trade_close generates chart+caption.
@@ -403,7 +404,8 @@ def _enqueue_telegram_close(symbol, side, entry_price, exit_price, qty, pnl,
                     holding_hours=holding_hours, reason=reason,
                     sl=sl, tp=tp,
                     mfe_r=mfe_r, mae_r=mae_r,
-                    entry_time=entry_time, exit_time=exit_time
+                    entry_time=entry_time, exit_time=exit_time,
+                    entry_price_raw=entry_price_raw, exit_price_raw=exit_price_raw
                 ),
                 _tg_loop
             )
@@ -796,6 +798,9 @@ def _record_trade_closure(symbol, state_entry):
     tp_price = 0  # tp not in state, skip
     entry_ts = state_entry.get("entry_time", 0)
     exit_ts = time.time()
+    # RAW prices from Bybit for accurate pnl_pct calculation
+    raw_entry = float(pos.get("avgPrice", 0))
+    raw_exit = close_price
     _enqueue_telegram_close(
         symbol=symbol, side=side,
         entry_price=entry, exit_price=close_price,
@@ -804,7 +809,8 @@ def _record_trade_closure(symbol, state_entry):
         reason=outcome,
         sl=sl_price, tp=tp_price,
         mfe_r=peak_r, mae_r=trough_r,
-        entry_time=entry_ts, exit_time=exit_ts
+        entry_time=entry_ts, exit_time=exit_ts,
+        entry_price_raw=raw_entry, exit_price_raw=raw_exit
     )
 
 

@@ -94,7 +94,9 @@ async def send_trade_close(symbol: str, side: str, entry_price: float,
                           reason: str = "",
                           sl: float = 0.0, tp: float = 0.0,
                           mfe_r: float = 0.0, mae_r: float = 0.0,
-                          entry_time: float = 0, exit_time: float = 0) -> bool:
+                          entry_time: float = 0, exit_time: float = 0,
+                          entry_price_raw: float = None,
+                          exit_price_raw: float = None) -> bool:
     """Send trade close card to Telegram."""
     if not _notifier:
         return False
@@ -118,6 +120,8 @@ async def send_trade_close(symbol: str, side: str, entry_price: float,
             mae_r=mae_r,
             entry_time=et,
             exit_time=xt,
+            entry_price_raw=entry_price_raw,
+            exit_price_raw=exit_price_raw,
             exchange=_exchange,
         )
         return True
