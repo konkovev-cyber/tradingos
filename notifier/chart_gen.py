@@ -233,23 +233,45 @@ def _build(symbol, epx, etm, ext, xtm, side, sl, tp, interval, lev, pnl, kls, **
             all_prices.append(tp)
         y_lo, y_hi = min(all_prices), max(all_prices)
         rng = y_hi - y_lo
-        if rng == 0: rng = max(abs(y_hi), 1.0) * 0.01
 
-        # ADAPTIVE PADDING: smaller for low-volatility (flat) trades
-        # If price moved < 1%, use small padding so candles are visible
-        # If price moved > 5%, use larger padding for readability
-        if epx and epx > 0:
-            price_move_pct = rng / epx * 100
-            if price_move_pct < 1.0:
-                pad_pct = 0.05  # 5% padding for flat trades
-            elif price_move_pct < 5.0:
-                pad_pct = 0.10
+        # CRITICAL: Adaptive Y-axis for OPEN cards (ext=epx) and flat trades
+        if ext is None or abs(ext - epx) < 1e-9:
+            # OPEN card or no movement — use candle range only
+            candle_lo = float(min(df["Low"].values))
+            candle_hi = float(max(df["High"].values))
+            candle_rng = candle_hi - candle_lo
+            if candle_rng > 0:
+                # Candles have variation, use them with small padding
+                pad = candle_rng * 0.3
+                y_lo = candle_lo - pad
+                y_hi = candle_hi + pad
+                # Ensure entry visible
+                y_lo = min(y_lo, epx * 0.999)
+                y_hi = max(y_hi, epx * 1.001)
+                rng = y_hi - y_lo
+            else:
+                # Pure flat — use minimum 0.5% range around entry
+                pad = epx * 0.005
+                y_lo = epx - pad
+                y_hi = epx + pad
+                rng = y_hi - y_lo
+        else:
+            if rng == 0:
+                rng = max(abs(y_hi), 1.0) * 0.01
+
+            # ADAPTIVE PADDING: smaller for low-volatility (flat) trades
+            if epx and epx > 0:
+                price_move_pct = rng / epx * 100
+                if price_move_pct < 1.0:
+                    pad_pct = 0.05  # 5% padding for flat trades
+                elif price_move_pct < 5.0:
+                    pad_pct = 0.10
+                else:
+                    pad_pct = 0.20
             else:
                 pad_pct = 0.20
-        else:
-            pad_pct = 0.20
-        pad = rng * pad_pct
-        y_lo -= pad; y_hi += pad
+            pad = rng * pad_pct
+            y_lo -= pad; y_hi += pad
         
         # ─── FIGURE 800x800 ─────────────────────────────────
         fig = plt.figure(figsize=(8, 8), facecolor=BG, dpi=100)
