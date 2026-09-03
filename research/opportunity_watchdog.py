@@ -50,7 +50,10 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(name)s] %(levelna
 ROOT = Path("/root/tradingos")
 JOURNAL = ROOT / "memory" / "opportunities.jsonl"
 
-FUNDING_THRESHOLD_BPS = 3.0
+# FIX 2026-09-04: скан-порог = гейт-порог (11 bps из manual_session.json
+# funding_min_funding_bps). Раньше 3 bps: всё в диапазоне 3-11 bps сканилось,
+# доходило до гейта и отбрасывалось — спам «(skip)» без шансов на исполнение.
+FUNDING_THRESHOLD_BPS = 11.0
 MIN_TURNOVER_FUNDING = 500_000
 LISTING_AGE_HOURS = 48
 MIN_TURNOVER_LISTING = 5_000_000
@@ -341,7 +344,7 @@ def scan(client: httpx.Client) -> None:
                 text = (f"💸 <b>FUNDING-АНОМАЛИЯ (skip)</b>\n"
                         f"<b>{sym}</b> funding <code>{f_bps:+.1f} bps/8ч</code>\n"
                         f"Цель (3 выплаты): <code>{tp_pct*100:.2f}%</code> &lt; "
-                        f"комиссия round-trip ~{_fee_pct*100:.2f}% — <b>сделка убыточна</b>.\n"
+                        f"комиссия round-trip ~{_fee_pct:.2f}% — <b>сделка убыточна</b>.\n"
                         f"🔒 Исполнение заблокировано: {str(_why).replace('<','&lt;').replace('>','&gt;')}")
                 _log_and_notify(key, text, "funding_skip", sym=None, side=None)
                 continue

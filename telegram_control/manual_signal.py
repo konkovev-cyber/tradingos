@@ -104,7 +104,7 @@ def _funding_tp_ok(funding_bps: float, cfg: dict | None = None) -> tuple[bool, s
     if abs(funding_bps) < min_funding_bps:
         return False, (
             f"funding {abs(funding_bps):.1f} bps < порога {min_funding_bps:.0f} bps — "
-            f"цель не компенсирует комиссию {fee_pct*100:.2f}% при реальном WR (~62-65%)"
+            f"цель не компенсирует комиссию {fee_pct:.2f}% при реальном WR (~62-65%)"
         )
     if abs(funding_bps) > max_funding_bps:
         return False, (
