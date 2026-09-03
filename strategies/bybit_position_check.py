@@ -11,6 +11,22 @@ from typing import Optional, List, Dict
 ENV_PATH = "/root/trading_brain_v4/research/execution/.env"
 
 
+def _api_base() -> str:
+    """2026-08-27: Demo switch — position reads are private (signed) endpoints."""
+    v = (os.environ.get("BYBIT_DEMO", "") or "").strip().lower()
+    if v not in ("1", "true", "yes", "on"):
+        try:
+            with open(ENV_PATH) as f:
+                for line in f:
+                    line = line.strip()
+                    if line.startswith("BYBIT_DEMO="):
+                        v = line.split("=", 1)[1].strip().lower()
+                        break
+        except FileNotFoundError:
+            pass
+    return "https://api-demo.bybit.com" if v in ("1", "true", "yes", "on") else "https://api.bybit.com"
+
+
 def _load_credentials() -> tuple[str, str]:
     """Load Bybit API credentials from isolated execution .env."""
     api_key = ""
@@ -46,11 +62,19 @@ def _get_positions() -> List[Dict]:
         "X-BAPI-RECV-WINDOW": "5000",
     }
     try:
-        resp = httpx.get(f"https://api.bybit.com/v5/position/list?{query}", headers=headers, timeout=10)
+        resp = httpx.get(f"{_api_base()}/v5/position/list?{query}", headers=headers, timeout=10)
         data = resp.json()
         if data.get("retCode") != 0:
             return []
-        return [item for item in data["result"].get("list", []) if float(item.get("size", 0)) > 0]
+        out = []
+        for item in data["result"].get("list", []):
+            try:
+                size = float(item.get("size", 0))
+            except (TypeError, ValueError):
+                size = 0.0
+            if size > 0:
+                out.append(item)
+        return out
     except Exception:
         return []
 
@@ -71,3 +95,24 @@ def count_open_positions() -> int:
 def get_open_position_symbols() -> List[str]:
     """Return list of symbols with open positions."""
     return [p["symbol"] for p in _get_positions()]
+
+
+def get_open_positions_with_side() -> List[Dict]:
+    """Return list of (symbol, side, size) for open positions.
+
+    side: 'Buy' or 'Sell' per Bybit position list.
+    Used by correlation filter to prevent over-concentration in one direction.
+    """
+    out = []
+    for p in _get_positions():
+        sym = p.get("symbol", "")
+        side = p.get("side", "")
+        size = float(p.get("size", 0))
+        if sym and size > 0:
+            out.append({"symbol": sym, "side": side, "size": size})
+    return out
+
+
+def count_open_side(side: str) -> int:
+    """Count open positions in a given direction ('Buy' or 'Sell')."""
+    return sum(1 for p in get_open_positions_with_side() if p["side"] == side)

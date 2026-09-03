@@ -57,6 +57,19 @@ def is_enabled() -> bool:
     return _notifier is not None
 
 
+async def get_raw_send(text: str) -> bool:
+    """Send a raw text message to the configured chat. Used for alerts not tied
+    to a trade card (e.g. PHANTOM_CLOSE)."""
+    if not _notifier:
+        return False
+    try:
+        await _notifier.send(text)
+        return True
+    except Exception as e:
+        log.error(f"get_raw_send failed: {e}")
+        return False
+
+
 async def send_trade_open(symbol: str, side: str, entry_price: float,
                          qty: float, sl: Optional[float] = None,
                          tp: Optional[float] = None,

@@ -19,6 +19,7 @@ import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Optional
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(name)s] %(message)s")
 logger = logging.getLogger("reality_guardian")
@@ -27,26 +28,122 @@ logger = logging.getLogger("reality_guardian")
 GUARDIAN_STATE_PATH = Path("/root/tradingos/guardian/reality_state.json")
 PROFIT_ALERTS_PATH = Path("/root/tradingos/guardian/profit_alerts.jsonl")
 TIMEOUT_ALERTS_PATH = Path("/root/tradingos/guardian/timeout_alerts.jsonl")
+RECOVERY_EVENTS_PATH = Path("/root/tradingos/memory/recovery_events.jsonl")
+INTERVENTION_LOG_PATH = Path("/root/tradingos/memory/process_interventions.jsonl")
 ENV_PATH = "/root/trading_brain_v4/research/execution/.env"
+
+# 2026-08-27: Demo account switch — private endpoints route to api-demo.bybit.com
+# when BYBIT_DEMO=true in ENV_PATH. Public market data (tickers) stays on mainnet.
+def _demo_enabled() -> bool:
+    v = (os.environ.get("BYBIT_DEMO", "") or "").strip().lower()
+    if v in ("1", "true", "yes", "on"):
+        return True
+    try:
+        with open(ENV_PATH) as f:
+            for l in f:
+                l = l.strip()
+                if l.startswith("BYBIT_DEMO="):
+                    return l.split("=", 1)[1].strip().lower() in ("1", "true", "yes", "on")
+    except FileNotFoundError:
+        pass
+    return False
+
+_API_BASE = "https://api-demo.bybit.com" if _demo_enabled() else "https://api.bybit.com"
 
 # Guardian config
 POLL_INTERVAL = 30  # seconds
 MAX_HOLD_HOURS = 48
-BE_THRESHOLD = 0.8  # R multiple to move SL to breakeven
+BE_THRESHOLD = 0.8   # R multiple to move SL to breakeven (2026-09-01: 0.6 срабатывал при MFE 0.2-0.5R ночью — BE запирал позицию в минус; 0.8 = только при реальном движении)
+BE_MIN_PRICE_PCT = 1.5   # ИЛИ +1.5% цены от входа (было 0.5% — срабатывало раньше R-порога на широких стопах и выбивало в минус: ROSE +0.28R MFE → −$0.92)
+BE_LOCK_FRACTION = 0.3   # 2026-08-31: BE переносит SL НЕ на вход, а на вход + 30% от дохода (не в ноль!)
 PARTIAL_THRESHOLD = 1.0  # R multiple to move SL to entry + 0.5*ATR
 TIGHT_THRESHOLD = 1.5  # R multiple to move SL to entry + 1.0*ATR
 
-# ─── Trailing stop (DISABLED until validation completes) ───
-# Why disabled: Reality Pilot v3 validation (decision_criteria_v1.json) requires
-# UNCHANGED exit rules (BE/PARTIAL/TIGHT only). Enabling trailing now would mix
-# two exit regimes and invalidate the BUY-vs-SELL comparison.
-# Enable after 30+ BUY trades collected and LOCKED criteria applied.
-TRAILING_ENABLED = False          # master switch — flip to True post-validation
-TRAIL_DISTANCE_R = 0.5            # SL = peak - 0.5R (locked profit from peak)
-TRAIL_MIN_STEP_R = 0.1            # only move SL when peak gains >= 0.1R (avoid API spam)
-TRAIL_MOVE_TP = True              # also raise TP when trailing: TP = peak + 1.0R
-TRAIL_TP_DISTANCE_R = 1.0         # TP sits 1.0R above peak
-TRAIL_START_AFTER = "TIGHT"       # trailing only active after TIGHT fired
+# ─── Soft-SL Recovery (Rule 3.5a, MANUAL-first, за флагом soft_sl_recovery) ──
+# Когда цена касается sl_soft и выполняется строгое условие отката — даём окно
+# RECOVERY_BARS на восстановление вместо мгновенного закрытия. Пол = FLOOR_BUFFER_R
+# ниже цены arm'а (cap downside). Данные: MAE > MFE структурно → recovery строго
+# conditioned и измеряется (memory/recovery_events.jsonl).
+RECOVERY_BARS = 3           # 3 × 15m = 45 мин recovery-окно
+RECOVERY_BAR_SEC = 900      # 15m
+FLOOR_BUFFER_R = 0.25       # пол на 0.25R ниже цены arm'а (adverse side)
+RSI_OVERSOLD = 30           # LONG recovery при RSI < 30
+RSI_OVERBOUGHT = 70         # SHORT recovery при RSI > 70
+SL_BUFFER_ATR = 0.5         # hard-SL buffer = 0.5 × ATR(M15,14)
+SL_BUFFER_R_CAP = 0.3       # ... но не более 0.3R (лимит доп. убытка)
+
+# ─── Trailing stop (многоступенчатый, 2026-08-30 owner request) ─────────
+# Раньше трейлинг стартовал только после TIGHT (пик ≥1.5R), а между
+# ступенями BE/PARTIAL/TIGHT были большие разрывы: при развороте с 1.2R
+# выходили по SL≈entry+0.5R, теряя до 0.7R прибыли («бу мог забрать больше»).
+# Теперь трейлинг активен СРАЗУ после BE (пик ≥0.8R) и следует за пиком
+# плотно (0.25R), с мелким шагом (0.05R) — забирает максимум на откатах.
+TRAILING_ENABLED = True
+TRAIL_START_AFTER_BE = True      # старт трейлинга после BE (а не после TIGHT)
+TRAIL_DISTANCE_R = 0.50          # SL = peak - 0.50R (широкий зазор — даём позиции жить)
+TRAIL_MIN_STEP_R = 0.10          # двигать SL при росте пика ≥0.10R (крупнее шаг, меньше дерганий)
+TRAIL_MOVE_TP = True             # двигать TP только если он БЫЛ установлен
+TRAIL_TP_DISTANCE_R = 1.0
+
+# ─── Near-TP close (2026-08-30, owner request) ─────────────────────────
+# BE/PARTIAL/TIGHT двигают SL к entry — НО между entry и ценой у TP откат
+# съедает всю прибыль (SL на entry, цена у TP, цена пошла вниз → выходим
+# в ноль). Когда цена дошла до 90% пути к TP — закрываем по рынку сами,
+# реализуя почти полный TP до возможного отката.
+NEAR_TP_CLOSE_ENABLED = True
+NEAR_TP_CLOSE_R = 0.9              # закрыть при r_multiple >= 0.9 × путь-до-TP
+
+# ─── Peak-Reversal exit (2026-08-31, owner вводная) ─────────────────────
+# TP часто в зоне недостижимости (4×ATR при MFE ~1R) — ждать его = отдать
+# 90% пика на откате. Правило: позиция достигла пика >= PEAK_MIN_R, затем
+# откатилась на >= PEAK_REVERSAL_GIVEBACK от пика → закрываем по рынку.
+PEAK_REVERSAL_ENABLED = True
+PEAK_MIN_R = 1.0                    # значимый пик: >= +1R
+PEAK_REVERSAL_GIVEBACK = 0.6        # откат >= 0.6R от пика = разворот начался (широкий зазор)
+
+# ─── Time-stop for stale losers (2026-08-31) ─────────────────────────────
+# GMT/ROSE висели часами в минусе (mfe <0.1R, mae −0.8R), занимая anti-слоты
+# и блокируя корреляционно все новые SELL. Исследование: 62% SL-сделок идут
+# дальше против — «ждать отскока» для позиции без пика вредно. Если позиция
+# ≥ STALE_HOURS в минусе (MAE ≤ −STALE_MAE_R) и пик был мизерный — закрываем.
+# ─── Time-stop — ОТКЛЮЧЁН (2026-08-31 owner) ─────────────────────────────
+# Владелец: «ручное закрытие в минусе — это ТВОЁ, не моё; недопустимо».
+# TIME-STOP сам фиксировал убытки (GMT/ROSE −$24). Убытки фиксирует ТОЛЬКО
+# stop-loss на бирже. Система закрывает ТОЛЬКО с прибылью (BE/трейлинг/
+# peak-reversal/NEAR-TP).
+TIME_STOP_ENABLED = False           # ВЫКЛЮЧЕНО владельцем
+TIME_STOP_HOURS = 2.0               # (неактивно)
+TIME_STOP_MAE_R = -0.5              # (неактивно)
+TIME_STOP_PEAK_R = 0.3              # (неактивно)
+
+
+def _read_config_version() -> str:
+    """Read the active config_version from trading_mode.json for record attribution.
+    Returns "unknown" if the file is missing or the field is absent."""
+    try:
+        from pathlib import Path
+        cfg_path = Path("/root/tradingos/operations/trading_mode.json")
+        if not cfg_path.exists():
+            return "unknown"
+        cfg = json.loads(cfg_path.read_text())
+        return cfg.get("config_version", "unknown")
+    except Exception:
+        return "unknown"
+
+
+def _safe_float(v, default: float = 0.0) -> float:
+    """FIX 2026-08-24: Bybit returns "" for some numeric fields during sync windows.
+
+    Without this, float("") raises and the closure pipeline bubbles the
+    exception, the symbol stays in guardian state, and the Guardian loop
+    resends the same Telegram close-notification every poll (TQQQ incident).
+    """
+    if v == "" or v is None:
+        return default
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return default
 
 
 def _load_credentials():
@@ -92,7 +189,7 @@ def _get_live_positions():
     for attempt in range(2):
         try:
             r = httpx.get(
-                f"https://api.bybit.com/v5/position/list?{q}",
+                f"{_API_BASE}/v5/position/list?{q}",
                 headers=headers,
                 timeout=10,
             )
@@ -164,21 +261,27 @@ def _get_ticker(symbol):
     return 0
 
 
-def _set_trading_stop(symbol, stop_loss=None, take_profit=None):
+def _set_trading_stop(symbol, stop_loss=None, take_profit=None,
+                      sl_trigger_by=None, tp_trigger_by=None):
     """Call Bybit set_trading_stop to modify SL/TP on live position.
-    Uses BybitClient for correct POST signing (raw HMAC doesn't work for POST)."""
+    Uses BybitClient for correct POST signing (raw HMAC doesn't work for POST).
+    sl_trigger_by/tp_trigger_by: "LastPrice" | "MarkPrice" | "IndexPrice"."""
     try:
         sys.path.insert(0, "/root/trading_brain_v4")
         from exchange.bybit.client import BybitClient
         ak, as_ = _load_credentials()
         if not ak or not as_:
             return False
-        client = BybitClient(api_key=ak, api_secret=as_, testnet=False)
+        client = BybitClient(api_key=ak, api_secret=as_, testnet=False, demo=_demo_enabled())
         params = {"symbol": symbol, "category": "linear", "position_idx": 0}
         if stop_loss is not None:
             params["stop_loss"] = str(stop_loss)
+            if sl_trigger_by:
+                params["sl_trigger_by"] = sl_trigger_by
         if take_profit is not None:
             params["take_profit"] = str(take_profit)
+            if tp_trigger_by:
+                params["tp_trigger_by"] = tp_trigger_by
         result = client.set_trading_stop(**params)
         if result.get("retCode") == 0:
             logger.info(f"✅ Guardian SL/TP updated for {symbol}: SL={stop_loss} TP={take_profit}")
@@ -188,6 +291,230 @@ def _set_trading_stop(symbol, stop_loss=None, take_profit=None):
             return False
     except Exception as e:
         logger.error(f"❌ Bybit API error on {symbol}: {e}")
+        return False
+
+
+def _create_reduce_only_order(symbol, side, quantity, order_type="Market"):
+    """Создать reduce-only ордер для частичного закрытия позиции (T5 Partial TP).
+    
+    side: "Buy" или "Sell" (противоположно позиции — LONG закрывает SELL).
+    quantity: количество для закрытия (50% от позиции).
+    Возвращает True если ордер создан успешно."""
+    try:
+        sys.path.insert(0, "/root/trading_brain_v4")
+        from exchange.bybit.client import BybitClient
+        ak, as_ = _load_credentials()
+        if not ak or not as_:
+            return False
+        client = BybitClient(api_key=ak, api_secret=as_, testnet=False, demo=_demo_enabled())
+        close_side = "Sell" if side == "Buy" else "Buy"  # противоположно позиции
+        # FIX 2026-09-02: округляем qty вниз к кратному шагу биржи.
+        # 50% позиции = 1189.5 при шаге 1.0 → невалидно (Bybit "Qty invalid").
+        # Достаём qtyStep из instruments-info и округляем вниз через Decimal.
+        try:
+            _import_httpx = __import__("httpx")
+            _base = "https://api.bybit.com" if not _demo_enabled() else "https://api-demo.bybit.com"
+            _r = _import_httpx.get(
+                _base + "/v5/market/instruments-info",
+                params={"category": "linear", "symbol": symbol}, timeout=8)
+            _lot = ((_r.json().get("result") or {}).get("list") or [{}])[0].get("lotSizeFilter", {})
+            _qstep = float(_lot.get("qtyStep", 1.0) or 1.0)
+        except Exception:
+            _qstep = 1.0
+        if _qstep > 0:
+            from decimal import Decimal, ROUND_DOWN
+            _sd = Decimal(str(_qstep)).normalize()
+            quantity = float(Decimal(str(quantity)).quantize(_sd, rounding=ROUND_DOWN))
+        # Не меньше 1 единицы (мин. ордер)
+        if quantity < 1:
+            quantity = 1
+        params = {
+            "symbol": symbol,
+            "side": close_side,
+            "quantity": quantity,      # create_order арг: quantity (не qty)
+            "order_type": order_type,  # create_order арг: order_type (не orderType)
+            "category": "linear",
+            "position_idx": 0,
+        }
+        # reduce_only через новый параметр create_order
+        # FIX 2026-09-02: Bybit возвращает {"orderId": ...} БЕЗ retCode поля при успехе.
+        # Проверка `result.get("retCode") == 0` была ложноположительной → Partial TP
+        # считался упавшим и спамил в лог, хотя ордер исполнялся.
+        result = client.create_order(**params, reduce_only=True)
+        ok = ("orderId" in result and result.get("orderId")) or result.get("retCode") == 0
+        if ok:
+            logger.info(f"✅ PARTIAL TP: reduce-only {order_type} {quantity} {symbol} ({close_side})")
+            return True
+        else:
+            logger.error(f"❌ Partial TP failed for {symbol}: {result.get('retMsg', result.get('retCode', '?'))}")
+            return False
+    except Exception as e:
+        logger.error(f"❌ Partial TP error on {symbol}: {e}")
+        return False
+
+
+def _momentum_decayed(symbol: str, side: str) -> bool:
+    """Грубая прокси momentum decay: последние 3 закрытых 15m бара против входа.
+
+    Использует replay_cache (тот же источник, что engine_v2). Если данных нет —
+    консервативно False (не закрываем по незнанию).
+    """
+    try:
+        import pandas as pd
+        p = Path("/root/tradingos/replay_cache") / f"{symbol}_M15.parquet"
+        if not p.exists():
+            return False
+        df = pd.read_parquet(p).sort_values("ts").drop_duplicates("ts")
+        if df["ts"].iloc[0] > 1e12:
+            df["ts"] = df["ts"] / 1000
+        last3 = df.tail(3)
+        if len(last3) < 3:
+            return False
+        up = str(side).lower().startswith("buy")
+        against = 0
+        for _, b in last3.iterrows():
+            if up and b["c"] < b["o"]:
+                against += 1
+            elif not up and b["c"] > b["o"]:
+                against += 1
+        return against >= 2
+    except Exception:
+        return False
+
+
+# ─── Soft-SL Recovery helpers (Rule 3.5a) ─────────────────────────────
+def _load_m15_df(symbol: str):
+    """Загрузить M15 replay-данные (колонки ts,o,h,l,c,v). None если нет."""
+    try:
+        import pandas as pd
+        p = Path("/root/tradingos/replay_cache") / f"{symbol}_M15.parquet"
+        if not p.exists():
+            return None
+        df = pd.read_parquet(p).sort_values("ts").drop_duplicates("ts")
+        if df["ts"].iloc[0] > 1e12:
+            df["ts"] = df["ts"] / 1000
+        return df
+    except Exception:
+        return None
+
+
+def _atr_m15(symbol: str, period: int = 14) -> float:
+    """ATR(M15, period) по закрытым барам. 0 если данных нет."""
+    df = _load_m15_df(symbol)
+    if df is None or len(df) < period + 1:
+        return 0.0
+    import pandas as pd
+    h, l, c = df["h"], df["l"], df["c"]
+    pc = c.shift(1)
+    tr = pd.concat([(h - l), (h - pc).abs(), (l - pc).abs()], axis=1).max(axis=1)
+    return float(tr.rolling(period).mean().iloc[-1])
+
+
+def _rsi_m15(symbol: str, period: int = 14) -> float:
+    """RSI(14, M15) по закрытым барам. 50 если данных нет (нейтрально)."""
+    df = _load_m15_df(symbol)
+    if df is None or len(df) < period + 1:
+        return 50.0
+    delta = df["c"].diff()
+    up = delta.clip(lower=0).rolling(period).mean()
+    down = (-delta.clip(upper=0)).rolling(period).mean()
+    rs = up / down.replace(0, 1e-9)
+    return float(100 - 100 / (1 + rs.iloc[-1]))
+
+
+def _recovery_condition(symbol: str, side: str, sl_soft: float, current: float) -> Optional[str]:
+    """Строгое условие recovery-арма. Возвращает имя условия или None.
+
+    - "wick": последняя закрытая M15 проткнула sl_soft (low/high), а текущая цена
+      уже вернулась за него — классический wick-прокол, шанс отката есть.
+    - "oversold(rsi=N)" / "overbought(rsi=N)": цена ПРОТИВ входа и RSI экстремален
+      (шанс отскока). Пол 0.25R ограничивает downside.
+
+    Из-за MAE>MFE не arm'им вслепую: без подтверждённого прокола/экстремума — None.
+    """
+    is_buy = str(side).lower().startswith("buy")
+    df = _load_m15_df(symbol)
+    if df is not None and len(df) >= 1:
+        last = df.iloc[-1]
+        touched = (float(last["l"]) <= sl_soft) if is_buy else (float(last["h"]) >= sl_soft)
+        returned = (current >= sl_soft) if is_buy else (current <= sl_soft)
+        if touched and returned:
+            return "wick"
+    rsi = _rsi_m15(symbol)
+    if is_buy and current <= sl_soft and rsi < RSI_OVERSOLD:
+        return f"oversold(rsi={rsi:.0f})"
+    if not is_buy and current >= sl_soft and rsi > RSI_OVERBOUGHT:
+        return f"overbought(rsi={rsi:.0f})"
+    return None
+
+
+def _sl_hard_buffer(symbol: str, risk_per_unit: float) -> float:
+    """Buffer для hard SL = min(0.5×ATR(M15,14), 0.3R). 0 если нет данных."""
+    atr = _atr_m15(symbol)
+    buf = 0.5 * atr
+    cap = risk_per_unit * SL_BUFFER_R_CAP
+    return min(buf, cap) if cap > 0 else buf
+
+
+def _log_recovery_event(rec):
+    """Append recovery event (ARM/SOFT_SL/FLOOR/TIMEOUT/RECOVERED/HARD_SL)."""
+    RECOVERY_EVENTS_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with open(RECOVERY_EVENTS_PATH, "a") as f:
+        f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+
+
+def _close_position(symbol: str, side: str, qty: float) -> bool:
+    """Market-close позиции reduce-only (raw signed POST).
+
+    ВАЖНО: BybitClient.create_order НЕ поддерживает reduceOnly — market close
+    через него РАЗВОРАЧИВАЕТ позицию (FHE case 2026-08-08: Sell 428 flipped
+    BUY→SHORT). Поэтому закрываем напрямую с reduceOnly=true.
+    """
+    try:
+        import hashlib
+        import hmac
+        import urllib.parse
+        import httpx
+        ak, as_ = _load_credentials()
+        if not ak or not as_:
+            return False
+        ts = int(time.time() * 1000)
+        recv_window = "5000"
+        # F3 hardening: закрытие позиции — execution boundary. Неизвестный side
+        # → skip close (reduceOnly ограничивает ущерб, но не угадываем Buy/Sell).
+        _sd = str(side).lower()
+        if _sd.startswith("buy"):
+            close_side = "Sell"
+        elif _sd.startswith("sell"):
+            close_side = "Buy"
+        else:
+            logger.warning(f"close_guard: invalid side {side!r} — close skipped")
+            return False
+        body = urllib.parse.urlencode({
+            "category": "linear", "symbol": symbol,
+            "side": close_side, "orderType": "Market",
+            "qty": str(qty), "reduceOnly": "true",
+            "positionIdx": "0",
+        })
+        payload = f"{ts}{ak}{recv_window}{body}"
+        sign = hmac.new(as_.encode(), payload.encode(), hashlib.sha256).hexdigest()
+        headers = {
+            "X-BAPI-API-KEY": ak,
+            "X-BAPI-TIMESTAMP": str(ts),
+            "X-BAPI-RECV-WINDOW": recv_window,
+            "X-BAPI-SIGN": sign,
+            "Content-Type": "application/x-www-form-urlencoded",
+        }
+        r = httpx.post(f"{_API_BASE}/v5/order/create",
+                       content=body, headers=headers, timeout=10)
+        res = r.json()
+        if res.get("retCode") == 0:
+            logger.info(f"✅ GUARDIAN CLOSE: {symbol} {close_side} qty={qty} reduceOnly")
+            return True
+        logger.error(f"❌ GUARDIAN CLOSE FAIL {symbol}: {res.get('retMsg', '?')}")
+        return False
+    except Exception as e:
+        logger.error(f"❌ GUARDIAN CLOSE ERROR {symbol}: {e}")
         return False
 
 
@@ -206,6 +533,65 @@ def _load_guardian_state():
         return data
     except Exception:
         return {}
+
+
+def manual_close_allowed(symbol: str, reason: str = "", current_price: float = 0.0) -> tuple[bool, str]:
+    """T84 + 2026-08-31 owner: запрет ручного закрытия в УБЫТКЕ.
+
+    Два слоя:
+    1. T84: AUTO-позиция с активной лестницей (BE/PARTIAL/TIGHT) не закрывается
+       вручную (терялись профиты TQQQ/TSLA/META) — кроме аварий.
+    2. НОВОЕ (owner 2026-08-31): ЛЮБОЕ закрытие в минусе запрещено по умолчанию.
+       Позиция в минусе = решение guardian (SL/time-stop) или владелец ждёт.
+       Убыток фиксируется только системой, не эмоцией.
+       Исключения: PANIC / EXCHANGE_FAILURE / EMERGENCY / TECHNICAL.
+
+    Возвращает (allowed, reason_for_block)."""
+    st = _load_guardian_state().get(symbol) or {}
+    source = st.get("source", "AUTO")
+    armed = bool(st.get("be_fired") or st.get("partial_fired") or st.get("tight_fired"))
+    r = (reason or "").upper()
+    if r in ("PANIC", "EXCHANGE_FAILURE", "EMERGENCY", "TECHNICAL"):
+        return True, ""
+    # Правило 2: ручное закрытие в минусе запрещено (owner 2026-08-31)
+    if current_price > 0 and st:
+        entry = float(st.get("entry", 0) or 0)
+        side = str(st.get("side", "")).lower()
+        if entry > 0 and side:
+            is_loss = (current_price < entry) if side.startswith("buy") else (current_price > entry)
+            if is_loss:
+                return False, (
+                    f"позиция {symbol} в УБЫТКЕ — закрытие вручную запрещено "
+                    f"(owner 2026-08-31). Stop-loss/guardian решат сами. "
+                    f"Аварийно: PANIC {symbol}"
+                )
+    if source == "MANUAL":
+        return True, ""
+    if not armed:
+        return True, ""  # лестница не активирована — закрытие разрешено
+    # PROCESS_INTERVENTION: фиксируем попытку ручного закрытия AUTO с лестницей
+    try:
+        rec = {
+            "event": "PROCESS_INTERVENTION_BLOCKED",
+            "ts": datetime.now(timezone.utc).isoformat(),
+            "symbol": symbol,
+            "source": source,
+            "reason": reason,
+            "be_fired": st.get("be_fired"),
+            "partial_fired": st.get("partial_fired"),
+            "tight_fired": st.get("tight_fired"),
+        }
+        INTERVENTION_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+        with INTERVENTION_LOG_PATH.open("a") as f:
+            f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+    except Exception:
+        pass
+    return (False,
+            f"MANUAL_CLOSE_BLOCKED: {symbol} — защитная лестница активна "
+            f"(BE={st.get('be_fired')} PARTIAL={st.get('partial_fired')} "
+            f"TIGHT={st.get('tight_fired')}). Ручное закрытие AUTO-позиции после "
+            f"активации защиты запрещено (T84, T58: оператор уничтожал MFE). "
+            f"Используйте PANIC/EMERGENCY только при реальной аварии.")
 
 
 def _save_guardian_state(state):
@@ -348,30 +734,13 @@ def _enqueue_telegram_event(event_type, symbol, side, entry, new_sl, r, peak_r,
     threading.Thread(target=runner, daemon=True).start()
 
 
-def _enqueue_telegram_open(symbol, side, entry_price, qty, sl, tp, reason="", leverage=1):
-    """Fire trade open to Telegram in background thread."""
-    _ensure_telegram_started()
-    if not _tg_ready:
-        logger.warning(f"TG fire OPEN skipped (not ready): {symbol}")
-        return
-    import threading
-    def runner():
-        try:
-            from tradingos.guardian.telegram_notifier import send_trade_open
-            fut = asyncio.run_coroutine_threadsafe(
-                send_trade_open(
-                    symbol=symbol, side=side,
-                    entry_price=entry_price, qty=qty,
-                    sl=sl, tp=tp, reason=reason,
-                    leverage=leverage
-                ),
-                _tg_loop
-            )
-            fut.result(timeout=60)
-            logger.info(f"TG open sent for {symbol}")
-        except Exception as e:
-            logger.error(f"Telegram open send failed: {e}")
-    threading.Thread(target=runner, daemon=True).start()
+def _enqueue_telegram_open(symbol, side, entry_price, qty, sl, tp, reason="", leverage=1, entry_time=0):
+    """OPEN-карточка теперь шлётся из observation-цикла (там есть prob/score/adx).
+
+    Здесь НЕ дублируем — иначе в Telegram приходит два одинаковых уведомления.
+    Оставлена для обратной совместимости (сигнатура сохраняется).
+    """
+    logger.info(f"TG open skipped (observation loop sends it): {symbol} {side}")
 
 
 def _enqueue_telegram_timeout(symbol, side, hold_hours):
@@ -392,6 +761,35 @@ def _enqueue_telegram_timeout(symbol, side, hold_hours):
             logger.info(f"TG timeout sent for {symbol}")
         except Exception as e:
             logger.error(f"Telegram timeout send failed: {e}")
+    threading.Thread(target=runner, daemon=True).start()
+
+
+# FIX 2026-08-31: дедуп phantom-уведомлений (не чаще 1/15 мин на символ)
+_phantom_alert_ts: dict = {}
+
+
+def _enqueue_telegram_phantom(symbol: str):
+    """Fire PHANTOM CLOSE alert to Telegram (position missing from poll but alive on exchange)."""
+    _ensure_telegram_started()
+    if not _tg_ready:
+        logger.warning(f"TG PHANTOM skipped (not ready): {symbol}")
+        return
+    import threading
+    def runner():
+        try:
+            from tradingos.guardian.telegram_notifier import get_raw_send
+            fut = asyncio.run_coroutine_threadsafe(
+                get_raw_send(
+                    f"👻 <b>PHANTOM CLOSE</b>\n"
+                    f"{symbol} исчез из опроса, но жив на бирже.\n"
+                    f"Закрытие НЕ записано. Проверьте вручную."
+                ),
+                _tg_loop
+            )
+            fut.result(timeout=30)
+            logger.info(f"TG PHANTOM sent for {symbol}")
+        except Exception as e:
+            logger.error(f"Telegram phantom send failed: {e}")
     threading.Thread(target=runner, daemon=True).start()
 
 
@@ -451,14 +849,24 @@ def _process_position(pos, state):
     side = pos["side"]
     size = float(pos["size"])
     entry = float(pos["avgPrice"])
-    sl = float(pos.get("stopLoss", 0))
-    tp = float(pos.get("takeProfit", 0))
+    sl = _safe_float(pos.get("stopLoss", 0))
+    tp = _safe_float(pos.get("takeProfit", 0))
     current = _get_ticker(symbol)
     if current == 0:
         current = float(pos.get("markPrice", entry))
 
-    # Compute R-multiple based on risk from SL
-    risk_per_unit = abs(entry - sl) if sl > 0 else abs(entry - tp) / 2 if tp > 0 else 0
+    # Compute R-multiple based on risk from SL.
+    # CRITICAL FIX 2026-08-03: use ORIGINAL entry-to-SL risk, NOT current SL.
+    # After BE fires, SL moves to entry → abs(entry - sl) ≈ 0 → r_multiple explodes
+    # (PLUME showed 19.6R instead of ~1.5R). entry_to_sl_risk is stored on first
+    # sight of the position and never changes.
+    sym_state_pre = state.get(symbol)
+    original_risk = None
+    if isinstance(sym_state_pre, dict):
+        original_risk = sym_state_pre.get("entry_to_sl_risk", 0)
+    risk_per_unit = original_risk if original_risk and original_risk > 0 else (
+        abs(entry - sl) if sl > 0 else abs(entry - tp) / 2 if tp > 0 else 0
+    )
     if risk_per_unit <= 0:
         return state  # Return current state, NOT None
 
@@ -475,14 +883,45 @@ def _process_position(pos, state):
     is_new_position = sym_state is None or not isinstance(sym_state, dict)
     if is_new_position:
         sym_state = {"be_fired": False, "partial_fired": False, "tight_fired": False, "mfe_peak": 0.0}
+        # Задача 1: пометка источника — MANUAL-позиции зарегистрированы с
+        # source="MANUAL" (см. manual_signal._place_market_order). Если state
+        # создаётся guardian'ом впервые, но символ есть в manual журнале — тоже MANUAL.
+        if sym_state.get("source") != "MANUAL":
+            try:
+                _mj = Path("/root/tradingos/memory/manual_signals.jsonl")
+                if _mj.exists():
+                    for _l in reversed(_mj.read_text(errors="replace").splitlines()):
+                        if not _l.strip():
+                            continue
+                        try:
+                            _r = json.loads(_l)
+                        except Exception:
+                            continue
+                        if _r.get("symbol") == symbol and _r.get("event") == "EXECUTED":
+                            sym_state["source"] = "MANUAL"
+                            break
+            except Exception:
+                pass
 
     # Store initial risk per unit for later "saved amount" calculation
     sym_state["entry_to_sl_risk"] = risk_per_unit
     sym_state["side"] = side
     sym_state["entry"] = entry
     sym_state["size"] = size
+    # Сохраняем исходные SL/TP для честной классификации закрытия по факту
+    # (2026-08-08: раньше outcome считался эвристикой по entry/close, из-за чего
+    # ручное закрытие ACX классифицировалось как ложный "TP").
+    sym_state["sl_initial"] = sl
+    sym_state["tp_initial"] = tp
     # Store entry_time for chart generation
-    open_time = float(pos.get("createdTime", time.time() * 1000)) / 1000
+    # FIX 2026-08-04: use openTime (real position open time), NOT createdTime.
+    # Bybit createdTime = position-id creation (artifact from past VETUSDT trades
+    # on same account) → hold_hours computed as 124.5h for a position opened today.
+    open_time = float(pos.get("openTime", 0) or 0) / 1000
+    if open_time <= 0:
+        open_time = float(pos.get("createdTime", 0) or 0) / 1000
+    if open_time <= 0:
+        open_time = time.time()
     sym_state["entry_time"] = open_time
 
     # Read real leverage from position
@@ -497,7 +936,7 @@ def _process_position(pos, state):
             symbol=symbol, side=side,
             entry_price=entry, qty=size,
             sl=sl, tp=tp, reason="OPEN",
-            leverage=real_leverage
+            leverage=real_leverage, entry_time=open_time
         )
         logger.info(f"🟢 OPEN detected: {symbol} {side} @ {entry} qty={size} lev={real_leverage}x SL={sl} TP={tp}")
 
@@ -511,17 +950,216 @@ def _process_position(pos, state):
 
     actions = []
 
-    # Rule 1: BE at +0.8R (trigger on PEAK R, not current R — SHIB proved that price reverses between polls)
-    if sym_state["mfe_peak"] >= BE_THRESHOLD and not sym_state.get("be_fired", False):
-        # Move SL to entry (breakeven)
-        new_sl = entry
+    # ── Rule 3.5a: SOFT-SL RECOVERY (за флагом soft_sl_recovery, MANUAL-first) ──
+    # Когда цена касается расчётного sl_soft — не закрываем сразу: при подтверждённом
+    # сигнале отката (rebound + wick/oversold) даём окно RECOVERY_BARS на восстановление.
+    # Без подтверждения — обычный SL (SOFT_SL). Пол = FLOOR_BUFFER_R ниже цены arm'а.
+    # Зеркало giveback-TAKE (Rule 3.5b) для убыточной стороны. Флаг OFF → поведения нет.
+    recovery_active = False
+    try:
+        _msp = Path("/root/tradingos/operations/manual_session.json")
+        if _msp.exists():
+            _soft_sl_recovery = bool(json.load(open(_msp)).get("soft_sl_recovery", False))
+        else:
+            _soft_sl_recovery = False
+    except Exception:
+        _soft_sl_recovery = False
+    # S1 fix: после ARM recovery_attempted=True, но recovery_state ещё активен.
+    # Старое условие `not recovery_attempted` пропускало весь блок → оценка
+    # RECOVERED/FLOOR/TIMEOUT (else-ветка ниже) никогда не выполнялась.
+    # Теперь блок выполняется также при активном recovery_state. Arm-часть
+    # защищена `if recovery is None` (стр. 782) → повторного arm не будет.
+    if _soft_sl_recovery and (
+        not sym_state.get("recovery_attempted", False)
+        or sym_state.get("recovery_state") is not None
+    ):
+        sl_soft = sym_state.get("sl_soft", 0) or sl or 0
+        sl_hard = sym_state.get("sl_hard", 0) or 0
+        # FIX 2026-08-31 (owner: не зарубать рано): reality-позиции ставятся без
+        # sl_hard (только trade_executor → SL). Для них hard = soft (не расширяем
+        # стоп, но даём recovery-окно на той же цене).
+        if sl_soft > 0 and sl_hard == 0:
+            sl_hard = sl_soft
+        is_buy = str(side).lower().startswith("buy")
+        if sl_soft > 0:
+            touch = (current <= sl_soft) if is_buy else (current >= sl_soft)
+            # Wick-возврат: цена уже вернулась за sl_soft, но последняя свеча его
+            # проткнула — именно этот случай «проткнуло и отскочило» ловим.
+            _wick_touch = False
+            _df = _load_m15_df(symbol)
+            if _df is not None and len(_df) >= 1:
+                _last = _df.iloc[-1]
+                _wick_touch = (float(_last["l"]) <= sl_soft) if is_buy else (float(_last["h"]) >= sl_soft)
+            if touch or _wick_touch:
+                recovery = sym_state.get("recovery_state")
+                if recovery is None:
+                    cond = _recovery_condition(symbol, side, sl_soft, current)
+                    if cond and sl_hard > 0:
+                        floor = (current - FLOOR_BUFFER_R * risk_per_unit
+                                 if is_buy else current + FLOOR_BUFFER_R * risk_per_unit)
+                        # Расширяем exchange SL до safety net (MarkPrice игнорирует wicks)
+                        if _set_trading_stop(symbol, stop_loss=sl_hard, sl_trigger_by="MarkPrice"):
+                            sym_state["recovery_state"] = {
+                                "armed_at": time.time(),
+                                "floor": floor,
+                                "deadline": time.time() + RECOVERY_BARS * RECOVERY_BAR_SEC,
+                                "condition": cond,
+                                "r_at_arm": r_multiple,
+                            }
+                            sym_state["recovery_attempted"] = True
+                            recovery_active = True
+                            actions.append(
+                                f"SOFT-SL RECOVERY armed ({cond}) floor={floor:.6g} "
+                                f"deadline={RECOVERY_BARS*RECOVERY_BAR_SEC/60:.0f}min"
+                            )
+                            logger.warning(
+                                f"🛟 SOFT-SL RECOVERY armed: {symbol} {side} cond={cond} "
+                                f"sl_soft={sl_soft:.6g} floor={floor:.6g}"
+                            )
+                            _log_recovery_event({
+                                "ts": datetime.now(timezone.utc).isoformat(),
+                                "symbol": symbol, "side": side, "event": "ARM",
+                                "condition": cond, "r_at_event": round(r_multiple, 3),
+                                "price": current, "sl_soft": sl_soft, "sl_hard": sl_hard,
+                                "floor": floor, "source": sym_state.get("source", "?"),
+                            })
+                        else:
+                            # Не смогли расширить SL — закрываем как обычный SL
+                            if _close_position(symbol, side, size):
+                                sym_state["recovery_attempted"] = True
+                                sym_state["recovery_outcome"] = "SOFT_SL"
+                                _log_recovery_event({
+                                    "ts": datetime.now(timezone.utc).isoformat(),
+                                    "symbol": symbol, "side": side, "event": "SOFT_SL",
+                                    "r_at_event": round(r_multiple, 3), "price": current,
+                                    "sl_soft": sl_soft, "sl_hard": sl_hard,
+                                    "condition": None, "source": sym_state.get("source", "?"),
+                                })
+                                actions.append("SOFT-SL: нет recovery (не удалось расширить SL) → closed")
+                                logger.warning(f"🛑 SOFT-SL {symbol}: recovery невозможно (set_trading_stop fail), closed")
+                                return state
+                    else:
+                        # Условие не выполнено → обычный SL
+                        if _close_position(symbol, side, size):
+                            sym_state["recovery_attempted"] = True
+                            sym_state["recovery_outcome"] = "SOFT_SL"
+                            _log_recovery_event({
+                                "ts": datetime.now(timezone.utc).isoformat(),
+                                "symbol": symbol, "side": side, "event": "SOFT_SL",
+                                "r_at_event": round(r_multiple, 3), "price": current,
+                                "sl_soft": sl_soft, "sl_hard": sl_hard,
+                                "condition": None, "source": sym_state.get("source", "?"),
+                            })
+                            actions.append("SOFT-SL: касание sl_soft без recovery-условия → closed")
+                            logger.warning(f"🛑 SOFT-SL {symbol}: {side} touch sl_soft={sl_soft:.6g}, нет условия отката, closed")
+                            return state
+                else:
+                    # Recovery armed — оцениваем исходы каждый poll
+                    now = time.time()
+                    rec_floor = float(recovery.get("floor", 0) or 0)
+                    deadline = float(recovery.get("deadline", 0) or 0)
+                    recovered = (current >= entry) if is_buy else (current <= entry)
+                    hit_floor = (current <= rec_floor) if is_buy else (current >= rec_floor)
+                    cond = recovery.get("condition", "?")
+                    if recovered:
+                        sym_state["recovery_state"] = None
+                        sym_state["recovery_outcome"] = "RECOVERED"
+                        recovery_active = False
+                        actions.append(f"SOFT-SL RECOVERY: RECOVERED (r={r_multiple:+.2f})")
+                        logger.info(f"🛟 {symbol} recovery RECOVERED (r={r_multiple:+.2f})")
+                        _log_recovery_event({
+                            "ts": datetime.now(timezone.utc).isoformat(),
+                            "symbol": symbol, "side": side, "event": "RECOVERED",
+                            "condition": cond, "r_at_event": round(r_multiple, 3),
+                            "price": current, "sl_soft": sl_soft, "sl_hard": sl_hard,
+                            "floor": rec_floor, "source": sym_state.get("source", "?"),
+                        })
+                    elif hit_floor:
+                        if _close_position(symbol, side, size):
+                            sym_state["recovery_attempted"] = True
+                            sym_state["recovery_outcome"] = "RECOVERY_FLOOR"
+                            _log_recovery_event({
+                                "ts": datetime.now(timezone.utc).isoformat(),
+                                "symbol": symbol, "side": side, "event": "RECOVERY_FLOOR",
+                                "condition": cond, "r_at_event": round(r_multiple, 3),
+                                "price": current, "sl_soft": sl_soft, "sl_hard": sl_hard,
+                                "floor": rec_floor, "source": sym_state.get("source", "?"),
+                            })
+                            actions.append(f"SOFT-SL RECOVERY: FLOOR hit ({rec_floor:.6g}) → closed")
+                            logger.warning(f"🛑 {symbol} recovery FLOOR hit, closed (r={r_multiple:+.2f})")
+                            return state
+                    elif now > deadline:
+                        if _close_position(symbol, side, size):
+                            sym_state["recovery_attempted"] = True
+                            sym_state["recovery_outcome"] = "RECOVERY_TIMEOUT"
+                            _log_recovery_event({
+                                "ts": datetime.now(timezone.utc).isoformat(),
+                                "symbol": symbol, "side": side, "event": "RECOVERY_TIMEOUT",
+                                "condition": cond, "r_at_event": round(r_multiple, 3),
+                                "price": current, "sl_soft": sl_soft, "sl_hard": sl_hard,
+                                "floor": rec_floor, "source": sym_state.get("source", "?"),
+                            })
+                            actions.append(f"SOFT-SL RECOVERY: TIMEOUT ({RECOVERY_BARS*RECOVERY_BAR_SEC/60:.0f}min) → closed")
+                            logger.warning(f"🛑 {symbol} recovery TIMEOUT, closed (r={r_multiple:+.2f})")
+                            return state
+                    else:
+                        # Продолжаем ждать откат — подавляем BE/Partial/Tight/Trail
+                        recovery_active = True
+
+    # Rule 1: BE — гибридный порог (2026-08-30 owner fix)
+    # Старый порог 0.8R требовал движения = 80% дистанции до SL. Для широких
+    # стопов (PUMPFUN: SL 3.86% от входа) это 3% цены — недостижимо, хотя
+    # +1.5% уже в кармане. Новый порог: срабатывает при max(0.4R, +0.5% цены).
+    # 0.5% цены отсекает шум, 0.4R — не даёт BE забыть на тесных стопах.
+    # Управляется константой BE_THRESHOLD (0.4) и BE_MIN_PRICE_PCT (0.5).
+    _be_r = float(BE_THRESHOLD)
+    _be_pct = float(BE_MIN_PRICE_PCT)
+    try:
+        _be_cfg = json.loads(Path("/root/tradingos/operations/trading_mode.json").read_text())
+        _be_r = float(_be_cfg.get("be_threshold_r", BE_THRESHOLD) or BE_THRESHOLD)
+        _be_pct = float(_be_cfg.get("be_min_price_pct", BE_MIN_PRICE_PCT) or BE_MIN_PRICE_PCT)
+    except Exception:
+        pass
+    _mfe_pct_price = (sym_state["mfe_peak"] * risk_per_unit) / entry * 100 if entry and risk_per_unit else 0.0
+    _be_triggered = (sym_state["mfe_peak"] >= _be_r) or (_mfe_pct_price >= _be_pct)
+    if not recovery_active and _be_triggered and not sym_state.get("be_fired", False):
+        # Move SL к безубытку с ЗАХВАТОМ части прибыли (2026-08-31 owner fix).
+        # Проблема A (2026-08-30): SL=entry платит комиссии → NET<0 (ZKP −$2.7).
+        # Проблема B (2026-08-31): SL=entry выбивает в ноль при лёгком откате,
+        #   хотя пик был высокий (SIRENUSDT: пик 1.14R → выход +$0.11).
+        # Решение: SL = entry + BE_LOCK_FRACTION × зафиксированный доход
+        #   (30% от пика в R). Позиция отыгрывается без выбивания в ноль,
+        #   и даже при откате фиксируем часть прибыли.
+        fee_pct = 0.0022  # 0.22% round-trip (taker open+close, подтверждено CLOUSDT/VELVET)
+        try:
+            _mfee = json.loads(Path("/root/tradingos/operations/manual_session.json").read_text())
+            fee_pct = float(_mfee.get("funding_fee_round_trip_pct", 0.22) or 0.22) / 100.0
+        except Exception:
+            pass
+        fee_buffer = entry * fee_pct  # комиссия в цене
+        peak_r = sym_state["mfe_peak"]
+        # Доход в цене = peak_r × risk_per_unit; захватываем BE_LOCK_FRACTION от него
+        lock_price = peak_r * risk_per_unit * float(BE_LOCK_FRACTION)
         if side == "Sell":
-            # SELL: SL above entry
-            new_sl = entry + 0.00001  # tiny buffer above entry
-        if _set_trading_stop(symbol, stop_loss=new_sl):
+            # SELL: SL выше entry на (комиссию + захват)
+            new_sl = entry + fee_buffer + lock_price
+        else:
+            # BUY: SL ниже entry на (комиссию + захват)
+            new_sl = entry - fee_buffer - lock_price
+        # FIX (audit explore-1 HIGH): BE — только-вперёд (PARTIAL/trail не откатывает).
+        cur_sl_ex = float(pos.get("stopLoss", 0) or 0)
+        be_forward = (side == "Buy" and new_sl > cur_sl_ex) or \
+                     (side == "Sell" and new_sl < cur_sl_ex) or cur_sl_ex == 0
+        if not be_forward:
+            sym_state["be_fired"] = True  # SL уже лучше — поглощено
+            sym_state["be_sl"] = cur_sl_ex  # BE-уровень = текущий SL (не откатывать ниже)
+            actions.append(f"BE absorbed (SL already better: {cur_sl_ex:.6f})")
+        elif _set_trading_stop(symbol, stop_loss=new_sl):
             sym_state["be_fired"] = True
             sym_state["be_fired_at"] = time.time()
-            actions.append(f"Moved SL to breakeven at +{r_multiple:.2f}R (entry={entry:.5f})")
+            sym_state["be_sl"] = new_sl  # запоминаем BE-уровень для трейлинга (не откатывать ниже)
+            actions.append(f"Moved SL to breakeven+lock at +{r_multiple:.2f}R "
+                           f"(SL={new_sl:.5f}, lock {BE_LOCK_FRACTION*100:.0f}% от пика {peak_r:.2f}R)")
             alert = {
                 "timestamp": datetime.now(timezone.utc).isoformat(),
                 "type": "GUARDIAN_BREAKEVEN",
@@ -538,15 +1176,43 @@ def _process_position(pos, state):
             _enqueue_telegram_event("BE", symbol, side, entry, new_sl, r_multiple, sym_state.get("mfe_peak", 0),
                                      old_sl=sl, current_price=current, leverage=real_leverage, entry_time=open_time)
 
+    # Rule 1.5: Partial TP — закрыть 50% позиции на +1.0R (T5)
+    try:
+        partial_tp_cfg = json.loads(Path("/root/tradingos/operations/trading_mode.json").read_text()).get("partial_tp", {})
+        if partial_tp_cfg.get("enabled"):
+            pt_trigger = float(partial_tp_cfg.get("trigger_r", 1.0))
+            pt_fraction = float(partial_tp_cfg.get("close_fraction", 0.5))
+            if not sym_state.get("partial_tp_fired", False) and sym_state["mfe_peak"] >= pt_trigger:
+                size = float(pos.get("size", 0))
+                if size > 0:
+                    close_qty = size * pt_fraction
+                    if _create_reduce_only_order(symbol, side, close_qty):
+                        sym_state["partial_tp_fired"] = True
+                        sym_state["partial_tp_qty"] = close_qty
+                        actions.append(f"PARTIAL TP: closed {pt_fraction*100:.0f}% ({close_qty:.4f}) at +{r_multiple:.2f}R")
+                        logger.info(f"💰 PARTIAL TP fired: {symbol} {side} +{r_multiple:.2f}R, closed {close_qty:.4f} ({pt_fraction*100:.0f}%)")
+                        _enqueue_telegram_event("PARTIAL_TP", symbol, side, entry, sl, r_multiple, sym_state.get("mfe_peak", 0),
+                                                 old_sl=sl, current_price=current, leverage=real_leverage, entry_time=open_time)
+    except Exception as e:
+        logger.debug(f"partial_tp check failed: {e}")
+
     # Rule 2: Partial lock at +1.0R (SL = entry + 0.5*ATR/2)
-    if sym_state["mfe_peak"] >= PARTIAL_THRESHOLD and not sym_state.get("partial_fired", False):
+    if not recovery_active and sym_state["mfe_peak"] >= PARTIAL_THRESHOLD and not sym_state.get("partial_fired", False):
         # Move SL to entry + partial-risk offset
         partial_offset = risk_per_unit * 0.5
         if side == "Sell":
-            new_sl = entry + partial_offset
+            new_sl = entry - partial_offset  # SELL: SL ниже entry (фиксация прибыли)
         else:
-            new_sl = entry - partial_offset
-        if _set_trading_stop(symbol, stop_loss=new_sl):
+            new_sl = entry + partial_offset  # LONG: SL выше entry (фиксация прибыли)
+        # 2026-08-30: ступень НЕ должна откатывать SL назад, если трейлинг
+        # (многоступенчатый, активен после BE) уже поднял SL выше.
+        cur_sl_ex = float(pos.get("stopLoss", 0))
+        steps_forward = (side == "Buy" and new_sl > cur_sl_ex) or \
+                        (side == "Sell" and new_sl < cur_sl_ex) or cur_sl_ex == 0
+        if not steps_forward:
+            sym_state["partial_fired"] = True  # ступень "поглощена" трейлингом
+            actions.append(f"PARTIAL absorbed by trail (SL already above {cur_sl_ex:.6f})")
+        elif _set_trading_stop(symbol, stop_loss=new_sl):
             sym_state["partial_fired"] = True
             sym_state["partial_fired_at"] = time.time()
             actions.append(f"Moved SL to partial lock +{partial_offset:.6f} at +{r_multiple:.2f}R")
@@ -567,13 +1233,20 @@ def _process_position(pos, state):
                                      old_sl=sl, current_price=current, leverage=real_leverage, entry_time=open_time)
 
     # Rule 3: Tight lock at +1.5R
-    if sym_state["mfe_peak"] >= TIGHT_THRESHOLD and not sym_state.get("tight_fired", False):
+    if not recovery_active and sym_state["mfe_peak"] >= TIGHT_THRESHOLD and not sym_state.get("tight_fired", False):
         tight_offset = risk_per_unit * 1.0
         if side == "Sell":
-            new_sl = entry + tight_offset
+            new_sl = entry - tight_offset  # SELL: SL ниже entry
         else:
-            new_sl = entry - tight_offset
-        if _set_trading_stop(symbol, stop_loss=new_sl):
+            new_sl = entry + tight_offset  # LONG: SL выше entry
+        # 2026-08-30: не откатываем SL назад, если трейлинг его уже поднял выше.
+        cur_sl_ex2 = float(pos.get("stopLoss", 0))
+        steps_forward2 = (side == "Buy" and new_sl > cur_sl_ex2) or \
+                         (side == "Sell" and new_sl < cur_sl_ex2) or cur_sl_ex2 == 0
+        if not steps_forward2:
+            sym_state["tight_fired"] = True  # поглощено трейлингом
+            actions.append(f"TIGHT absorbed by trail (SL already above {cur_sl_ex2:.6f})")
+        elif _set_trading_stop(symbol, stop_loss=new_sl):
             sym_state["tight_fired"] = True
             sym_state["tight_fired_at"] = time.time()
             actions.append(f"Moved SL to tight lock +{tight_offset:.6f} at +{r_multiple:.2f}R")
@@ -593,14 +1266,22 @@ def _process_position(pos, state):
             _enqueue_telegram_event("TIGHT", symbol, side, entry, new_sl, r_multiple, sym_state.get("mfe_peak", 0),
                                      old_sl=sl, current_price=current, leverage=real_leverage, entry_time=open_time)
 
-    # Rule 3.5: Trailing stop (DISABLED by default — see config above)
-    # Activates after TIGHT fires. Tracks peak with a constant 0.5R trail behind.
-    # Optionally raises TP to keep profit target ahead of price.
-    if TRAILING_ENABLED and sym_state.get("tight_fired", False):
+    # Rule 3.5: Trailing stop (многоступенчатый)
+    # Активен ПОСЛЕ BE (пик ≥0.8R), не после TIGHT — непрерывно следует
+    # за пиком с дистанцией TRAIL_DISTANCE_R и шагом TRAIL_MIN_STEP_R.
+    trail_active_ok = sym_state.get("be_fired", False) if TRAIL_START_AFTER_BE \
+        else sym_state.get("tight_fired", False)
+    if TRAILING_ENABLED and not recovery_active and trail_active_ok:
         peak_r = sym_state.get("mfe_peak", 0)
         last_trail_peak_r = sym_state.get("trail_last_peak_r", 0)
-        # Only act when peak gained at least TRAIL_MIN_STEP_R since last trail move
-        if peak_r - last_trail_peak_r >= TRAIL_MIN_STEP_R:
+        # FIX 2026-08-31 (bad trail): при мизерном пике (< дистанции трейлинга)
+        # отступ больше пика → SL уходит НИЖЕ точки безубытка (ZKP: пик 0.06R,
+        # трейлинг −0.25R → стоп 0.05069 < вход 0.0517 — «безубыток» = −2%).
+        # Трейлинг имеет смысл только когда пик >= дистанции (иначе BE уже
+        # зафиксировал лучшее).
+        if peak_r < TRAIL_DISTANCE_R:
+            pass  # пик слишком мал — трейлинг не нужен, BE уже защитил
+        elif peak_r - last_trail_peak_r >= TRAIL_MIN_STEP_R:
             trail_distance_price = risk_per_unit * TRAIL_DISTANCE_R
             # New SL = peak - TRAIL_DISTANCE_R (in price units, on the favorable side)
             if side == "Sell":
@@ -612,6 +1293,14 @@ def _process_position(pos, state):
                 # BUY: profit when price goes UP → peak is above entry
                 peak_price = entry + peak_r * risk_per_unit
                 new_trail_sl = peak_price - trail_distance_price
+            # FLAT: трейлинг не может опустить SL ниже BE-уровня (зафиксирован
+            # при BE) — иначе «безубыток» снова превращается в убыток.
+            be_floor = float(sym_state.get("be_sl", 0) or 0)
+            if be_floor > 0:
+                if side == "Buy":
+                    new_trail_sl = max(new_trail_sl, be_floor)
+                else:
+                    new_trail_sl = min(new_trail_sl, be_floor)
             # Only move SL forward (never backwards)
             current_sl_on_exchange = float(pos.get("stopLoss", 0))
             only_forward = (
@@ -621,7 +1310,11 @@ def _process_position(pos, state):
             )
             if only_forward and new_trail_sl > 0:
                 new_tp = None
-                if TRAIL_MOVE_TP:
+                # TP двигаем ТОЛЬКО если он был установлен изначально
+                # (SL-only модели — funding/DN-sweep — TP создавать нельзя,
+                # это ломает валидированный exit).
+                tp_existed = float(sym_state.get("tp_initial") or 0) > 0
+                if TRAIL_MOVE_TP and tp_existed:
                     if side == "Sell":
                         new_tp = peak_price - risk_per_unit * TRAIL_TP_DISTANCE_R
                     else:
@@ -657,9 +1350,167 @@ def _process_position(pos, state):
                         leverage=real_leverage, entry_time=open_time,
                     )
 
-    # Rule 4: Timeout check (open_time heuristic)
-    open_time = float(pos.get("createdTime", time.time() * 1000)) / 1000
+    # Rule 3.6: NEAR-TP CLOSE (2026-08-30, owner request).
+    # Проблема: BE/PARTIAL/TIGHT двигают SL к entry и выше, но откат у TP
+    # съедает прибыль от entry до текущей цены (SL=entry+0.5R, цена у TP,
+    # разворот → фиксируем $0 вместо почти-TP). Когда цена дошла до
+    # NEAR_TP_CLOSE_R пути до TP — закрываем по рынку сами.
+    # open_time/hold_hours нужны для telegram-карточки закрытия; вычисляем
+    # здесь же (ниже они пересчитываются повторно — это нормально).
+    _ot_n = float(pos.get("openTime", 0) or 0) / 1000
+    if _ot_n <= 0:
+        _ot_n = float(pos.get("createdTime", 0) or 0) / 1000
+    if _ot_n <= 0:
+        _ot_n = time.time()
+    if (NEAR_TP_CLOSE_ENABLED and not recovery_active
+            and not sym_state.get("near_tp_closed", False)):
+        # Путь до TP в R (target_r), текущий r_multiple
+        tp_px = sym_state.get("tp_initial") or pos.get("takeProfit") or 0
+        try:
+            tp_px = float(tp_px)
+        except (TypeError, ValueError):
+            tp_px = 0.0
+        if tp_px and tp_px > 0 and risk_per_unit and risk_per_unit > 0:
+            if side == "Buy":
+                target_r = (tp_px - entry) / risk_per_unit
+                near_tp = (r_multiple >= target_r * NEAR_TP_CLOSE_R)
+            else:
+                target_r = (entry - tp_px) / risk_per_unit
+                near_tp = (r_multiple >= target_r * NEAR_TP_CLOSE_R)
+            if near_tp and target_r > 0:
+                if _close_position(symbol, side, size):
+                    sym_state["near_tp_closed"] = True
+                    sym_state["near_tp_closed_at"] = time.time()
+                    actions.append(
+                        f"NEAR-TP CLOSE: {r_multiple:.2f}R / target {target_r:.2f}R "
+                        f"({r_multiple/target_r*100:.0f}% пути) — фикс. прибыль до отката"
+                    )
+                    logger.info(
+                        f"🎯 NEAR-TP CLOSE {symbol} {side}: {r_multiple:.2f}R "
+                        f"(target {target_r:.2f}R), closed at market"
+                    )
+                    _enqueue_telegram_close(
+                        symbol, side, entry, current, size,
+                        pnl=profit, fees=0.0,
+                        holding_hours=(time.time() - _ot_n) / 3600,
+                        reason="NEAR_TP",
+                    )
+
+    # Rule 3.7: PEAK-REVERSAL EXIT (2026-08-31, owner вводная)
+    # «TP в зоне недостижимости — если ждать, теряем 90% пика».
+    # Позиция дошла до значимого максимума (>= PEAK_MIN_R), а потом откатилась
+    # на >= PEAK_REVERSAL_GIVEBACK от пика → разворот начался, TP скорее всего
+    # недостижим. Фиксируем по рынку ТЕКУЩУЮ прибыль, не дожидаясь ни TP,
+    # ни трейлинга (который выпустит до пика − 0.25R, а не до цены разворота).
+    # В отличие от трейлинга (провоцирует стоп на шуме), здесь реагируем на
+    # фактический откат от локального пика.
+    if (PEAK_REVERSAL_ENABLED and not recovery_active
+            and not sym_state.get("peak_reversal_closed", False)
+            and not sym_state.get("near_tp_closed", False)):
+        _peak = sym_state.get("mfe_peak", 0.0)
+        _cur = r_multiple
+        if _peak >= float(PEAK_MIN_R):
+            _giveback = _peak - _cur
+            if _giveback >= float(PEAK_REVERSAL_GIVEBACK) and _cur > 0:
+                if _close_position(symbol, side, size):
+                    sym_state["peak_reversal_closed"] = True
+                    sym_state["peak_reversal_at"] = time.time()
+                    actions.append(
+                        f"PEAK-REVERSAL: пик {_peak:.2f}R → откат {_giveback:.2f}R, "
+                        f"зафиксировано {_cur:+.2f}R (TP {float(sym_state.get('tp_initial') or 0):.6g} недостижим)"
+                    )
+                    logger.warning(
+                        f"🔄 PEAK-REVERSAL {symbol} {side}: пик {_peak:.2f}R → "
+                        f"сейчас {_cur:+.2f}R (откат {_giveback:.2f}R) — закрыл по рынку"
+                    )
+                    _enqueue_telegram_close(
+                        symbol, side, entry, current, size,
+                        pnl=profit, fees=0.0,
+                        holding_hours=(time.time() - _ot_n) / 3600,
+                        reason="PEAK_REVERSAL",
+                    )
+
+    # Rule 3.5b: GIVEBACK-TAKE (за флагом engine_v2_live)
+    # "Не отдавать победителя": позиция была прибыльной, но отдала существенную
+    # часть MFE при ухудшении momentum → фиксируем. Пороги 0.7R/1.0R — те же,
+    # что в engine_v2.profit_decision (не изобретены заново).
+    # Активно ТОЛЬКО при engine_v2_live=true (иначе поведение Guardian не меняется).
+    _engine_v2_live = False
+    try:
+        _mp = Path("/root/tradingos/operations/trading_mode.json")
+        if _mp.exists():
+            _engine_v2_live = bool(json.load(open(_mp)).get("engine_v2_live", False))
+    except Exception:
+        _engine_v2_live = False
+    # open_time/hold_hours вычисляем здесь (используются в telegram-карточке).
+    _ot = float(pos.get("openTime", 0) or 0) / 1000
+    if _ot <= 0:
+        _ot = float(pos.get("createdTime", 0) or 0) / 1000
+    if _ot <= 0:
+        _ot = time.time()
+    open_time = _ot
     hold_hours = (time.time() - open_time) / 3600
+    if _engine_v2_live and not recovery_active and not sym_state.get("giveback_closed", False):
+        mfe_peak = sym_state.get("mfe_peak", 0.0)
+        if mfe_peak >= 1.0:
+            giveback = mfe_peak - r_multiple
+            take = False
+            if giveback >= 1.0:
+                take = True
+            elif giveback >= 0.7:
+                # momentum decay: последние 3 закрытых бара против входа (грубая прокси)
+                _mom = _momentum_decayed(symbol, side)
+                take = bool(_mom)
+            if take:
+                if _close_position(symbol, side, size):
+                    sym_state["giveback_closed"] = True
+                    sym_state["giveback_at"] = time.time()
+                    actions.append(
+                        f"GIVEBACK-TAKE: mfe {mfe_peak:.2f}R -> {r_multiple:.2f}R "
+                        f"(giveback {giveback:.2f}R)"
+                    )
+                    logger.warning(
+                        f"💸 GIVEBACK-TAKE {symbol}: mfe {mfe_peak:.2f}R -> "
+                        f"{r_multiple:.2f}R, closed at market"
+                    )
+                    _enqueue_telegram_close(
+                        symbol, side, entry, current, size,
+                        pnl=profit, fees=0.0, holding_hours=hold_hours,
+                        reason="GIVEBACK_TAKE",
+                    )
+
+    # Rule 3.8: TIME-STOP for stale losers (2026-08-31).
+    # Позиция висит в минусе без пика — она только занимает анти-слот
+    # (корреляция блокирует новые SELL/BUY) и шансов нет (62% идут дальше
+    # против). Закрываем сами, если: возраст ≥ TIME_STOP_HOURS И минус
+    # ≥ TIME_STOP_MAE_R И пик был < TIME_STOP_PEAK_R.
+    if (TIME_STOP_ENABLED and not recovery_active
+            and not sym_state.get("time_stopped", False)
+            and not sym_state.get("be_fired", False)):
+        _st_mae = sym_state.get("mae_trough", 0.0) or 0.0
+        _st_peak = sym_state.get("mfe_peak", 0.0) or 0.0
+        if (hold_hours >= float(TIME_STOP_HOURS)
+                and _st_mae <= float(TIME_STOP_MAE_R)
+                and _st_peak < float(TIME_STOP_PEAK_R)):
+            if _close_position(symbol, side, size):
+                sym_state["time_stopped"] = True
+                sym_state["time_stopped_at"] = time.time()
+                actions.append(
+                    f"TIME-STOP: {hold_hours:.1f}ч в минусе (mae {_st_mae:.2f}R, "
+                    f"пик {_st_peak:.2f}R) — освобождаю слот"
+                )
+                logger.warning(
+                    f"⏰ TIME-STOP {symbol} {side}: {hold_hours:.1f}ч, "
+                    f"mae {_st_mae:.2f}R (пик {_st_peak:.2f}R) — закрыл по рынку"
+                )
+                _enqueue_telegram_close(
+                    symbol, side, entry, current, size,
+                    pnl=profit, fees=0.0, holding_hours=hold_hours,
+                    reason="TIME_STOP",
+                )
+
+    # Rule 4: Timeout check (open_time heuristic)
+    # FIX 2026-08-04: use openTime (real open) not createdTime (position-id artifact)
     if hold_hours > MAX_HOLD_HOURS and not sym_state.get("timeout_alerted", False):
         alert = {
             "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -706,7 +1557,7 @@ def _fetch_actual_close_price(symbol: str, side: str, fallback: float) -> float:
             "X-BAPI-API-KEY": ak, "X-BAPI-TIMESTAMP": ts,
             "X-BAPI-SIGN": sign, "X-BAPI-RECV-WINDOW": "5000",
         }
-        r = httpx.get(f"https://api.bybit.com/v5/position/closed-pnl?{q}", headers=headers, timeout=5)
+        r = httpx.get(f"{_API_BASE}/v5/position/closed-pnl?{q}", headers=headers, timeout=5)
         d = r.json()
         if d.get("retCode") == 0:
             items = d["result"].get("list", [])
@@ -719,6 +1570,140 @@ def _fetch_actual_close_price(symbol: str, side: str, fallback: float) -> float:
     return fallback
 
 
+def _fetch_closed_trade(symbol: str, side: str) -> Optional[dict]:
+    """Fetch the most recent closed trade for a symbol with REAL fees/PnL.
+
+    Returns dict with: avgEntryPrice, avgExitPrice, qty, closedPnl, openFee,
+    closeFee, execType, createdTime — or None if not found.
+    Retries 3x with backoff (closed-pnl endpoint can lag the fill).
+    """
+    ak, as_ = _load_credentials()
+    if not ak or not as_:
+        return None
+    import hmac, hashlib, httpx
+    for attempt in range(3):
+        try:
+            ts = str(int(time.time() * 1000))
+            q = f"category=linear&symbol={symbol}&limit=1"
+            sign = hmac.new(as_.encode(), f"{ts}{ak}5000{q}".encode(), hashlib.sha256).hexdigest()
+            headers = {
+                "X-BAPI-API-KEY": ak, "X-BAPI-TIMESTAMP": ts,
+                "X-BAPI-SIGN": sign, "X-BAPI-RECV-WINDOW": "5000",
+            }
+            r = httpx.get(f"{_API_BASE}/v5/position/closed-pnl?{q}", headers=headers, timeout=5)
+            d = r.json()
+            if d.get("retCode") == 0:
+                items = d["result"].get("list", [])
+                if items:
+                    it = items[0]
+                    return {
+                        # FIX 2026-08-24: defend against Bybit returning "" for
+                        # numeric fields (seen on qty/fees) — float('') raises and
+                        # poisons the closure path. Treat empty as 0.
+                        "avgEntryPrice": _safe_float(it.get("avgEntryPrice")),
+                        "avgExitPrice":  _safe_float(it.get("avgExitPrice")),
+                        "qty":           _safe_float(it.get("qty")),
+                        "closedPnl":     _safe_float(it.get("closedPnl")),
+                        "openFee":       _safe_float(it.get("openFee")),
+                        "closeFee":      _safe_float(it.get("closeFee")),
+                        "execType":      it.get("execType", ""),
+                        "createdTime":   it.get("createdTime", 0),
+                    }
+            # retCode != 0 or empty list → retry with backoff
+        except Exception:
+            pass
+        if attempt < 2:
+            time.sleep(2 + attempt * 2)  # 2s, 4s backoff
+    return None
+
+
+def _confirm_position_closed(symbol: str, attempts: int = 2) -> bool:
+    """Confirm a position close using the EXCHANGE as source of truth.
+
+    A single poll can transiently miss a live symbol (rate-limit / lag) →
+    false 'phantom close' card. Returns True if EITHER:
+      - position is absent on a fresh request (full close), OR
+      - there is a closed-pnl record (partial close — position may still be
+        alive but a reduce/TP fill already happened; not a phantom).
+    """
+    import hmac, hashlib, httpx
+    ak, as_ = _load_credentials()
+    if not ak or not as_:
+        return False
+    for _ in range(attempts):
+        try:
+            ts = str(int(time.time() * 1000))
+            q = f"category=linear&symbol={symbol}"
+            sign = hmac.new(as_.encode(), f"{ts}{ak}5000{q}".encode(), hashlib.sha256).hexdigest()
+            headers = {
+                "X-BAPI-API-KEY": ak, "X-BAPI-TIMESTAMP": ts,
+                "X-BAPI-SIGN": sign, "X-BAPI-RECV-WINDOW": "5000",
+            }
+            r = httpx.get(f"{_API_BASE}/v5/position/list?{q}", headers=headers, timeout=5)
+            d = r.json()
+            if d.get("retCode") == 0:
+                raw = d.get("result", {}).get("list", []) or []
+                still_open = any(float(p.get("size", 0)) > 0 for p in raw if isinstance(p, dict))
+                if not still_open:
+                    return True  # confirmed fully gone
+                # Position still alive — check if a partial close happened
+                # (closed-pnl record exists = real reduce/TP fill, not phantom).
+                try:
+                    cp = _fetch_closed_trade(symbol, "")
+                    if cp and cp.get("closedPnl") is not None and abs(cp.get("closedPnl", 0)) > 0:
+                        return True  # partial close confirmed via closed-pnl
+                except Exception:
+                    pass
+                # Still alive with no closed-pnl → not a real close → phantom
+                return False
+        except Exception:
+            pass
+        time.sleep(1)
+    # Could not confirm via API — assume still open (don't record phantom close)
+    return False
+
+
+def _is_already_closed(symbol: str, state_entry: dict) -> bool:
+    """Idempotency guard: check if this exact closure was already recorded.
+
+    Matches on (symbol, entry_time, entry, side). Prevents duplicate
+    Telegram notifications and duplicate trade_results entries when a
+    closed symbol persists in reality_state (restart race / exception
+    in the closure path). The guard reads the last 200 lines of
+    trade_results.jsonl — enough to cover hours of polling.
+    """
+    try:
+        if not TRADE_RESULTS_DIR.exists():
+            return False
+        log_file = TRADE_RESULTS_DIR / "trade_results.jsonl"
+        if not log_file.exists():
+            return False
+        entry_time = state_entry.get("entry_time", 0)
+        entry = state_entry.get("entry", 0)
+        side = state_entry.get("side", "")
+        if not entry_time:
+            return False
+        # Read last 200 lines efficiently
+        lines = log_file.read_text().splitlines()[-200:]
+        for line in reversed(lines):
+            try:
+                rec = json.loads(line)
+            except Exception:
+                continue
+            if rec.get("symbol") != symbol:
+                continue
+            # Match on entry_time (unique per trade) + entry price + side
+            # entry_time stored in state as epoch float; in record it's not
+            # stored, so we match on entry+side which are stable per trade.
+            if (abs(float(rec.get("entry", 0)) - float(entry)) < 1e-9 and
+                    rec.get("side") == side and
+                    rec.get("status") == "CLOSED"):
+                return True
+        return False
+    except Exception:
+        return False
+
+
 def _record_trade_closure(symbol, state_entry):
     """
     Record a trade closure with separate Guardian metrics:
@@ -726,7 +1711,19 @@ def _record_trade_closure(symbol, state_entry):
     - Outcome: TP, BE, SL, Manual, Timeout
     - Estimated benefit: only counted if the trade closed
       at or below the Guardian SL (i.e., Guardian did something)
+
+    IDEMPOTENCY: if this exact closure (symbol+entry+side) was already
+    recorded, skip re-recording and re-notifying. Prevents the
+    duplicate-notification bug where a closed symbol stays in state
+    and re-triggers on every poll cycle.
     """
+    if _is_already_closed(symbol, state_entry):
+        logger.info(
+            f"⏭️ SKIP duplicate closure: {symbol} already recorded "
+            f"(entry={state_entry.get('entry')}, side={state_entry.get('side')}) — "
+            f"not re-notifying Telegram"
+        )
+        return
     peak_r = state_entry.get("mfe_peak", 0)
     trough_r = state_entry.get("mae_trough", 0)
     be_fired = state_entry.get("be_fired", False)
@@ -751,27 +1748,65 @@ def _record_trade_closure(symbol, state_entry):
         guardian_trigger = "NONE"
         guardian_sl_at_close = 0  # no SL change
 
-    # Get actual close price from Bybit (most recent kline)
-    close_price = _fetch_actual_close_price(symbol, side, entry)
-
-    # Calculate actual outcome
-    if side == "Sell":
-        if close_price <= entry * 0.999:  # SELL profit = price going down
-            if close_price < original_risk and entry - original_risk < close_price:
-                # closed between entry and original SL (rough)
-                outcome = "BE" if be_fired else ("PARTIAL_HIT" if partial_fired else "MANUAL")
-            else:
-                outcome = "TP"  # price went to TP level
-        else:
-            outcome = "SL"  # closed in loss
+    # Get actual close data from Bybit (real fees, PnL, exit price)
+    closed = _fetch_closed_trade(symbol, side)
+    if closed and closed.get("avgExitPrice", 0) > 0:
+        close_price = closed["avgExitPrice"]
+        real_fees = abs(closed.get("openFee", 0)) + abs(closed.get("closeFee", 0))
+        real_pnl = closed.get("closedPnl", 0)
+        real_qty = closed.get("qty", 0) or state_entry.get("size", 0)
     else:
-        if close_price >= entry * 1.001:
-            if close_price > entry + original_risk * 0.5 and close_price < entry + original_risk:
-                outcome = "BE" if be_fired else ("PARTIAL_HIT" if partial_fired else "MANUAL")
-            else:
-                outcome = "TP"
+        close_price = _fetch_actual_close_price(symbol, side, entry)
+        real_fees = 0.0
+        real_pnl = None
+        real_qty = state_entry.get("size", 0)
+
+    # ─── Честная классификация закрытия ПО ФАКТУ (2026-08-08) ───
+    # Раньше: outcome = эвристика по entry/close (любой прибыльный close → "TP"),
+    # из-за чего ручное закрытие ACX классифицировалось как ложный "TP".
+    # Теперь сравниваем close_price с реальными уровнями SL/TP (из state).
+    sl_initial = float(state_entry.get("sl_initial", 0) or 0)
+    tp_initial = float(state_entry.get("tp_initial", 0) or 0)
+    # Допуск: 10% от расстояния entry→SL или 0.1% цены (что больше) — поглощает спред/проскальзывание
+    tolerance = max(abs(entry - sl_initial) * 0.10, entry * 0.001) if sl_initial else entry * 0.001
+
+    outcome = "UNKNOWN"
+    # FIX 2026-08-31: guardian-initiated закрытия (time-stop, peak-reversal,
+    # near-tp) раньше классифицировались по ЦЕНЕ выхода → выходили как
+    # "MANUAL" → владелец видел «ручное закрытие в минусе» и не понимал,
+    # кто закрыл. Теперь guardian-флаги — приоритет: это НАШИ решения.
+    if state_entry.get("time_stopped"):
+        outcome = "TIME_STOP"
+    elif state_entry.get("peak_reversal_closed"):
+        outcome = "PEAK_REVERSAL"
+    elif state_entry.get("near_tp_closed"):
+        outcome = "NEAR_TP"
+    elif tp_initial and abs(close_price - tp_initial) <= tolerance:
+        outcome = "TP"
+    elif sl_initial and abs(close_price - sl_initial) <= tolerance:
+        # Закрытие у исходного SL → SL, ЕСЛИ guardian не перенёс SL ближе.
+        # Если guardian-триггер сработал, реальный выход был у защищённого SL.
+        if be_fired or partial_fired or tight_fired:
+            outcome = "GUARDIAN"
         else:
             outcome = "SL"
+    elif abs(close_price - entry) <= tolerance:
+        # Закрытие у входа: BE (guardian перенёс SL на entry) либо ручной выход в ноль
+        outcome = "BE" if be_fired else "MANUAL"
+    else:
+        # Не у TP, не у SL, не у entry → ручное/внешнее закрытие (напр. ACX)
+        outcome = "MANUAL"
+
+    # Классификация по данным exchange, если она доступна (execType: "Traded"/"Stop"/"Take")
+    try:
+        if closed and closed.get("execType"):
+            exec_type = str(closed.get("execType", ""))
+            if "Take" in exec_type:
+                outcome = "TP"
+            elif "Stop" in exec_type:
+                outcome = "SL"
+    except Exception:
+        pass
 
     # Only count "estimated benefit" when Guardian actually protected:
     # 1. Guardian moved SL (any of the 3 triggers fired)
@@ -807,12 +1842,19 @@ def _record_trade_closure(symbol, state_entry):
 
     # Compute realized PnL from entry vs exit
     size = state_entry.get("size", 0)
-    if side == "Sell":
-        realized_pnl = (entry - close_price) * size
+    if real_pnl is not None:
+        # Use REAL closed PnL from exchange (includes fees)
+        realized_pnl = real_pnl
+        fees = real_fees
+        net_pnl = real_pnl  # closedPnl already net of fees
     else:
-        realized_pnl = (close_price - entry) * size
-    fees = abs(realized_pnl) * 0.00075  # 0.075% taker fee estimate
-    net_pnl = realized_pnl - fees
+        # Fallback estimate (no exchange data)
+        if side == "Sell":
+            realized_pnl = (entry - close_price) * size
+        else:
+            realized_pnl = (close_price - entry) * size
+        fees = abs(realized_pnl) * 0.00075  # 0.075% taker fee estimate
+        net_pnl = realized_pnl - fees
 
     # ─── Execution Attribution ──────────────────────────────
     # Signal class: did price move in the right direction?
@@ -837,6 +1879,7 @@ def _record_trade_closure(symbol, state_entry):
 
     record = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
+        "config_version": _read_config_version(),
         "symbol": symbol,
         "side": side,
         "entry": entry,
@@ -845,6 +1888,8 @@ def _record_trade_closure(symbol, state_entry):
         "realized_pnl": round(realized_pnl, 6),
         "fees": round(fees, 6),
         "net_pnl": round(net_pnl, 6),
+        "gross_pnl": round(realized_pnl + fees, 6),
+        "data_source": "real" if real_pnl is not None else "estimated",
         "slippage_cost": round(slippage_cost, 6),
         "mfe_peak_r": round(peak_r, 3),
         "mae_trough_r": round(trough_r, 3),
@@ -855,6 +1900,8 @@ def _record_trade_closure(symbol, state_entry):
         "partial_fired": partial_fired,
         "tight_fired": tight_fired,
         "outcome": outcome,
+        "sl": round(sl_initial, 8) if sl_initial else 0.0,
+        "tp": round(tp_initial, 8) if tp_initial else 0.0,
         "protected_exit": protected_exit,
         "estimated_benefit": round(estimated_benefit, 6),
         "protection_cost_window_hours": 24,
@@ -875,6 +1922,13 @@ def _record_trade_closure(symbol, state_entry):
         f"Guardian: {guardian_trigger} | outcome: {outcome} | "
         f"protected: {protected_exit} | estimated_benefit=${estimated_benefit:.4f}"
     )
+    # Register realized loss with deposit guard (daily loss limit)
+    try:
+        sys.path.insert(0, "/root/tradingos")
+        from tradingos.strategies.deposit_guard import get_guard
+        get_guard().on_trade_closed(net_pnl, fees=fees)
+    except Exception as e:
+        logger.error(f"Deposit guard on_close failed: {e}")
     # Enqueue Telegram notification (guaranteed delivery via persistent queue)
     # Include SL/TP/mfe_r/mae_r so chart and text use SAME source of truth
     sl_price = entry - original_risk if side == "Buy" else entry + original_risk
@@ -1021,10 +2075,42 @@ async def run_guardian():
             closed_symbols = state_symbols - live_symbols
             for sym in closed_symbols:
                 if sym in state and state[sym] is not None:
-                    _record_trade_closure(sym, state[sym])
-                    del state[sym]
-
-            # Process live positions
+                    # FIX 2026-08-04: confirm the position is REALLY gone from the
+                    # exchange before recording a close. A transient API error can
+                    # make a live symbol disappear from one poll → false "phantom
+                    # close" card (ADA/ARB incident). Re-query the exchange.
+                    if not _confirm_position_closed(sym):
+                        logger.warning(
+                            f"⚠️ PHANTOM CLOSE: {sym} missing from poll but still "
+                            f"on exchange — not recording closure"
+                        )
+                        # Alert the user — phantom close must be visible, not buried.
+                        # FIX 2026-08-31: множившийся спам (12/10мин при API-лаге)
+                        # — уведомляем не чаще 1 раза в 15 мин на символ.
+                        try:
+                            _last = _phantom_alert_ts.get(sym, 0)
+                            if time.time() - _last >= 900:
+                                _phantom_alert_ts[sym] = time.time()
+                                _enqueue_telegram_phantom(sym)
+                        except Exception as _e:
+                            logger.error(f"phantom TG alert failed: {_e}")
+                        continue
+                    # FIX 2026-08-24: ALWAYS drop from state + save, even if closure
+                    # recording throws — otherwise the symbol stays in state and
+                    # re-triggers duplicate Telegram notifications on every poll
+                    # (TQQQ incident). The closure record already exists on disk
+                    # by the time we get here, or we accept losing this one
+                    # snapshot rather than spamming the user.
+                    try:
+                        _record_trade_closure(sym, state[sym])
+                    except Exception as closure_err:
+                        logger.error(
+                            f"_record_trade_closure failed for {sym}: {closure_err} — "
+                            f"dropping from state anyway to prevent duplicate notifications"
+                        )
+                    finally:
+                        state.pop(sym, None)
+                        _save_guardian_state(state)
             for pos in positions:
                 new_state = _process_position(pos, state)
                 if isinstance(new_state, dict):
@@ -1046,6 +2132,11 @@ async def main():
 
 if __name__ == "__main__":
     try:
+        # Singleton guard: a second guardian instance double-polls the
+        # exchange and sends duplicate Telegram notifications.
+        sys.path.insert(0, "/root/tradingos")
+        from core.singleton import acquire_singleton_lock
+        acquire_singleton_lock("reality_guardian")
         asyncio.run(run_guardian())
     except KeyboardInterrupt:
         logger.info("Guardian stopped by user")

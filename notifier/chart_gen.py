@@ -1,11 +1,20 @@
 """
-TradingOS Trade Chart v18 — Synthetic price data.
-Генерирует реалистичный график сделки: вход → максимум → выход.
-Временная шкала = реальная длительность сделки.
-Адаптивный таймфрейм.
+TradingOS Chart v2 — «визуализируй реальные рыночные данные, а не рисуй картинку».
+
+Принципы (ТЗ пользователя):
+1. Свечи — ТОЛЬКО реальные OHLC с Bybit (kline API), окно ~40-50 свечей ДО входа
+   + ~20 ПОСЛЕ. Синтетика — только аварийный фолбэк.
+2. Portrait 900x1200, график ~70% изображения, инфо-карточка снизу ~25%.
+3. Торговые объекты: ENTRY (синяя), SL (красная), TP (зелёная), текущая цена.
+   Вся торговая идея ВСЕГДА в масштабе (ylim по min(SL,low)..max(TP,high) + 10%).
+4. Текст НЕ поверх свечей: шапка сверху, карточка снизу.
+5. OPEN: текущая цена + unreal PnL + MFE/MAE. CLOSED: выход + причина + realized R.
+6. Никаких индикаторов по умолчанию (только prob/score/ADX в шапке, если переданы).
+
+Светлая тема (#F8FAFC), зелёные/красные свечи.
 """
 from __future__ import annotations
-import io, logging, asyncio, threading, random, math
+import io, logging, random, math, time
 from typing import Optional
 from datetime import timedelta
 import numpy as np, pandas as pd
@@ -14,484 +23,406 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 
 log = logging.getLogger("TradingOS.ChartGen")
-_LOCK = threading.Lock()
 
 plt.rcParams["font.family"] = "sans-serif"
 plt.rcParams["font.sans-serif"] = ["Inter", "SF Pro", "DejaVu Sans", "Arial"]
 plt.rcParams["axes.unicode_minus"] = False
 
 # ─── LIGHT THEME ────────────────────────────────────────────
-BG    = "#F8FAFC"
-CARD  = "#FFFFFF"
-TXT   = "#0F172A"
-SEC   = "#64748B"
-GRN   = "#059669"
-RED   = "#DC2626"
-ENT   = "#3B82F6"
-GRID  = (0,0,0,0.04)
+BG   = "#F8FAFC"
+CARD = "#FFFFFF"
+TXT  = "#0F172A"
+SEC  = "#64748B"
+GRN  = "#059669"
+RED  = "#DC2626"
+ENT  = "#3B82F6"
+GRID = (0, 0, 0, 0.05)
 
 
 def _fp(p: float) -> str:
-    if p is None: return "—"
-    if p >= 1000: return f"{p:,.2f}"
-    if p >= 1: return f"{p:.2f}"
-    return f"{p:.4f}"
+    if p is None:
+        return "—"
+    return f"{float(p):.10f}".rstrip("0").rstrip(".")
 
 
-def _choose_tf(duration_minutes: float) -> int:
-    """Выбор таймфрейма по длительности сделки."""
-    if duration_minutes < 60: return 5
-    elif duration_minutes < 240: return 15
-    elif duration_minutes < 720: return 30
-    elif duration_minutes < 1440: return 60
-    else: return 240
+_INTERVAL_MIN = {"1": 1, "3": 3, "5": 5, "15": 15, "30": 30, "60": 60, "240": 240}
 
 
+def _interval_minutes(interval: str) -> int:
+    return _INTERVAL_MIN.get(str(interval), 15)
+
+
+# ─── ДАННЫЕ: реальные OHLC ──────────────────────────────────
+async def _fetch_real_klines(symbol: str, interval: str = "15",
+                             entry_time=None, pre_bars: int = 50,
+                             post_bars: int = 200):
+    """Реальные свечи Bybit вокруг входа. Returns (klines, entry_idx) or None."""
+    import httpx
+    tf_min = _interval_minutes(interval)
+    if entry_time is None:
+        return None
+    try:
+        if isinstance(entry_time, (int, float)):
+            entry_ms = int(entry_time) * 1000 if entry_time < 1e12 else int(entry_time)
+        else:
+            entry_ms = int(pd.Timestamp(entry_time).timestamp() * 1000)
+    except Exception:
+        return None
+    start_ms = entry_ms - pre_bars * tf_min * 60_000
+    params = {
+        "category": "linear",
+        "symbol": symbol,
+        "interval": str(interval),
+        "limit": min(pre_bars + post_bars, 1000),
+    }
+    if start_ms:
+        params["start"] = str(start_ms)
+    try:
+        resp = await httpx.AsyncClient(timeout=12).get(
+            "https://api.bybit.com/v5/market/kline", params=params)
+        data = resp.json()
+        if data.get("retCode") != 0:
+            return None
+        rows = data["result"].get("list", [])
+        if not rows:
+            return None
+        kls = []
+        for row in reversed(rows):
+            try:
+                raw_ts = int(row[0])
+            except (IndexError, ValueError, TypeError):
+                continue
+            ts_s = raw_ts / 1000 if raw_ts > 1e12 else raw_ts
+            if ts_s * 1000 < start_ms:
+                continue
+            kls.append({
+                "timestamp": int(ts_s),
+                "open": float(row[1]), "high": float(row[2]),
+                "low": float(row[3]), "close": float(row[4]),
+                "volume": float(row[5]) if row[5] else 0.0,
+            })
+        if len(kls) < 10:
+            return None
+        entry_ms_s = entry_ms // 1000
+        entry_idx = 0
+        for i, k in enumerate(kls):
+            if k["timestamp"] >= entry_ms_s - tf_min * 60:
+                entry_idx = i
+                break
+        return kls, entry_idx
+    except Exception as e:
+        log.warning(f"real klines fetch failed {symbol}: {e}")
+        return None
+
+
+# ─── ФОЛБЭК: синтетика (только если реальных данных нет) ────
 def _generate_synthetic_klines(entry_price, exit_price, entry_time, exit_time,
-                                sl, tp, is_long, mfe_r=0.0, mae_r=0.0):
-    """Генерирует синтетические свечи, показывающие историю сделки.
-    
-    Путь цены: вход → максимум (MFE) → выход (SL/TP).
-    Временная шкала = реальная длительность сделки.
-    """
+                               sl, tp, is_long, mfe_r=0.0, mae_r=0.0):
+    """Аварийный фолбэк: минимальные правдоподобные свечи по MFE/MAE."""
     if entry_time is None or exit_time is None:
         return None
-    
-    # Длительность в минутах
-    duration_sec = (exit_time - entry_time).total_seconds()
-    duration_min = duration_sec / 60
-    tf_min = _choose_tf(duration_min)
-    
-    # Количество свечей
-    num_candles = max(10, int(duration_min / tf_min) + 1)
-    
-    # R = расстояние от входа до стопа
-    r_value = abs(entry_price - sl) if sl and sl > 0 else abs(entry_price) * 0.01
+    duration_min = max(30, (exit_time - entry_time).total_seconds() / 60)
+    tf_min = _interval_minutes("15" if duration_min < 720 else "60")
+    num = max(24, min(60, int(duration_min / tf_min)))
+    r = abs(entry_price - sl) if (sl and sl > 0) else entry_price * 0.01
+    mfe = min(mfe_r or 0.5, 5.0)
+    mae = min(mae_r or 0.3, 5.0)
+    kls = []
+    ts = int(entry_time.timestamp())
+    t0 = ts - (num // 2) * tf_min * 60
+    mid = num // 2
+    for i in range(num):
+        if is_long:
+            target = entry_price + (mfe * r) * max(0, i - mid) / max(mid, 1)
+        else:
+            target = entry_price - (mfe * r) * max(0, i - mid) / max(mid, 1)
+        noise = entry_price * 0.002 * random.gauss(0, 1)
+        close = target + noise if i > mid else entry_price + noise * 0.4
+        open_p = kls[-1]["close"] if kls else entry_price
+        hi = max(open_p, close) + abs(noise) * 0.6
+        lo = min(open_p, close) - abs(noise) * 0.6
+        kls.append({"timestamp": t0 + i * tf_min * 60, "open": open_p,
+                    "high": hi, "low": lo, "close": close, "volume": 1000.0})
+    return kls
 
-    # Максимум и минимум
-    if is_long:
-        max_price = entry_price + mfe_r * r_value if mfe_r else max(entry_price, exit_price) * 1.005
-        min_price = entry_price + mae_r * r_value if mae_r else min(entry_price, exit_price) * 0.995
+
+# ─── РЕНДЕР ─────────────────────────────────────────────────
+def _draw_candles(ax, o, h, l, c, bw):
+    n = len(o)
+    for i in range(n):
+        up = c[i] >= o[i]
+        clr = GRN if up else RED
+        ax.plot([i, i], [l[i], h[i]], color=clr, linewidth=1.2,
+                solid_capstyle="butt", zorder=2)
+        body_lo = min(o[i], c[i])
+        body_hi = max(o[i], c[i])
+        bh = max(body_hi - body_lo, (max(h) - min(l)) * 0.0008)
+        ax.add_patch(Rectangle((i - bw / 2, body_lo), bw, bh,
+                               facecolor=clr, edgecolor=clr, linewidth=0.8, zorder=3))
+
+
+def _level_line(ax, price, color, label, x_from, x_to, lw=2.0, ls=(0, (6, 3)), above=True):
+    ax.axhline(y=price, color=color, linewidth=lw, linestyle=ls, alpha=0.85, zorder=5)
+    ax.annotate(
+        f" {label} {_fp(price)} ", xy=((x_from + x_to) / 2, price),
+        xytext=(0, 8 if above else -14), textcoords="offset points",
+        fontsize=9, fontweight="bold", color=color, ha="center",
+        bbox=dict(boxstyle="round,pad=0.18", fc="#FFFFFF", ec=color, lw=0.8), zorder=12)
+
+
+def _render(symbol, df, entry_idx, side, lev, epx, sl, tp, ext,
+            etm, xtm, is_open, reason, mfe_r, mae_r, qty, cur_price,
+            pnl, prob, score, adx):
+    """Главный рендер v2: portrait 900x1200, реальные свечи, карточка снизу."""
+    n = len(df)
+    o, h, l, c = (df[k].values.astype(float) for k in ("Open", "High", "Low", "Close"))
+    is_long = side.upper() in ("BUY", "LONG")
+    sym = symbol.upper()
+    for sf in ["-USDT", "/USDT", "USDT"]:
+        if sym.endswith(sf):
+            sym = sym[:-len(sf)]
+            break
+    ei = max(0, min(entry_idx, n - 1))
+
+    # ─── ТЕКУЩАЯ ЦЕНА / ТОЧКА ВЫХОДА (до масштаба — нужна для tp_clamped) ──
+    last_price = cur_price if (cur_price and cur_price > 0) else float(c[-1])
+
+    # ─── МАСШТАБ: вся торговая идея + 10% ────────────────────
+    # v2.1: для OPEN далёкий TP (>8% от текущей цены) НЕ растягивает ось —
+    # рисуется маркером на границе, а не расплющивает свечи.
+    tp_clamped = False
+    if is_open and tp and tp > 0 and last_price > 0 and abs(tp - last_price) / last_price > 0.08:
+        tp_clamped = True
+
+    lows = float(np.min(l))
+    highs = float(np.max(h))
+    y_lo, y_hi = lows, highs
+    for p_ in (epx, sl, tp if not tp_clamped else 0.0, ext):
+        if p_ and p_ > 0:
+            y_lo, y_hi = min(y_lo, p_), max(y_hi, p_)
+    rng = y_hi - y_lo
+    if rng <= 0:
+        rng = epx * 0.02 or 1.0
+    margin = rng * 0.10
+    y_lo -= margin
+    y_hi += margin
+
+    fig = plt.figure(figsize=(16, 9), facecolor=BG, dpi=100)
+
+    # ─── ШАПКА (текст не поверх свечей) ──────────────────────
+    sc = GRN if is_long else RED
+    fig.text(0.06, 0.955, f"{sym}/USDT", fontsize=24, fontweight="bold", color=TXT)
+    fig.text(0.06, 0.918, f"{'▲' if is_long else '▼'} {'LONG' if is_long else 'SHORT'} ×{max(1, lev)}",
+             fontsize=13, fontweight="bold", color=sc)
+    meta = "  |  ".join(x for x in [
+        f"prob {prob:.2f}" if prob else "",
+        f"score {score:.0f}" if score else "",
+        f"ADX {adx:.0f}" if adx else "",
+    ] if x)
+    if meta:
+        fig.text(0.06, 0.888, meta, fontsize=10, color=SEC, weight="bold")
+
+    # правая часть шапки — статус и PnL
+    if is_open:
+        if epx and epx > 0 and last_price > 0:
+            mv = (last_price / epx - 1.0) * 100 if is_long else (epx / last_price - 1.0) * 100
+            upct = mv * max(1, lev)
+            uusd = (last_price - epx) * qty if is_long else (epx - last_price) * qty
+        else:
+            upct, uusd = 0.0, 0.0
+        pc = GRN if upct >= 0 else RED
+        fig.text(0.94, 0.955, f"{upct:+.2f}%", fontsize=22, color=pc,
+                 ha="right", weight="bold")
+        fig.text(0.94, 0.918, f"≈ ${uusd:+.2f}" if qty else "unreal",
+                 fontsize=12, color=SEC, ha="right")
+        fig.text(0.94, 0.888, "ОТКРЫТА", fontsize=10, color="#2563EB",
+                 ha="right", weight="bold")
     else:
-        max_price = entry_price - mae_r * r_value if mae_r else max(entry_price, exit_price) * 1.005
-        min_price = entry_price + mfe_r * r_value if mfe_r else min(entry_price, exit_price) * 0.995
-    
-    # Гарантируем, что max > entry > min и exit в диапазоне
-    if is_long:
-        # max_price must be at least exit_price (candles must show full move)
-        if mfe_r and mfe_r > 0:
-            max_price = max(entry_price + mfe_r * r_value, exit_price)
-        else:
-            max_price = max(max_price, entry_price, exit_price)
-        min_price = min(min_price, entry_price, exit_price)
-        # CRITICAL: For LONG, price cannot go below SL (would have triggered)
-        if sl and sl > 0:
-            min_price = max(min_price, sl)
-    else:
-        if mfe_r and mfe_r > 0:
-            max_price = max(entry_price - mfe_r * r_value, exit_price)
-        else:
-            max_price = max(max_price, entry_price, exit_price)
-        min_price = min(min_price, entry_price, exit_price)
-        # CRITICAL: For SHORT, price cannot go above SL
-        if sl and sl > 0:
-            max_price = min(max_price, sl)
-    
-    # Генерируем временные метки
-    times = [entry_time + timedelta(minutes=tf_min * i) for i in range(num_candles)]
-    
-    # Ценовой путь: 40% времени рост до максимума, 60% падение до выхода
-    mid = int(num_candles * 0.4)
-    prices = []
-    for i in range(num_candles):
-        if i <= mid:
-            fraction = i / mid if mid > 0 else 0
-            price = entry_price + (max_price - entry_price) * fraction
-        else:
-            fraction = (i - mid) / (num_candles - mid - 1) if (num_candles - mid - 1) > 0 else 1
-            price = max_price - (max_price - exit_price) * fraction
-        
-        # Шум (зависит от диапазона цен, не от фиксированного 1.0)
-        price_range = max_price - min_price
-        noise_std = max(price_range * 0.02, entry_price * 0.0001)  # 2% of range
-        noise = random.gauss(0, noise_std)
-        price += noise
-        # CLAMP: цена не может выйти за max_price/min_price
-        price = max(min_price, min(max_price, price))
-        prices.append(price)
-    
-    # Гарантируем первую и последнюю точки
-    prices[0] = entry_price
-    prices[-1] = exit_price
-    
-    # Генерируем OHLCV из close
-    # Use 8 decimals to preserve precision for small-priced assets (e.g. 0.00468)
-    DECIMALS = 8
-    klines = []
-    for i in range(num_candles):
-        close = prices[i]
-        noise = random.gauss(0, noise_std * 0.5)
-        open_price = prices[i-1] if i > 0 else close
-        # CLAMP high/low to [min_price, max_price]
-        high = min(max_price, max(open_price, close) + abs(noise) * 0.5)
-        low = max(min_price, min(open_price, close) - abs(noise) * 0.5)
-        volume = random.uniform(100, 1000)
-        ts = int(times[i].timestamp())
-        klines.append({
-            "timestamp": ts,
-            "open": round(open_price, DECIMALS),
-            "high": round(high, DECIMALS),
-            "low": round(low, DECIMALS),
-            "close": round(close, DECIMALS),
-            "Volume": volume,
-        })
-    
-    return klines
-
-
-def _build(symbol, epx, etm, ext, xtm, side, sl, tp, interval, lev, pnl, kls, **kw):
-    """v22: text uses RAW prices (entry_price_raw, exit_price_raw) for pnl_pct."""
-    # Raw prices from Guardian — for accurate pnl_pct in chart text
-    epx_raw_chart = kw.get("entry_price_raw", None)
-    xp_raw_chart = kw.get("exit_price_raw", None)
-    epx_for_chart = epx_raw_chart if (epx_raw_chart and epx_raw_chart > 0) else epx
-    xp_for_chart = xp_raw_chart if (xp_raw_chart and xp_raw_chart > 0) else ext
-    fig = None
-    try:
-        if not kls or len(kls) < 5:
-            return None
-        
-        is_long = side.upper() in ("BUY", "LONG")
-        sym = symbol.upper()
-        for sf in ["-USDT", "/USDT", "USDT"]:
-            if sym.endswith(sf): sym = sym[:-len(sf)]; break
-        
-        # Парсим свечи
-        df = pd.DataFrame(kls)
-        ts_col, cm = None, {}
-        for c in df.columns:
-            cl = c.lower()
-            if cl == "timestamp": ts_col = c
-            elif cl in ("open", "high", "low", "close"): cm[c] = cl.title()
-        if ts_col is None:
-            for c in df.columns:
-                if "time" in c.lower(): ts_col = c; break
-        if ts_col: cm[ts_col] = "timestamp"
-        df = df.rename(columns=cm)
-        cols = ["Open", "High", "Low", "Close"]
-        if "timestamp" in df.columns: cols.append("timestamp")
-        df = df[cols].dropna()
-        if len(df) < 5: return None
-        if "timestamp" in df.columns:
-            ts = df["timestamp"].values.astype(float)
-            if ts[0] > 1e12: ts /= 1000
-            idx = pd.to_datetime(ts, unit="s", utc=True)
-        else:
-            idx = pd.date_range(end=pd.Timestamp.now(tz="UTC"), periods=len(df), freq=_norm_int(interval))
-        df = df.set_index(idx)[["Open", "High", "Low", "Close"]].dropna()
-        df = df.sort_index()
-        if len(df) < 5: return None
-        
-        n = len(df)
-        
-        # Определяем reason (do NOT overwrite ext to avoid contradiction with text)
-        reason = "Ручное"
-        if ext is not None:
-            if sl > 0:
-                if (is_long and ext <= sl * 1.005) or (not is_long and ext >= sl * 0.995):
-                    reason = "Стоп-лосс"
-            if reason == "Ручное" and tp > 0:
-                if (is_long and ext >= tp * 0.995) or (not is_long and ext <= tp * 1.005):
-                    reason = "Тейк-профит"
-        
-        # FIX v22: PnL% from RAW prices (passed via kw), not rounded display
-        # qty might not be available here, so use leverage=lev
-        pnl_pct = 0.0
-        if pnl is not None and abs(pnl) > 1e-9:
-            if epx_for_chart and epx_for_chart > 0 and xp_for_chart and xp_for_chart > 0 and lev and lev > 0:
-                if is_long:
-                    pnl_pct = ((xp_for_chart / epx_for_chart) - 1.0) * 100 * lev
-                else:
-                    pnl_pct = ((epx_for_chart / xp_for_chart) - 1.0) * 100 * lev
-                # Sanity clamp: pnl_pct should match PnL sign
-                if (pnl > 0 and pnl_pct < 0) or (pnl < 0 and pnl_pct > 0):
-                    pnl_pct = -pnl_pct
-            elif ext and epx > 0 and lev and lev > 0:
-                # Fallback if raw prices not provided
-                price_move_pct = ((ext - epx) / epx * 100) if is_long else ((epx - ext) / epx * 100)
-                pnl_pct = price_move_pct * max(1, lev)
-        is_profit = pnl is not None and pnl > 0 if abs(pnl or 0) > 1e-9 else pnl_pct > 0
-        is_be = not (abs(pnl or 0) > 1e-9 or abs(pnl_pct) > 0.01)
-        pa = abs(pnl) if pnl and abs(pnl) > 1e-9 else (abs(pnl_pct) / 100 * epx * max(1, lev) if ext else 0)
-
-        # Y range — MUST include entry, exit, max, min, SL, TP
-        all_prices = list(df["Low"].values) + list(df["High"].values)
-        if epx and epx > 0:
-            all_prices.append(epx)
-        if ext and ext > 0:
-            all_prices.append(ext)
-        if sl and sl > 0:
-            all_prices.append(sl)
-        if tp and tp > 0:
-            all_prices.append(tp)
-        y_lo, y_hi = min(all_prices), max(all_prices)
-        rng = y_hi - y_lo
-
-        # CRITICAL: Adaptive Y-axis for OPEN cards (ext=epx) and flat trades
-        if ext is None or abs(ext - epx) < 1e-9:
-            # OPEN card or no movement — use candle range only
-            candle_lo = float(min(df["Low"].values))
-            candle_hi = float(max(df["High"].values))
-            candle_rng = candle_hi - candle_lo
-            if candle_rng > 0:
-                # Candles have variation, use them with small padding
-                pad = candle_rng * 0.3
-                y_lo = candle_lo - pad
-                y_hi = candle_hi + pad
-                # Ensure entry visible
-                y_lo = min(y_lo, epx * 0.999)
-                y_hi = max(y_hi, epx * 1.001)
-                rng = y_hi - y_lo
-            else:
-                # Pure flat — use minimum 0.5% range around entry
-                pad = epx * 0.005
-                y_lo = epx - pad
-                y_hi = epx + pad
-                rng = y_hi - y_lo
-        else:
-            if rng == 0:
-                rng = max(abs(y_hi), 1.0) * 0.01
-
-            # ADAPTIVE PADDING: smaller for low-volatility (flat) trades
-            if epx and epx > 0:
-                price_move_pct = rng / epx * 100
-                if price_move_pct < 1.0:
-                    pad_pct = 0.05  # 5% padding for flat trades
-                elif price_move_pct < 5.0:
-                    pad_pct = 0.10
-                else:
-                    pad_pct = 0.20
-            else:
-                pad_pct = 0.20
-            pad = rng * pad_pct
-            y_lo -= pad; y_hi += pad
-        
-        # ─── FIGURE 800x800 ─────────────────────────────────
-        fig = plt.figure(figsize=(8, 8), facecolor=BG, dpi=100)
-        
-        # ─── HEADER ─────────────────────────────────────────
-        fig.text(0.06, 0.915, f"{sym}/USDT", fontsize=18, fontweight="bold", color=TXT)
-        sc = GRN if is_long else RED
-        fig.text(0.06, 0.885, f"{'▲' if is_long else '▼'} {'LONG' if is_long else 'SHORT'} ×{max(1, lev)}",
-                 fontsize=10, fontweight="bold", color=sc)
-        
-        if ext is not None:
-            rc = RED if reason == "Стоп-лосс" else GRN
-            fig.text(0.50, 0.915, "ЗАКРЫТА", fontsize=7, color=SEC, ha="center", weight="bold")
-            fig.text(0.50, 0.890, reason, fontsize=11, color=rc, ha="center", weight="bold")
-            if xtm is not None:
-                try:
-                    fig.text(0.50, 0.870, pd.to_datetime(xtm, utc=True).strftime("%Y-%m-%d %H:%M"),
-                             fontsize=7, color=SEC, ha="center")
-                except Exception:
-                    pass
-        
-        if ext is not None:
-            pc = GRN if is_profit else RED
-            sn = "+" if is_profit else "-"
-            fig.text(0.94, 0.915, f"{sn}${pa:.2f}" if pa > 0 else "$0.00",
-                     fontsize=20, color=pc, ha="right", weight="bold", transform=fig.transFigure)
-            fig.text(0.94, 0.888, f"{pnl_pct:+.2f}%", fontsize=10, color=pc,
-                     ha="right", transform=fig.transFigure)
-            badge = "ПРИБЫЛЬ" if is_profit else "УБЫТОК"
-            bc = GRN if is_profit else RED
-            if is_be: badge = "0"; bc = SEC
-            fig.text(0.94, 0.866, badge, fontsize=7, color=bc, ha="right", weight="bold",
-                     transform=fig.transFigure,
-                     bbox=dict(boxstyle="round,pad=0.12", fc=bc + "18", ec=bc + "50", lw=0.4))
-        
-        # ─── CHART ───────────────────────────────────────────
-        ax = fig.add_axes([0.10, 0.20, 0.80, 0.55])
-        ax.set_facecolor(CARD)
-        
-        o = df["Open"].values
-        h = df["High"].values
-        l = df["Low"].values
-        c = df["Close"].values
-        
-        bw = min(0.70, 8 / n)
-        
-        for i in range(n):
-            is_up = c[i] >= o[i]
-            clr = GRN if is_up else RED
-            bh = max(abs(c[i] - o[i]), rng * 0.0006)
-            body_low = min(o[i], c[i])
-            ax.plot([i, i], [l[i], h[i]], color=clr, linewidth=1.5,
-                    solid_capstyle="butt", zorder=2)
-            ax.add_patch(Rectangle(
-                (i - bw / 2, body_low), bw, bh,
-                facecolor=clr, edgecolor=clr, linewidth=1.0, alpha=1.0, zorder=3,
-            ))
-        
-        # Grid
-        ax.set_axisbelow(True)
-        ax.grid(True, axis="y", color=GRID, linewidth=0.5, alpha=0.7)
-        ax.grid(True, axis="x", color=GRID, linewidth=0.3, alpha=0.4, linestyle=":")
-        ax.set_ylim(y_lo, y_hi)
-        ax.set_xlim(-0.5, n - 0.5)
-        
-        # ─── TIME AXIS (реальные таймстампы, без наложения) ─
-        step = max(1, n // 5)
-        ticks = list(range(0, n, step))
-        if ticks[-1] != n - 1:
-            ticks.append(n - 1)
-        tls = [df.index[i].strftime("%H:%M") for i in ticks if i < n]
-        ax.set_xticks(ticks[:len(tls)])
-        ax.set_xticklabels(tls, fontsize=8, color=SEC, weight="bold", rotation=30, ha="right")
-        for sp in ax.spines.values():
-            sp.set_visible(False)
-        ax.tick_params(axis="y", labelsize=8, colors=SEC, length=0, pad=4)
-        
-        # ─── ENTRY MARKER (первая свеча, слева) ─────────────
-        ey = c[0]
-        ax.plot(0, ey, "o", markersize=12, color=ENT,
-                markeredgecolor=CARD, markeredgewidth=2.5, zorder=10)
-        ax.axhline(y=epx, color=ENT, linewidth=1.2, linestyle=(0, (4, 3)),
-                   alpha=0.6, zorder=1)
-        ax.annotate(
-            f" ВХОД {epx:.4f} ",
-            xy=(0, ey), xytext=(-10, -22), textcoords="offset points",
-            fontsize=9, fontweight="bold", color="#FFFFFF",
-            va="top", ha="left",
-            bbox=dict(boxstyle="round,pad=0.3", fc=ENT, ec="none"),
-            arrowprops=dict(arrowstyle="-", color=ENT, lw=0.8, alpha=0.6),
-            zorder=12,
-        )
-        
-        # ─── EXIT MARKER (последняя свеча, справа) ──────────
-        if ext is not None:
-            xi = n - 1
-            if reason == "Стоп-лосс":
-                marker_y = l[xi]; mc = RED
-            elif reason == "Тейк-профит":
-                marker_y = h[xi]; mc = GRN
-            else:
-                marker_y = c[xi]; mc = SEC
-            lbl = "SL" if reason == "Стоп-лосс" else "TP" if reason == "Тейк-профит" else "ВЫХОД"
-            ax.plot(xi, marker_y, "o", markersize=12, color=mc,
-                    markeredgecolor=CARD, markeredgewidth=2.5, zorder=10)
-            ax.axhline(y=ext, color=mc, linewidth=1.2, linestyle=(0, (4, 3)),
-                       alpha=0.6, zorder=1)
-            ax.annotate(
-                f" {lbl} {ext:.4f} ",
-                xy=(xi, marker_y), xytext=(10, 22), textcoords="offset points",
-                fontsize=9, fontweight="bold", color="#FFFFFF",
-                va="bottom", ha="right",
-                bbox=dict(boxstyle="round,pad=0.3", fc=mc, ec="none"),
-                arrowprops=dict(arrowstyle="-", color=mc, lw=0.8, alpha=0.6),
-                zorder=12,
-            )
-        
-        # ─── TRADE PATH LINE ────────────────────────────────
-        path_color = GRN if is_profit else RED
-        ax.plot(range(n), c, color=path_color, linewidth=2.0,
-                alpha=0.5, zorder=4, solid_capstyle="round")
-        
-        # ─── MAX/MIN LABELS (calculated from ACTUAL candle data) ────
-        # CRITICAL: calculate from real candle high/low so labels match chart
-        r_dist = abs(epx - sl) if (sl and sl > 0) else 0
-
-        # Find actual max/min from candle data
-        max_idx = int(np.argmax(h))
-        min_idx = int(np.argmin(l))
-        actual_max_price = h[max_idx]
-        actual_min_price = l[min_idx]
-
-        # Convert to R-multiple for display
-        if r_dist > 0:
-            if is_long:
-                max_r = (actual_max_price - epx) / r_dist
-                min_r = (actual_min_price - epx) / r_dist
-            else:
-                max_r = (epx - actual_max_price) / r_dist
-                min_r = (epx - actual_min_price) / r_dist
-        else:
-            max_r = min_r = 0
-
-        # Draw MAX label at actual max candle
-        if max_idx > 0 and max_idx < n - 1:
-            # Use raw price (not rounded) for label, then round only for display
-            raw_max_price = float(h[max_idx])
-            ax.annotate(
-                f"MAX {max_r:+.2f}R ({raw_max_price:.6f})",
-                xy=(max_idx, raw_max_price), xytext=(0, 18), textcoords="offset points",
-                fontsize=7, fontweight="bold", color=GRN,
-                ha="center", va="bottom",
-                arrowprops=dict(arrowstyle="->", color=GRN, lw=1.2),
-                zorder=12,
-            )
-
-        # Draw MIN label at actual min candle (allow edge candles)
-        if min_idx != max_idx:
-            raw_min_price = float(l[min_idx])
-            ax.annotate(
-                f"MIN {min_r:+.2f}R ({raw_min_price:.6f})",
-                xy=(min_idx, raw_min_price), xytext=(0, -18), textcoords="offset points",
-                fontsize=7, fontweight="bold", color=RED,
-                ha="center", va="top",
-                arrowprops=dict(arrowstyle="->", color=RED, lw=1.2),
-                zorder=12,
-            )
-
-        # Y-axis label — show PRICES (USDT) since candles are in price units
-        ax.set_ylabel(f"Цена (USDT)", fontsize=8, color=SEC, weight="bold")
-        
-        # ─── FOOTER ──────────────────────────────────────
-        dur = "--"
-        # Use holding_hours from kw if available (matches text message)
-        holding_hours = kw.get("holding_hours", 0)
-        if holding_hours and holding_hours > 0:
-            h = int(holding_hours)
-            m = int((holding_hours - h) * 60)
-            dur = f"{h}ч {m}м" if h > 0 else f"{m}м"
-        elif ext is not None and etm is not None and xtm is not None:
+        pc = GRN if (pnl is not None and pnl >= 0) else RED
+        fig.text(0.94, 0.955, f"{'+' if (pnl is not None and pnl >= 0) else ''}{pnl or 0:.2f}$",
+                 fontsize=22, color=pc, ha="right", weight="bold")
+        fig.text(0.94, 0.918, reason or "ЗАКРЫТА", fontsize=12, color=pc, ha="right", weight="bold")
+        if xtm is not None:
             try:
-                s_ = int((pd.to_datetime(xtm, utc=True) - pd.to_datetime(etm, utc=True)).total_seconds())
-                h_, m_ = divmod(max(0, s_), 3600); dur = f"{h_}ч {m_ // 60}м"
+                fig.text(0.94, 0.888, pd.to_datetime(xtm, utc=True).strftime("%Y-%m-%d %H:%M"),
+                         fontsize=9, color=SEC, ha="right")
             except Exception:
                 pass
-        rr = "--"
-        if sl > 0 and ext is not None and abs(epx - sl) > 0:
-            r_mult = (ext - epx) / abs(epx - sl) if is_long else (epx - ext) / abs(epx - sl)
-            rr = f"{r_mult:+.2f}R"
-        fc = GRN if is_profit else RED
-        sn = "+" if is_profit else "-"
-        
-        ft = [
-            ("ВХОД",   _fp(epx),                            TXT),
-            ("ВЫХОД",  _fp(ext) if ext is not None else "--", TXT),
-            ("P&L",    f"{sn}${pa:.2f}" if not is_be else "0", fc),
-            ("R:R",    rr,                                   TXT),
-            ("ВРЕМЯ",  dur,                                  SEC),
-        ]
-        n_ft = len(ft)
-        fw = 0.88 / n_ft
-        for i, (lb, vl, cl) in enumerate(ft):
-            x = 0.06 + i * fw
-            fig.text(x, 0.115, lb, fontsize=7, color=SEC, va="center", weight="bold")
-            fig.text(x, 0.075, vl, fontsize=12, color=cl, va="center", weight="bold")
-        
-        buf = io.BytesIO()
-        fig.savefig(buf, format="png", dpi=100, facecolor=BG, edgecolor="none",
-                    pad_inches=0, bbox_inches=None)
-        buf.seek(0)
-        return buf.getvalue()
-    except Exception as e:
-        log.error(f"Chart error: {e}", exc_info=True)
+
+    # ─── ГРАФИК (верхняя часть; данные сделки — текстом в Telegram) ──
+    ax = fig.add_axes([0.05, 0.08, 0.90, 0.78])
+    ax.set_facecolor(CARD)
+    ax.set_ylim(y_lo, y_hi)
+    ax.set_xlim(-0.6, n - 0.4)
+    ax.set_axisbelow(True)
+    ax.grid(True, axis="y", color=GRID, linewidth=0.5)
+    ax.grid(True, axis="x", color=GRID, linewidth=0.3, linestyle=":")
+    for sp in ax.spines.values():
+        sp.set_visible(False)
+    ax.tick_params(axis="y", labelsize=9, colors=SEC, length=0, pad=4)
+    ax.tick_params(axis="x", labelsize=8, colors=SEC, length=0, pad=4)
+    ax.set_xticks([])
+
+    # подписи времени: первая / последняя (вход — отдельно, под вертикальной линией)
+    ts_vals = df.index
+    for xpos, anchor in ((0, "left"), (n - 1, "right")):
+        try:
+            lbl = ts_vals[xpos].strftime("%m-%d %H:%M")
+        except Exception:
+            continue
+        ax.annotate(lbl, xy=(xpos, y_lo), xytext=(0, 4),
+                    textcoords="offset points", fontsize=8, color=SEC,
+                    ha=anchor, weight="bold")
+
+    bw = 0.65 if n <= 80 else 0.5
+    _draw_candles(ax, o, h, l, c, bw)
+
+    # вертикальная линия входа + время входа под ней (v2.1)
+    ax.axvline(x=ei, color=ENT, linewidth=1.0, linestyle=(0, (2, 3)), alpha=0.35, zorder=4)
+    try:
+        ets_lbl = ts_vals[ei].strftime("%d-%m %H:%M")
+    except Exception:
+        ets_lbl = ""
+    if ets_lbl:
+        # v2.2: дату входа поднимаем выше нижней строки дат (иначе накладывается
+        # в правом нижнем углу на дату последней свечи)
+        ax.text(ei, y_lo + rng * 0.10, ets_lbl, fontsize=8, color=ENT,
+                ha="center", va="bottom", weight="bold", zorder=12)
+
+    # уровни: TP, SL, ENTRY, текущая цена
+    if tp and tp > 0:
+        if tp_clamped:
+            # TP на границе — не растягиваем свечи
+            _level_line(ax, y_hi, GRN, f"TP {_fp(tp)} ↗", 0, n - 1, above=True)
+        else:
+            _level_line(ax, tp, GRN, "TP", 0, n - 1, above=True)
+    if sl and sl > 0:
+        _level_line(ax, sl, RED, "SL", 0, n - 1, above=False)
+    # entry marker (v2.1: адаптивная позиция лейбла — не обрезается у правого края)
+    ax.plot(ei, epx, "o", markersize=11, color=ENT, markeredgecolor=CARD,
+            markeredgewidth=2.5, zorder=10)
+    entry_ha = "left" if ei < n * 0.7 else "right"
+    entry_dx = -8 if entry_ha == "left" else 8
+    ax.annotate(f" ВХОД {_fp(epx)} ", xy=(ei, epx), xytext=(entry_dx, -26),
+                textcoords="offset points", fontsize=10, fontweight="bold", color="#FFFFFF",
+                va="top", ha=entry_ha,
+                bbox=dict(boxstyle="round,pad=0.25", fc=ENT, ec="none"), zorder=12)
+    # текущая/выходная точка (v2.1: лейбл привязан к последней свече, не висит справа)
+    if is_open:
+        mc = GRN if last_price >= epx else RED
+        ax.plot(n - 1, last_price, "o", markersize=10, color=mc,
+                markeredgecolor=CARD, markeredgewidth=2.5, zorder=10)
+        ax.annotate(f" ТЕКУЩАЯ {_fp(last_price)} ", xy=(n - 1, last_price),
+                    xytext=(-6, 14), textcoords="offset points", fontsize=10,
+                    fontweight="bold", color="#FFFFFF", va="bottom", ha="right",
+                    bbox=dict(boxstyle="round,pad=0.25", fc=mc, ec="none"),
+                    arrowprops=dict(arrowstyle="-", color=mc, lw=0.8), zorder=12)
+    else:
+        if ext is not None and ext > 0:
+            mc = RED if reason == "Стоп-лосс" else (GRN if reason == "Тейк-профит" else SEC)
+            ax.plot(n - 1, ext, "o", markersize=11, color=mc,
+                    markeredgecolor=CARD, markeredgewidth=2.5, zorder=10)
+            # v3: лейбл не выходит за правую границу (ha=right, внутри графика)
+            ax.annotate(f" ВЫХОД {_fp(ext)} ", xy=(n - 1, ext), xytext=(-6, 14),
+                        textcoords="offset points", fontsize=10, fontweight="bold",
+                        color="#FFFFFF", va="bottom", ha="right",
+                        bbox=dict(boxstyle="round,pad=0.25", fc=mc, ec="none"),
+                        arrowprops=dict(arrowstyle="-", color=mc, lw=0.8), zorder=12)
+
+    buf = io.BytesIO()
+    fig.savefig(buf, format="png", dpi=100, facecolor=BG, edgecolor="none",
+                pad_inches=0, bbox_inches=None)
+    plt.close(fig)
+    buf.seek(0)
+    return buf.getvalue()
+
+
+def _df_from_kls(kls, interval):
+    df = pd.DataFrame(kls)
+    ts = df["timestamp"].values.astype(float)
+    if ts[0] > 1e12:
+        ts /= 1000
+    idx = pd.to_datetime(ts, unit="s", utc=True)
+    return df.set_index(idx)[["open", "high", "low", "close"]].rename(
+        columns={"open": "Open", "high": "High", "low": "Low", "close": "Close"})
+
+
+async def generate_trade_chart(
+    exchange, symbol, entry_price, entry_time=None,
+    exit_price=None, exit_time=None, side="BUY",
+    sl=0., tp=0., interval="15", lookback=48,
+    leverage=3, pnl=None, **kw,
+):
+    """v2: реальные Bybit свечи + минимальная разметка сделки (см. ТЗ)."""
+    if entry_time is None:
         return None
-    finally:
-        if fig is not None:
-            plt.close(fig)
+
+    is_long = side.upper() in ("BUY", "LONG")
+    is_open = exit_time is None or exit_price is None
+    mfe_r = kw.get("mfe_r") or 0.0
+    mae_r = kw.get("mae_r") or 0.0
+
+    # Динамическое окно: график должен покрыть от входа ДО закрытия
+    # (или до текущего момента для открытой позиции). Раньше post_bars=200
+    # (≈62.5ч на 15m) — если позиция висела дольше, закрытие НЕ попадало
+    # в картинку. Теперь считаем по факту: (exit_or_now − entry) + запас.
+    tf_min = _interval_minutes(interval)
+    try:
+        if isinstance(entry_time, (int, float)):
+            entry_ts = float(entry_time) if entry_time < 1e12 else float(entry_time) / 1000
+        else:
+            entry_ts = pd.Timestamp(entry_time).timestamp()
+        end_ts = None
+        if exit_time is not None:
+            if isinstance(exit_time, (int, float)):
+                end_ts = float(exit_time) if exit_time < 1e12 else float(exit_time) / 1000
+            else:
+                end_ts = pd.Timestamp(exit_time).timestamp()
+        else:
+            end_ts = time.time()
+        span_hours = (end_ts - entry_ts) / 3600
+        # Долгая позиция (>4.5 дней на 15m = 432 бара): укрупняем таймфрейм,
+        # чтобы весь период влез в картинку и свечи остались читаемыми.
+        if span_hours > 4.5 * 24 and interval == "15":
+            interval = "60"
+            tf_min = 60
+        span_bars = int((end_ts - entry_ts) / (tf_min * 60)) + 10  # +10 бар запаса
+        post_bars = min(max(span_bars, 60), 1000)
+        # Bybit отдаёт максимум 1000 баров за запрос; берём с запасом
+        post_bars = min(post_bars, 950)
+    except Exception:
+        post_bars = 200
+
+    kls, entry_idx = None, 0
+    real = await _fetch_real_klines(symbol, interval, entry_time,
+                                    pre_bars=50, post_bars=post_bars)
+    if real is not None:
+        kls, entry_idx = real
+    else:
+        # фолбэк: синтетика на MFE/MAE
+        if exit_time is None:
+            exit_time = entry_time + timedelta(hours=6)
+        if exit_price is None:
+            exit_price = entry_price * (1.005 if is_long else 0.995)
+        kls = _generate_synthetic_klines(
+            entry_price, exit_price, entry_time, exit_time,
+            sl, tp, is_long, mfe_r, mae_r)
+    if not kls or len(kls) < 8:
+        return None
+
+    df = _df_from_kls(kls, interval)
+    try:
+        png = _render(
+            symbol, df, entry_idx, side, leverage, entry_price, sl, tp,
+            exit_price, entry_time, exit_time, is_open,
+            kw.get("reason", ""), mfe_r, mae_r,
+            kw.get("qty", 0.0), kw.get("current_price", 0.0), pnl,
+            kw.get("prob"), kw.get("score"), kw.get("adx"),
+        )
+        return png
+    except Exception as e:
+        log.error(f"Chart v2 error: {e}", exc_info=True)
+        return None
 
 
 async def generate_guardian_chart(
@@ -500,252 +431,95 @@ async def generate_guardian_chart(
     peak_r=0.0, event_type="BE",
     leverage=1, entry_time=None,
 ) -> Optional[bytes]:
-    """Generate a chart for Guardian events (BE/Partial/Tight).
-    
-    Shows: entry, old SL (red dashed), new SL (green solid), current price.
-    """
+    """Guardian-событие: реальные свечи + старый/новый SL + текущая цена."""
     if entry_time is None:
         return None
+    is_long = side.upper() in ("BUY", "LONG")
     if current_price <= 0:
         current_price = entry_price
 
-    is_long = side.upper() in ("BUY", "LONG")
+    kls, entry_idx = None, 0
+    real = await _fetch_real_klines(symbol, "15", entry_time, pre_bars=40, post_bars=120)
+    if real is not None:
+        kls, entry_idx = real
+    else:
+        exit_t = entry_time + timedelta(hours=6)
+        kls = _generate_synthetic_klines(
+            entry_price, current_price, entry_time, exit_t,
+            old_sl, 0, is_long, peak_r if peak_r > 0 else 0.5, 0.0)
+    if not kls or len(kls) < 8:
+        return None
+    df = _df_from_kls(kls, "15")
+
+    n = len(df)
+    o, h, l, c = (df[k].values.astype(float) for k in ("Open", "High", "Low", "Close"))
     sym = symbol.upper()
     for sf in ["-USDT", "/USDT", "USDT"]:
-        if sym.endswith(sf): sym = sym[:-len(sf)]; break
+        if sym.endswith(sf):
+            sym = sym[:-len(sf)]
+            break
+    ei = max(0, min(entry_idx, n - 1))
+    lows, highs = float(np.min(l)), float(np.max(h))
+    y_lo, y_hi = lows, highs
+    for p_ in (entry_price, old_sl, new_sl, current_price):
+        if p_ and p_ > 0:
+            y_lo, y_hi = min(y_lo, p_), max(y_hi, p_)
+    rng = y_hi - y_lo or entry_price * 0.02 or 1.0
+    m10 = rng * 0.10
+    y_lo -= m10
+    y_hi += m10
 
-    # Build synthetic klines: simple path from entry to current
-    exit_time = entry_time + timedelta(hours=6)
-    r_val = abs(entry_price - old_sl) if old_sl > 0 else abs(entry_price) * 0.01
-    mfe_r = peak_r if peak_r > 0 else 0.5
-    kls = _generate_synthetic_klines(
-        entry_price, current_price, entry_time, exit_time,
-        old_sl, 0, is_long, mfe_r, 0.0,
-    )
-    if not kls or len(kls) < 5:
-        return None
+    fig = plt.figure(figsize=(16, 9), facecolor=BG, dpi=100)
+    sc = GRN if is_long else RED
+    fig.text(0.06, 0.955, f"{sym}/USDT", fontsize=24, fontweight="bold", color=TXT)
+    fig.text(0.06, 0.918, f"{'▲' if is_long else '▼'} {'LONG' if is_long else 'SHORT'} ×{max(1, leverage)}",
+             fontsize=13, fontweight="bold", color=sc)
+    names = {"BE": "Безубыток", "PARTIAL": "Частичная фиксация", "TIGHT": "Жёсткая защита"}
+    fig.text(0.94, 0.955, names.get(event_type, event_type), fontsize=18,
+             color="#2563EB", ha="right", weight="bold")
+    fig.text(0.94, 0.918, f"Пик {peak_r:+.2f}R", fontsize=12, color=SEC, ha="right")
 
-    fig = None
-    try:
-        df = pd.DataFrame(kls)
-        ts_col, cm = None, {}
-        for c in df.columns:
-            cl = c.lower()
-            if cl == "timestamp": ts_col = c
-            elif cl in ("open", "high", "low", "close"): cm[c] = cl.title()
-        if ts_col: cm[ts_col] = "timestamp"
-        df = df.rename(columns=cm)
-        cols = ["Open", "High", "Low", "Close"]
-        if "timestamp" in df.columns: cols.append("timestamp")
-        df = df[cols].dropna()
-        if len(df) < 5: return None
-        if "timestamp" in df.columns:
-            ts = df["timestamp"].values.astype(float)
-            if ts[0] > 1e12: ts /= 1000
-            idx = pd.to_datetime(ts, unit="s", utc=True)
-        else:
-            idx = pd.date_range(end=pd.Timestamp.now(tz="UTC"), periods=len(df), freq="15min")
-        df = df.set_index(idx)[["Open", "High", "Low", "Close"]].dropna()
-        df = df.sort_index()
-        if len(df) < 5: return None
+    ax = fig.add_axes([0.05, 0.08, 0.90, 0.78])
+    ax.set_facecolor(CARD)
+    ax.set_ylim(y_lo, y_hi)
+    ax.set_xlim(-0.6, n - 0.4)
+    ax.set_axisbelow(True)
+    ax.grid(True, axis="y", color=GRID, linewidth=0.5)
+    for sp in ax.spines.values():
+        sp.set_visible(False)
+    ax.tick_params(axis="y", labelsize=9, colors=SEC, length=0, pad=4)
+    ax.set_xticks([])
+    _draw_candles(ax, o, h, l, c, 0.65 if n <= 80 else 0.5)
 
-        n = len(df)
-        o, h, l, c_arr = df["Open"].values, df["High"].values, df["Low"].values, df["Close"].values
+    ax.axvline(x=ei, color=ENT, linewidth=1.0, linestyle=(0, (2, 3)), alpha=0.35, zorder=4)
+    ax.plot(ei, entry_price, "o", markersize=11, color=ENT, markeredgecolor=CARD,
+            markeredgewidth=2.5, zorder=10)
+    # v2.1: адаптивная позиция лейбла — не обрезается у правого края
+    entry_ha = "left" if ei < n * 0.7 else "right"
+    entry_dx = -8 if entry_ha == "left" else 8
+    ax.annotate(f" ВХОД {_fp(entry_price)} ", xy=(ei, entry_price),
+                xytext=(entry_dx, -26),
+                textcoords="offset points", fontsize=10, fontweight="bold", color="#FFFFFF",
+                va="top", ha=entry_ha,
+                bbox=dict(boxstyle="round,pad=0.25", fc=ENT, ec="none"), zorder=12)
 
-        # Y range
-        all_p = list(l) + list(h) + [entry_price, current_price, old_sl, new_sl]
-        y_lo, y_hi = min(all_p), max(all_p)
-        rng = y_hi - y_lo
-        if rng == 0: rng = max(abs(y_hi), 1.0) * 0.01
-        pad = rng * 0.25
-        y_lo -= pad; y_hi += pad
+    if old_sl > 0:
+        _level_line(ax, old_sl, RED, "СТАРЫЙ SL", 0, n - 1, above=False)
+    if new_sl > 0 and abs(new_sl - old_sl) > 1e-9:
+        _level_line(ax, new_sl, GRN, "НОВЫЙ SL", 0, n - 1, above=True)
+    lc = current_price or float(c[-1])
+    mc = GRN if lc >= entry_price else RED
+    ax.plot(n - 1, lc, "o", markersize=10, color=mc, markeredgecolor=CARD,
+            markeredgewidth=2.5, zorder=10)
+    ax.annotate(f" ТЕКУЩАЯ {_fp(lc)} ", xy=(n - 1, lc), xytext=(-6, 14),
+                textcoords="offset points", fontsize=10, fontweight="bold",
+                color="#FFFFFF", va="bottom", ha="right",
+                bbox=dict(boxstyle="round,pad=0.25", fc=mc, ec="none"),
+                arrowprops=dict(arrowstyle="-", color=mc, lw=0.8), zorder=12)
 
-        fig = plt.figure(figsize=(8, 8), facecolor=BG, dpi=100)
-
-        # Header
-        event_names = {"BE": "Безубыток (БУ)", "PARTIAL": "Частичная фиксация", "TIGHT": "Жёсткая защита"}
-        event_name = event_names.get(event_type, event_type)
-        sc = GRN if is_long else RED
-        fig.text(0.06, 0.915, f"{sym}/USDT", fontsize=18, fontweight="bold", color=TXT)
-        fig.text(0.06, 0.885, f"{'▲' if is_long else '▼'} {'LONG' if is_long else 'SHORT'} ×{max(1, leverage)}",
-                 fontsize=10, fontweight="bold", color=sc)
-        fig.text(0.50, 0.915, "🛡️ GUARDIAN", fontsize=7, color=SEC, ha="center", weight="bold")
-        fig.text(0.50, 0.890, event_name, fontsize=11, color="#2563EB", ha="center", weight="bold")
-        fig.text(0.50, 0.870, f"Пик R: {peak_r:+.2f}R", fontsize=7, color=SEC, ha="center")
-
-        # Chart
-        ax = fig.add_axes([0.10, 0.20, 0.80, 0.55])
-        ax.set_facecolor(CARD)
-        bw = min(0.70, 8 / n)
-        for i in range(n):
-            is_up = c_arr[i] >= o[i]
-            clr = GRN if is_up else RED
-            bh = max(abs(c_arr[i] - o[i]), rng * 0.0006)
-            body_low = min(o[i], c_arr[i])
-            ax.plot([i, i], [l[i], h[i]], color=clr, linewidth=1.5, solid_capstyle="butt", zorder=2)
-            ax.add_patch(Rectangle(
-                (i - bw / 2, body_low), bw, bh,
-                facecolor=clr, edgecolor=clr, linewidth=1.0, alpha=1.0, zorder=3,
-            ))
-
-        ax.set_axisbelow(True)
-        ax.grid(True, axis="y", color=GRID, linewidth=0.5, alpha=0.7)
-        ax.set_ylim(y_lo, y_hi)
-        ax.set_xlim(-0.5, n - 0.5)
-        step = max(1, n // 5)
-        ticks = list(range(0, n, step))
-        if ticks[-1] != n - 1: ticks.append(n - 1)
-        tls = [df.index[i].strftime("%H:%M") for i in ticks if i < n]
-        ax.set_xticks(ticks[:len(tls)])
-        ax.set_xticklabels(tls, fontsize=8, color=SEC, weight="bold", rotation=30, ha="right")
-        for sp in ax.spines.values(): sp.set_visible(False)
-        ax.tick_params(axis="y", labelsize=8, colors=SEC, length=0, pad=4)
-
-        # Entry marker
-        ax.plot(0, c_arr[0], "o", markersize=12, color=ENT,
-                markeredgecolor=CARD, markeredgewidth=2.5, zorder=10)
-        ax.axhline(y=entry_price, color=ENT, linewidth=1.2, linestyle=(0, (4, 3)),
-                   alpha=0.6, zorder=1)
-        ax.annotate(
-            f" ВХОД {entry_price:.4f} ",
-            xy=(0, c_arr[0]), xytext=(-10, -22), textcoords="offset points",
-            fontsize=9, fontweight="bold", color="#FFFFFF",
-            va="top", ha="left",
-            bbox=dict(boxstyle="round,pad=0.3", fc=ENT, ec="none"),
-            arrowprops=dict(arrowstyle="-", color=ENT, lw=0.8, alpha=0.6),
-            zorder=12,
-        )
-
-        # Current price marker
-        xi = n - 1
-        ax.plot(xi, c_arr[-1], "o", markersize=12, color=SEC,
-                markeredgecolor=CARD, markeredgewidth=2.5, zorder=10)
-        ax.annotate(
-            f" ТЕКУЩАЯ {current_price:.4f} ",
-            xy=(xi, c_arr[-1]), xytext=(10, 22), textcoords="offset points",
-            fontsize=9, fontweight="bold", color="#FFFFFF",
-            va="bottom", ha="right",
-            bbox=dict(boxstyle="round,pad=0.3", fc=SEC, ec="none"),
-            arrowprops=dict(arrowstyle="-", color=SEC, lw=0.8, alpha=0.6),
-            zorder=12,
-        )
-
-        # OLD SL (red dashed line)
-        if old_sl > 0:
-            ax.axhline(y=old_sl, color=RED, linewidth=2.0, linestyle="--",
-                       alpha=0.8, zorder=5)
-            ax.annotate(
-                f" СТАРЫЙ SL {old_sl:.4f} ",
-                xy=(n//3, old_sl), xytext=(0, 12), textcoords="offset points",
-                fontsize=9, fontweight="bold", color=RED,
-                ha="center", va="bottom",
-                bbox=dict(boxstyle="round,pad=0.2", fc="#FFFFFF", ec=RED, lw=1.2),
-                zorder=12,
-            )
-
-        # NEW SL (green solid line)
-        if new_sl > 0 and abs(new_sl - old_sl) > 1e-9:
-            nc = GRN
-            ax.axhline(y=new_sl, color=nc, linewidth=2.5, linestyle="-",
-                       alpha=0.9, zorder=5)
-            ax.annotate(
-                f" НОВЫЙ SL {new_sl:.4f} ",
-                xy=(n*2//3, new_sl), xytext=(0, -12), textcoords="offset points",
-                fontsize=9, fontweight="bold", color=nc,
-                ha="center", va="top",
-                bbox=dict(boxstyle="round,pad=0.2", fc="#FFFFFF", ec=nc, lw=1.2),
-                zorder=12,
-            )
-
-        # Path line
-        path_color = GRN if current_price >= entry_price else RED
-        ax.plot(range(n), c_arr, color=path_color, linewidth=2.0,
-                alpha=0.5, zorder=4, solid_capstyle="round")
-
-        ax.set_ylabel("Цена (USDT)", fontsize=8, color=SEC, weight="bold")
-
-        # Footer
-        ft = [
-            ("ВХОД",   _fp(entry_price), TXT),
-            ("СТАРЫЙ SL", _fp(old_sl) if old_sl > 0 else "—", RED),
-            ("НОВЫЙ SL", _fp(new_sl) if new_sl > 0 else "—", GRN),
-            ("ПИК R", f"{peak_r:+.2f}R", "#2563EB"),
-        ]
-        n_ft = len(ft)
-        fw = 0.88 / n_ft
-        for i, (lb, vl, cl) in enumerate(ft):
-            x = 0.06 + i * fw
-            fig.text(x, 0.115, lb, fontsize=7, color=SEC, va="center", weight="bold")
-            fig.text(x, 0.075, vl, fontsize=12, color=cl, va="center", weight="bold")
-
-        buf = io.BytesIO()
-        fig.savefig(buf, format="png", dpi=100, facecolor=BG, edgecolor="none",
-                    pad_inches=0, bbox_inches=None)
-        buf.seek(0)
-        return buf.getvalue()
-    except Exception as e:
-        log.error(f"Guardian chart error: {e}", exc_info=True)
-        return None
-    finally:
-        if fig is not None:
-            plt.close(fig)
-
-
-async def generate_trade_chart(
-    exchange, symbol, entry_price, entry_time=None,
-    exit_price=None, exit_time=None, side="BUY",
-    sl=0., tp=0., interval="15", lookback=48,
-    leverage=3, pnl=None, **kw,
-) -> Optional[bytes]:
-    """v21: SINGLE-SOURCE validation. Mfe/mae R values normalized ONCE at entry,
-    then propagated to both synthetic and label display.
-    """
-    if entry_time is None:
-        return None
-
-    # ─── SINGLE VALIDATION POINT ───────────────────────────
-    # Normalize mfe_r/mae_r ONCE here, both will be applied uniformly downstream
-    mfe_r_raw = kw.get("mfe_r", None)
-    mae_r_raw = kw.get("mae_r", None)
-
-    # Reject None, reject outliers (abs > 10R is unrealistic for normal trades)
-    mfe_r = float(mfe_r_raw) if (mfe_r_raw is not None and -10 < mfe_r_raw < 10) else 0.0
-    mae_r = float(mae_r_raw) if (mae_r_raw is not None and -10 < mae_r_raw < 10) else 0.0
-
-    if mfe_r_raw is not None and abs(mfe_r_raw) > 10:
-        log.warning(f"RAW mfe_r={mfe_r_raw} REJECTED — replaced with 0 (synthetic fallback)")
-    if mae_r_raw is not None and abs(mae_r_raw) > 10:
-        log.warning(f"RAW mae_r={mae_r_raw} REJECTED — replaced with 0 (synthetic fallback)")
-
-    # Log normalized values going INTO chart
-    log.info(
-        f"CHART_INPUT symbol={symbol} side={side} "
-        f"mfe_r_norm={mfe_r:.3f} (raw={mfe_r_raw}) "
-        f"mae_r_norm={mae_r:.3f} (raw={mae_r_raw}) "
-        f"sl={sl} entry={entry_price} exit={exit_price}"
-    )
-
-    is_long = side.upper() in ("BUY", "LONG")
-
-    # For OPEN card (no exit), use entry_time + 6h as window
-    if exit_time is None:
-        exit_time = entry_time + timedelta(hours=6)
-        if exit_price is None:
-            exit_price = entry_price * (1.005 if is_long else 0.995)
-
-    kls = _generate_synthetic_klines(
-        entry_price, exit_price, entry_time, exit_time,
-        sl, tp, is_long, mfe_r, mae_r,
-    )
-    if not kls or len(kls) < 5:
-        return None
-
-    # Pass through the NORMALIZED values so chart and text agree
-    entry_raw = kw.get("entry_price_raw", None)
-    exit_raw = kw.get("exit_price_raw", None)
-    with _LOCK:
-        return _build(symbol, entry_price, entry_time, exit_price, exit_time,
-                      side, sl, tp, interval, leverage, pnl, kls,
-                      holding_hours=kw.get("holding_hours", 0),
-                      mfe_r=mfe_r, mae_r=mae_r,
-                      entry_price_raw=entry_raw, exit_price_raw=exit_raw)
+    buf = io.BytesIO()
+    fig.savefig(buf, format="png", dpi=100, facecolor=BG, edgecolor="none",
+                pad_inches=0, bbox_inches=None)
+    plt.close(fig)
+    buf.seek(0)
+    return buf.getvalue()

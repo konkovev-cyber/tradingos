@@ -17,6 +17,22 @@ logger = logging.getLogger("capital_util")
 CAPITAL_LOG = Path("/root/tradingos/guardian/capital_utilization.jsonl")
 
 
+def _api_base() -> str:
+    """2026-08-27: Demo switch — private endpoints route to api-demo."""
+    v = (os.environ.get("BYBIT_DEMO", "") or "").strip().lower()
+    if v not in ("1", "true", "yes", "on"):
+        try:
+            with open("/root/trading_brain_v4/research/execution/.env") as f:
+                for line in f:
+                    line = line.strip()
+                    if line.startswith("BYBIT_DEMO="):
+                        v = line.split("=", 1)[1].strip().lower()
+                        break
+        except FileNotFoundError:
+            pass
+    return "https://api-demo.bybit.com" if v in ("1", "true", "yes", "on") else "https://api.bybit.com"
+
+
 def snapshot(
     balance: float = 0,
     equity: float = 0,
@@ -75,7 +91,7 @@ def take_snapshot_from_exchange(max_pos: int = 4, risk_budget: float = 1.0) -> O
     sign = hmac.new(as_.encode(), f"{ts}{ak}5000{q}".encode(), hashlib.sha256).hexdigest()
     h = {"X-BAPI-API-KEY": ak, "X-BAPI-TIMESTAMP": ts, "X-BAPI-SIGN": sign, "X-BAPI-RECV-WINDOW": "5000"}
     try:
-        r = httpx.get(f"https://api.bybit.com/v5/account/wallet-balance?{q}", headers=h, timeout=10)
+        r = httpx.get(f"{_api_base()}/v5/account/wallet-balance?{q}", headers=h, timeout=10)
         d = r.json()
         equity = 0.0
         wallet = 0.0
@@ -100,7 +116,7 @@ def take_snapshot_from_exchange(max_pos: int = 4, risk_budget: float = 1.0) -> O
     positions = []
     total_risk = 0.0
     try:
-        r2 = httpx.get(f"https://api.bybit.com/v5/position/list?{q2}", headers=h2, timeout=10)
+        r2 = httpx.get(f"{_api_base()}/v5/position/list?{q2}", headers=h2, timeout=10)
         d2 = r2.json()
         if d2.get("retCode") == 0:
             for i in d2["result"]["list"]:

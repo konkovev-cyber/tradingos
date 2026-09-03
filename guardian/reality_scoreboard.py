@@ -23,6 +23,22 @@ TIMEOUT_ALERTS = Path("/root/tradingos/guardian/timeout_alerts.jsonl")
 GUARDIAN_STATE = Path("/root/tradingos/guardian/reality_state.json")
 
 
+def _api_base() -> str:
+    """2026-08-27: Demo switch — private endpoints route to api-demo."""
+    v = (os.environ.get("BYBIT_DEMO", "") or "").strip().lower()
+    if v not in ("1", "true", "yes", "on"):
+        try:
+            with open("/root/trading_brain_v4/research/execution/.env") as f:
+                for line in f:
+                    line = line.strip()
+                    if line.startswith("BYBIT_DEMO="):
+                        v = line.split("=", 1)[1].strip().lower()
+                        break
+        except FileNotFoundError:
+            pass
+    return "https://api-demo.bybit.com" if v in ("1", "true", "yes", "on") else "https://api.bybit.com"
+
+
 def _load_jsonl(path: Path) -> List[dict]:
     if not path.exists():
         return []
@@ -116,7 +132,7 @@ def daily_scoreboard(hours: int = 24) -> Dict:
         q_q = "category=linear&settleCoin=USDT"
         s_q = hmac.new(as2.encode(), f"{ts_q}{ak2}5000{q_q}".encode(), hashlib.sha256).hexdigest()
         h_q = {"X-BAPI-API-KEY": ak2, "X-BAPI-TIMESTAMP": ts_q, "X-BAPI-SIGN": s_q, "X-BAPI-RECV-WINDOW": "5000"}
-        r_q = _h.get(f"https://api.bybit.com/v5/position/list?{q_q}", headers=h_q, timeout=5)
+        r_q = _h.get(f"{_api_base()}/v5/position/list?{q_q}", headers=h_q, timeout=5)
         d_q = r_q.json()
         open_positions_data = []
         if d_q.get("retCode") == 0:

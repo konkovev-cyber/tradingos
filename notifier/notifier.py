@@ -39,6 +39,20 @@ def qty_is_valid(entry_price):
     return entry_price is not None and entry_price > 0
 
 
+def _fmt_price(price) -> str:
+    """Full-precision price formatting — NO rounding.
+    Rounding caused recurring display bugs (e.g. SHIB 0.0049415 shown as 0.0049,
+    SL move invisible). Show the raw value with enough decimals to be exact."""
+    try:
+        p = float(price)
+    except (TypeError, ValueError):
+        return f"{price}"
+    if p <= 0:
+        return "—"
+    # Show exact value: use 10 decimals, strip trailing zeros (never rounds)
+    return f"{p:.10f}".rstrip("0").rstrip(".")
+
+
 def _map_tf_to_interval(tf):
     """Map timeframe string (e.g. '5m', '15min', '1h') to Bybit interval value."""
     if not tf:
@@ -214,28 +228,23 @@ class Notifier:
     # ============== Helpers for TradingOS events ==============
 
     def _fmt_price(self, p):
-        """Format price: 2 decimals if >1000, 4 if <1, 5 if <0.01."""
-        if p is None or p == 0:
-            return "—"
-        if p >= 1000:
-            return f"{p:.2f}"
-        if p >= 1:
-            return f"{p:.4f}"
-        return f"{p:.5f}"
+        """Format price: adaptive precision via _fmt_price (small prices need more decimals)."""
+        return _fmt_price(p)
 
     def _format_open_text(self, symbol, side, entry_price, sl, tp,
-                           leverage, score, reason, qty):
-        """v10: rich Russian HTML with bold, emojis, explanations."""
+                          leverage, score, reason, qty,
+                          prob=None, adx=None, entry_time=None):
+        """v3: данные сделки — текстом (картинка = только свечи)."""
         is_long = side.upper() in ("BUY", "LONG")
         direction_arrow = "🟢" if is_long else "🔴"
-        direction_text = "LONG (покупка)" if is_long else "SHORT (продажа)"
+        direction_text = "LONG" if is_long else "SHORT"
         ep = self._fmt_price(entry_price) if entry_price else "—"
         sl_text = self._fmt_price(sl) if sl else "—"
         tp_text = self._fmt_price(tp) if tp else "—"
 
         lines = [
             f"{direction_arrow} <b>ОТКРЫТА ПОЗИЦИЯ</b>",
-            f"<b>{symbol}</b> — {direction_text}",
+            f"<b>{symbol}</b> — {direction_text} ×{max(1, leverage)}",
             "",
             f"💵 <b>Вход:</b> <code>{ep}</code>",
             f"🛑 <b>Стоп-лосс:</b> <code>{sl_text}</code>",
@@ -243,10 +252,21 @@ class Notifier:
         ]
         if qty and qty > 0:
             lines.append(f"📦 <b>Объём:</b> {qty}")
-        if leverage and leverage > 1:
-            lines.append(f"⚡ <b>Плечо:</b> {leverage}×")
         if reason:
             lines.append(f"📝 <b>Причина:</b> {reason}")
+        meta = " | ".join(x for x in [
+            f"prob {prob:.2f}" if prob else "",
+            f"score {score:.0f}" if score else "",
+            f"ADX {adx:.0f}" if adx else "",
+        ] if x)
+        if meta:
+            lines.append(f"🤖 <b>Сигнал:</b> {meta}")
+        if entry_time is not None:
+            try:
+                t = pd.to_datetime(entry_time, utc=True).strftime("%d-%m %H:%M UTC")
+                lines.append(f"🕐 <b>Открыта:</b> {t}")
+            except Exception:
+                pass
         return "\n".join(lines)
 
     def _format_close_text(self, symbol, side, entry_price, exit_price,
@@ -305,6 +325,11 @@ class Notifier:
                 r_mult = (exit_price - entry_price) / r_dist
             else:
                 r_mult = (entry_price - exit_price) / r_dist
+            # FIX 2026-09-03: sign-consistency with net pnl. R from gross price move
+            # showed +0.01R on a -$17.34 net loss (fees eat gross — AVAX $18k fees $19.80).
+            # If net pnl negative, R must be negative too.
+            if pnl is not None and (pnl < 0 and r_mult > 0) or (pnl > 0 and r_mult < 0):
+                r_mult = -r_mult
             lines.append(f"📊 <b>R-multiple:</b> <code>{r_mult:+.2f}R (R={r_dist:.5f})</code>")
         if mfe_r is not None or mfe_price is not None:
             # v23: prefer candle price (mfe_price) for accurate R-multiple
@@ -395,8 +420,9 @@ class Notifier:
         entry_time=None,
         strategy: Optional[str] = None,
         timeframe: Optional[str] = None,
+        adx: Optional[float] = None,
     ):
-        """v18: отправляет фото (synthetic chart) + текстовое сообщение."""
+        """v3: фото = только свечи; все данные сделки — текстом (caption)."""
         try:
             from tradingos.notifier.chart_gen import generate_trade_chart
             interval = "15"
@@ -415,9 +441,11 @@ class Notifier:
                 entry_price=entry_price, entry_time=entry_time,
                 side=side, sl=sl, tp=tp,
                 interval=interval, leverage=leverage, pnl=None,
+                qty=qty, prob=probability, score=score,
             )
             text = self._format_open_text(
                 symbol, side, entry_price, sl, tp, leverage, score, reason, qty,
+                prob=probability, adx=adx, entry_time=entry_time,
             )
             if chart_bytes:
                 # CRITICAL: send photo WITH caption so user sees graph + text in ONE message
@@ -428,6 +456,7 @@ class Notifier:
         # Fallback: text only if chart generation failed
         text = self._format_open_text(
             symbol, side, entry_price, sl, tp, leverage, score, reason, qty,
+            prob=probability, adx=adx, entry_time=entry_time,
         )
         await self.send(text)
 
@@ -493,6 +522,7 @@ class Notifier:
                 side=side, sl=sl, tp=tp,
                 interval=interval, leverage=leverage, pnl=pnl, reason=reason,
                 mfe_r=mfe_r, mae_r=mae_r, holding_hours=holding_hours,
+                qty=qty, prob=probability, score=score,
             )
             holding_seconds = holding_hours * 3600 if holding_hours else 0
             text = self._format_close_text(
@@ -557,9 +587,9 @@ class Notifier:
         """
         # Локализация
         events = {
-            "BE":      ("🛡️", "Безубыток (БУ)",
-                       "Стоп перенесён на цену входа. Худший исход теперь = 0$. "
-                       "Прибыль зафиксирована на нуле. Дальнейшее движение — чистая прибыль."),
+            "BE":      ("🛡️", "Защита прибыли",
+                       "Стоп перенесён близко к цене входа. Убыток минимизирован (≈$0). "
+                       "Если цена продолжит расти — прибыль. Если развернётся — выходим без потерь."),
             "PARTIAL": ("🔒", "Частичная фиксация",
                        "Стоп поднят выше входа. Зафиксирована часть прибыли. "
                        "Сделка частично защищена от разворота."),
@@ -567,7 +597,7 @@ class Notifier:
                        "Стоп значительно поднят. Большая часть прибыли зафиксирована. "
                        "Сделка максимально защищена."),
             "TRAIL":   ("📈", "Трейлинг-стоп",
-                       "Стоп движется вслед за ценой (пик − 0.5R). "
+                       "Стоп движется вслед за ценой (отступ 0.5R от пика). "
                        "Прибыль автоматически фиксируется при развороте."),
             "TIMEOUT": ("⏰", "Таймаут",
                        "Позиция держится дольше 48 часов. Рекомендуется ручная проверка."),
@@ -578,10 +608,10 @@ class Notifier:
             f"{emoji} <b>{symbol}</b> — {name}\n\n"
             f"<b>Что это:</b>\n{desc}\n\n"
             f"<b>Метрики:</b>\n"
-            f"├ Цена входа: <code>{entry_price:.4f}</code>\n"
+            f"├ Цена входа: <code>{_fmt_price(entry_price)}</code>\n"
             f"├ Пик R: <code>{peak_r:+.2f}R</code>\n"
-            f"├ Старый SL: <code>{old_sl:.4f}</code>\n"
-            f"└ Новый SL: <code>{current_sl:.4f}</code>"
+            f"├ Старый SL: <code>{_fmt_price(old_sl)}</code>\n"
+            f"└ Новый SL: <code>{_fmt_price(current_sl)}</code>"
         )
 
         # Generate chart for BE/PARTIAL/TIGHT (not TIMEOUT)

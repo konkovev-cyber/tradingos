@@ -20,11 +20,23 @@ EVALUATED_LOG = Path("/root/tradingos/guardian/evaluated_rejections.jsonl")
 
 def record_rejection(symbol: str, direction: str, probability: float, score: int,
                      quality: str, reason: str, entry_price: float, entry_time: float,
-                     atr: float = 0.0):
+                     atr: float = 0.0,
+                     raw_qty: Optional[float] = None, required_qty: Optional[float] = None,
+                     risk_required: Optional[float] = None, qty_step: Optional[float] = None,
+                     min_order_qty: Optional[float] = None, min_notional: Optional[float] = None,
+                     meta_v1_prob: Optional[float] = None):
     """
     Record a rejected candidate for later evaluation.
     Called from run_observation.py when a candidate passes filters but is rejected
-    at the proposal stage.
+    at the proposal stage, and from trade_executor.py for pre-order SKIPs
+    (reason="MIN_ORDER_QTY": qty below exchange lotSizeFilter).
+
+    min_order_qty/min_notional (lotSizeFilter) позволяют классифицировать
+    капитальный барьер: MIN_NOTIONAL_BLOCK vs MIN_QTY_BLOCK (см. execution_diagnostics).
+
+    2026-08-27 (meta_v1 shadow): meta_v1_prob carries the model score so
+    rejected_candidates.jsonl can be used to monitor OOS filter performance
+    on BOTH passed AND rejected signals (the model only sees accepted today).
     """
     record = {
         "symbol": symbol,
@@ -38,6 +50,20 @@ def record_rejection(symbol: str, direction: str, probability: float, score: int
         "record_time": datetime.now(timezone.utc).isoformat(),
         "atr": round(atr, 8),
     }
+    if meta_v1_prob is not None:
+        record["meta_v1_prob"] = round(float(meta_v1_prob), 4)
+    if raw_qty is not None:
+        record["raw_qty"] = raw_qty
+    if required_qty is not None:
+        record["required_qty"] = required_qty
+    if risk_required is not None:
+        record["risk_required"] = risk_required
+    if qty_step is not None:
+        record["qty_step"] = qty_step
+    if min_order_qty is not None:
+        record["min_order_qty"] = min_order_qty
+    if min_notional is not None:
+        record["min_notional"] = min_notional
     REJECTED_LOG.parent.mkdir(parents=True, exist_ok=True)
     with open(REJECTED_LOG, "a") as f:
         f.write(json.dumps(record) + "\n")
