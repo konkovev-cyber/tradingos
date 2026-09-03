@@ -236,10 +236,26 @@ def place_portfolio(setups: dict) -> int:
 
     placed, skipped, failed = [], [], []
     per_order = budget / max(PORTFOLIO_N, 1)
+    # FIX 2026-09-04: квоты диверсификации — не 5 коррелированных LONG подряд
+    # (ночной XRP/DOGE/SOL-кластер: 3 SHORT стопнулись одновременно).
+    # MAX одинаковых сторон + минимум 1 слот reversal, если он есть в топе.
+    MAX_SAME_SIDE = 3   # макс 3 LONG или 3 SHORT на портфель 5
+    side_counts = {"LONG": 0, "SHORT": 0}
+    reversal_slots = 1  # хотя бы 1 reversal-сетап, если проходит фильтры
+    placed_reversal = 0
     for r in ranked:
         if len(placed) >= PORTFOLIO_N:
             break
         sym, side = r["sym"], r["side"]
+        is_rev = bool(r.get("reversal"))
+        # Квота стороны (reversal не считается в сторону — он контр-тренд)
+        if not is_rev and side_counts.get(side, 0) >= MAX_SAME_SIDE:
+            skipped.append(f"{sym}: квота {side} ({MAX_SAME_SIDE}) исчерпана")
+            continue
+        # Reversal-слот: максимум reversal_slots реверсалов
+        if is_rev and placed_reversal >= reversal_slots:
+            skipped.append(f"{sym}: reversal-слоты исчерпаны ({reversal_slots})")
+            continue
         if sym in busy:
             continue
         if r.get("sl_pct", 99) > PORTFOLIO_MAX_SL_PCT:
@@ -275,7 +291,12 @@ def place_portfolio(setups: dict) -> int:
             res = place_limit(sym, side, entry, qty, sl, tp, "AUTO-PORT")
             if res.get("ok"):
                 placed.append({"sym": sym, "side": side, "price": entry, "qty": qty,
-                               "sl": sl, "tp": tp, "order_id": res.get("order_id")})
+                               "sl": sl, "tp": tp, "order_id": res.get("order_id"),
+                               "is_rev": is_rev})
+                if is_rev:
+                    placed_reversal += 1
+                else:
+                    side_counts[side] = side_counts.get(side, 0) + 1
                 busy.add(sym)
             else:
                 failed.append(f"{sym}: {res.get('error', '')[:60]}")
@@ -290,6 +311,14 @@ def place_portfolio(setups: dict) -> int:
     try:
         st = json.loads(st_path.read_text()) if st_path.exists() else {"active_limits": {}, "filled": {}}
         for p in placed:
+            # FIX 2026-09-04: place_meta для fill-rate телеметрии (gap до цены)
+            try:
+                from tradingos.signals.auto_limit_placer import attach_place_meta
+                meta = attach_place_meta(p["sym"], p["price"],
+                                         get_current_price(p["sym"]),
+                                         quality=None)
+            except Exception:
+                meta = {"gap_pct": None, "quality": None}
             st.setdefault("active_limits", {})[p["sym"]] = {
                 "placed_at": time.time(),
                 "side": p["side"], "sl": p["sl"], "tp": p["tp"],
@@ -299,6 +328,8 @@ def place_portfolio(setups: dict) -> int:
                 "rr_l1": round(abs(p["tp"] - p["price"]) / abs(p["price"] - p["sl"]), 2)
                          if abs(p["price"] - p["sl"]) > 0 else 0,
                 "owner_bet": True,
+                "reversal": p.get("is_rev", False),
+                "place_meta": meta,
                 "note": f"AUTO-PORTFOLIO: ${per_order:,.0f} margin {PORTFOLIO_LEV}x",
             }
         tmp = st_path.with_suffix(".tmp")
@@ -311,18 +342,36 @@ def place_portfolio(setups: dict) -> int:
     token, chat = _tg_env()
     if token and chat:
         ok_rows = "\n".join(
-            f"  ✅ {p['sym']} {p['side']} @ {p['price']:.4g} × {p['qty']:.4g}"
+            f"  ✅ {p['sym']} {p['side']}{' 🔄' if p.get('is_rev') else ''} @ {p['price']:.4g} × {p['qty']:.4g}"
             for p in placed)
         notes = ""
         if skipped:
             notes += "\n\n<b>Пропущены:</b>\n" + "\n".join(f"  ⏭ {s}" for s in skipped[:6])
         if failed:
             notes += "\n\n<b>Отклонены:</b>\n" + "\n".join(f"  ❌ {x}" for x in failed[:6])
+        # FIX 2026-09-04: fill-rate отчёт по бакетам (в портфель-сообщении)
+        fr_note = ""
+        try:
+            from tradingos.signals.auto_limit_placer import fillrate_report
+            fr = fillrate_report()
+            if fr and fr.get("outcomes"):
+                oc = fr["outcomes"]
+                fr_rows = []
+                for b in ("0-0.3%", "0.3-0.6%", "0.6-1%", "1-2%", "2%+"):
+                    if fr.get(f"{b}_n"):
+                        fr_rows.append(f"  {b}: {fr.get(b, 0)}% (n={fr[f'{b}_n']})")
+                if fr_rows:
+                    fr_note = ("\n\n📊 <b>Fill-rate по отдалению:</b>\n"
+                               + "\n".join(fr_rows)
+                               + f"\n  всего: {oc.get('FILLED', 0)}✅ / "
+                                 f"{oc.get('EXPIRED', 0)}⏰ / {oc.get('CANCELLED_MISSED', 0)}↗")
+        except Exception:
+            pass
         _portfolio_tg(token, chat,
                       f"🤖 <b>AUTO-ПОРТФЕЛЬ: {len(placed)} лимиток поставлено</b>\n\n"
                       f"<code>{ok_rows}</code>\n\n"
                       f"💰 ${per_order:,.0f} на ордер ({PORTFOLIO_LEV}x) | бюджет ${budget:,.0f}"
-                      f"{notes}\n\n<i>SL/TP после филла, лимитки живут 24ч. "
+                      f"{notes}{fr_note}\n\n<i>SL/TP после филла, лимитки живут 24ч. "
                       f"Править: /limits или /bet SYMBOL.</i>")
     print(f"  🎯 AUTO-PORTFOLIO: placed {len(placed)}, skipped {len(skipped)}, failed {len(failed)}")
     return len(placed)

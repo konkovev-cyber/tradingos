@@ -141,6 +141,86 @@ def log_event(event_type: str, data: dict) -> None:
         f.write(json.dumps(rec, ensure_ascii=False) + "\n")
 
 
+# ─── Fill-rate телеметрия (2026-09-04) ──────────────────────────────
+# Каждый лимитный ордер пишет lifecycle: PLACED → FILLED | EXPIRED | CANCELLED_MISSED.
+# Отчёт: fill-rate по gap-бакетам (расстояние entry от цены на момент постановки)
+# — ответ на вопрос «на каком отдалении ставить entry» вместо слепого ±0.2-3%.
+STATS = ROOT / "operations/auto_limit_fillrate.json"
+
+
+def record_outcome(sym: str, outcome: str, lim: dict) -> None:
+    """PLACED-запись берём из lim['place_meta'] (пишется при постановке)."""
+    meta = lim.get("place_meta") or {}
+    rec = {
+        "sym": sym,
+        "ts": time.time(),
+        "outcome": outcome,  # FILLED | EXPIRED | CANCELLED_MISSED
+        "side": lim.get("side", "?"),
+        "gap_pct": meta.get("gap_pct", None),
+        "owner_bet": bool(lim.get("owner_bet", False)),
+        "hours_to_outcome": (now_h := (time.time() - lim.get("placed_at", time.time())) / 3600.0),
+        "quality": meta.get("quality", None),
+    }
+    try:
+        stats = json.loads(STATS.read_text()) if STATS.exists() else []
+    except Exception:
+        stats = []
+    stats.append(rec)
+    # GC: держим 90 дней
+    cutoff = time.time() - 90 * 86400
+    stats = [r for r in stats if r.get("ts", 0) > cutoff]
+    tmp = STATS.with_suffix(".tmp")
+    tmp.write_text(json.dumps(stats, indent=1))
+    tmp.replace(STATS)
+
+
+def bucket(gap_pct) -> str:
+    if gap_pct is None:
+        return "?"
+    g = abs(float(gap_pct))
+    if g < 0.3:
+        return "0-0.3%"
+    if g < 0.6:
+        return "0.3-0.6%"
+    if g < 1.0:
+        return "0.6-1%"
+    if g < 2.0:
+        return "1-2%"
+    return "2%+"
+
+
+def fillrate_report() -> dict:
+    """fill-rate по бакетам + по стороне. Вызывается из bet_push после портфеля."""
+    try:
+        stats = json.loads(STATS.read_text()) if STATS.exists() else []
+    except Exception:
+        return {}
+    by_bucket: dict[str, dict[str, int]] = {}
+    by_outcome: dict[str, int] = {}
+    for r in stats:
+        b = bucket(r.get("gap_pct"))
+        by_bucket.setdefault(b, {"total": 0, "filled": 0})
+        by_bucket[b]["total"] += 1
+        if r.get("outcome") == "FILLED":
+            by_bucket[b]["filled"] += 1
+        by_outcome[r.get("outcome", "?")] = by_outcome.get(r.get("outcome", "?"), 0) + 1
+    rates = {}
+    for b, d in by_bucket.items():
+        rates[b] = round(d["filled"] / d["total"] * 100, 1) if d["total"] else 0.0
+        rates[b + "_n"] = d["total"]
+    rates["outcomes"] = by_outcome
+    return rates
+
+
+def attach_place_meta(sym: str, entry: float, cur: float, quality=None) -> dict:
+    """Метаданные постановки: gap до цены, quality — пишутся в lim при PLACED."""
+    gap = None
+    if cur and cur > 0 and entry:
+        gap = (entry - cur) / cur * 100
+    return {"gap_pct": round(gap, 3) if gap is not None else None,
+            "quality": quality}
+
+
 # ─── API helpers ─────────────────────────────────────────────────────
 
 def _load_creds() -> tuple[str, str]:
@@ -423,6 +503,7 @@ def scan_and_place():
     # 1. Expire old limits
     # FIX 2026-09-03: owner_bet (визард /bet) живёт 24ч — структурный вход ждёт
     # откат часами, 2h-экспирация убивала ставку владельца до откатa.
+    lim_state_before = {s: dict(l) for s, l in state.get("active_limits", {}).items()}
     expired = []
     for sym, lim in list(state.get("active_limits", {}).items()):
         expiry_min = OWNER_BET_EXPIRY_H * 60 if lim.get("owner_bet") else EXPIRY_MIN
@@ -440,6 +521,8 @@ def scan_and_place():
                                    "error": cres.get("error", "")})
                         print(f"  ⚠️  {sym}: expiry cancel {lvl} failed: {cres.get('error')}")
     for sym in expired:
+        # FIX 2026-09-04: телеметрия исхода EXPIRED для fill-rate
+        record_outcome(sym, "EXPIRED", lim_state_before.get(sym, {}))
         del state["active_limits"][sym]
         log_event("CANCELLED_EXPIRED", {"symbol": sym})
 
@@ -615,6 +698,8 @@ def monitor_fills():
                     log_event("L1_STEALTH_L2_CANCEL",
                               {"symbol": sym, "cancel_ok": cres.get("ok", False)})
                 stp_res = set_trading_stop(sym, lim["side"], lim["sl"], lim["tp"])
+                # FIX 2026-09-04: телеметрия исхода FILLED (stealth)
+                record_outcome(sym, "FILLED", lim)
                 state["filled"][sym] = {
                     "entry": lim["l1_price"], "side": lim["side"],
                     "sl": lim["sl"], "tp": lim["tp"],
@@ -646,8 +731,20 @@ def monitor_fills():
                         # L2 мог филлиться. Проверяем позицию: qty > ожидаемого = double fill
                         log_event("L1_FILLED_L2_CANCEL_FAIL",
                                   {"symbol": sym, "error": l2_cancel.get("error", "")})
+                # FIX 2026-09-04: при филле L1 у owner-лестницы отменяем ВСЕ
+                # неисполненные уровни (усреднение против позиции в плюс — анти-логика)
+                if lim.get("owner_ladder"):
+                    for extra in lim["owner_ladder"][1:]:
+                        xoid = extra.get("order_id")
+                        if xoid and xoid != l2_oid and xoid != l1_oid:
+                            xres = cancel_limit(sym, xoid)
+                            log_event("LADDER_CANCEL_ON_FILL",
+                                      {"symbol": sym, "level": extra.get("level"),
+                                       "ok": xres.get("ok", False)})
                 # Attach SL/TP to position
                 stp_res = set_trading_stop(sym, lim["side"], lim["sl"], lim["tp"])
+                # FIX 2026-09-04: телеметрия исхода FILLED (L1)
+                record_outcome(sym, "FILLED", lim)
                 # ALWAYS remove from active_limits — position exists, L2 cancelled
                 state["filled"][sym] = {
                     "entry": lim["l1_price"], "side": lim["side"],
@@ -681,6 +778,8 @@ def monitor_fills():
                         log_event("L2_FILLED_L1_CANCEL_FAIL",
                                   {"symbol": sym, "error": l1_cancel.get("error", "")})
                 stp_res = set_trading_stop(sym, lim["side"], lim["sl"], lim["tp"])
+                # FIX 2026-09-04: телеметрия исхода FILLED (L2)
+                record_outcome(sym, "FILLED", lim)
                 state["filled"][sym] = {
                     "entry": lim["l2_price"], "side": lim["side"],
                     "sl": lim["sl"], "tp": lim["tp"],
@@ -717,6 +816,8 @@ def monitor_fills():
                                 cancel_limit(sym, l1_oid)
                             if l2_oid and l2_open:
                                 cancel_limit(sym, l2_oid)
+                            # FIX 2026-09-04: телеметрия исхода CANCELLED_MISSED
+                            record_outcome(sym, "CANCELLED_MISSED", lim)
                             del state["active_limits"][sym]
                             log_event("CANCELLED_MISSED", {"symbol": sym, "current": current})
                             print(f"  ❌ {sym}: price moved UP past zone → cancelled")
@@ -726,6 +827,8 @@ def monitor_fills():
                                 cancel_limit(sym, l1_oid)
                             if l2_oid and l2_open:
                                 cancel_limit(sym, l2_oid)
+                            # FIX 2026-09-04: телеметрия исхода CANCELLED_MISSED
+                            record_outcome(sym, "CANCELLED_MISSED", lim)
                             del state["active_limits"][sym]
                             log_event("CANCELLED_MISSED", {"symbol": sym, "current": current})
                             print(f"  ❌ {sym}: price moved DOWN past zone → cancelled")

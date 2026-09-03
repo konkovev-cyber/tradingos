@@ -150,6 +150,12 @@ def recommend(symbol: str) -> dict | None:
                 # FIX 2026-09-03: EMA20 выше цены (импульс вверх) — лимитка на
                 # откат, но НЕ выше текущей цены: у текущей −0.2%.
                 entry = price * 0.998 if e20 >= price * 0.995 else min(entry, price * 0.998)
+            # FIX 2026-09-04 (адаптивный gap): если entry слишком близко к цене
+            # (< 0.3% ATR-путешествия), филлиться будет только при точном развороте.
+            # Отодвигаем минимум на 0.25×ATR ниже текущей — осмысленная зона ожидания.
+            min_gap = max(0.0025 * price, 0.25 * atr)
+            if (price - entry) < min_gap:
+                entry = price - min_gap
             sl = pb_low - 0.15 * atr
             # Ensure entry > SL (SL must be below entry for LONG)
             if entry <= sl:
@@ -165,6 +171,11 @@ def recommend(symbol: str) -> dict | None:
                 # лимитку на откат к EMA20, но НЕ ниже текущей цены. Если EMA20
                 # далеко внизу — ставим у текущей цены +0.2% (ожидание паузы).
                 entry = price * 1.002 if e20 <= price * 1.005 else max(entry, price * 1.002)
+            # FIX 2026-09-04 (адаптивный gap): зеркально LONG — минимальная зона
+            # ожидания 0.25×ATR выше цены.
+            min_gap = max(0.0025 * price, 0.25 * atr)
+            if (entry - price) < min_gap:
+                entry = price + min_gap
             recent_hi = max(b["high"] for b in h1[-12:])
             sl = recent_hi + 0.15 * atr
             # Ensure entry < SL (SL must be above entry for SHORT)
