@@ -578,5 +578,15 @@
   "owner_bet": true,
   "hours_to_outcome": 0.26280906743473476,
   "quality": null
+ },
+ {
+  "sym": "GRTUSDT",
+  "ts": 1788604800.7069366,
+  "outcome": "EXPIRED",
+  "side": "LONG",
+  "gap_pct": -1.51,
+  "owner_bet": true,
+  "hours_to_outcome": 24.05399166226387,
+  "quality": null
  }
 ]

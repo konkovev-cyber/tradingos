@@ -1743,6 +1743,26 @@ def _record_trade_closure(symbol, state_entry):
             f"not re-notifying Telegram"
         )
         return
+    # Атрибуция контура (2026-09-05): если state не помечен — ищем последний
+    # EXECUTED по symbol в logs/executed_contours.jsonl (пишет trade_executor).
+    if not state_entry.get("contour"):
+        try:
+            _exec_log = Path("/root/tradingos/logs/executed_contours.jsonl")
+            if _exec_log.exists():
+                for _line in reversed(_exec_log.read_text(errors="replace").splitlines()[-500:]):
+                    if not _line.strip():
+                        continue
+                    try:
+                        _r = json.loads(_line)
+                    except Exception:
+                        continue
+                    if _r.get("symbol") == symbol and str(_r.get("side", "")).lower() == str(state_entry.get("side", "")).lower():
+                        state_entry["contour"] = _r.get("contour") or "unknown"
+                        if _r.get("decision_id"):
+                            state_entry.setdefault("decision_id", _r["decision_id"])
+                        break
+        except Exception:
+            pass
     peak_r = state_entry.get("mfe_peak", 0)
     trough_r = state_entry.get("mae_trough", 0)
     be_fired = state_entry.get("be_fired", False)
@@ -1918,6 +1938,9 @@ def _record_trade_closure(symbol, state_entry):
         "mfe_peak_r": round(peak_r, 3),
         "mae_trough_r": round(trough_r, 3),
         "signal_class": signal_class,
+        # Контур-источник (2026-09-05, телеметрия): contour → source → session
+        "contour": state_entry.get("contour") or state_entry.get("source") or state_entry.get("session") or "unknown",
+        "decision_id": state_entry.get("decision_id", ""),
         "status": "CLOSED",
         "guardian_trigger": guardian_trigger,
         "be_fired": be_fired,

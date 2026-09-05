@@ -791,6 +791,22 @@ async def _execute_reality(proposal: TradeProposal) -> dict:
         adapter.close()
         logger.info(f"✅ REALITY ORDER FILLED+VERIFIED: {proposal.symbol} {proposal.side} "
                      f"id={order.order_id} price={order.fill_price}")
+        # Телеметрия контура (2026-09-05): журнал symbol→(contour, decision_id)
+        # для атрибуции закрытий в reality_guardian._record_trade_closure.
+        try:
+            from pathlib import Path as _P
+            _exec_log = _P("/root/tradingos/logs/executed_contours.jsonl")
+            with _exec_log.open("a") as _f:
+                _f.write(json.dumps({
+                    "ts": datetime.now(timezone.utc).isoformat(),
+                    "symbol": proposal.symbol, "side": proposal.side,
+                    "contour": proposal.strategy or "unknown",
+                    "session": getattr(proposal, "session", ""),
+                    "decision_id": proposal.decision_id,
+                    "ticket": order.order_id,
+                }) + "\n")
+        except Exception as _e:
+            logger.debug(f"contour journal write failed: {_e}")
         # Register with deposit guard (set day-start balance if first of day)
         try:
             from tradingos.strategies.deposit_guard import get_guard

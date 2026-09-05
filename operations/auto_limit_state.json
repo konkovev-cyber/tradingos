@@ -1,24 +1,5 @@
 {
   "active_limits": {
-    "GRTUSDT": {
-      "placed_at": 1788518206.3369539,
-      "side": "LONG",
-      "sl": 0.01684192857142857,
-      "tp": 0.017707886695544094,
-      "l1_price": 0.01705841810245745,
-      "l2_price": 0.0,
-      "l1_order_id": "0ddd162a-b655-41a6-8da3-6b12ac7ed33f",
-      "l2_order_id": null,
-      "qty": 58622.0,
-      "rr_l1": 3.0,
-      "owner_bet": true,
-      "reversal": false,
-      "place_meta": {
-        "gap_pct": -1.51,
-        "quality": null
-      },
-      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
-    },
     "ALGOUSDT": {
       "placed_at": 1788523498.482951,
       "side": "LONG",
@@ -433,6 +414,63 @@
       "reversal": false,
       "place_meta": {
         "gap_pct": -0.707,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "MANAUSDT": {
+      "placed_at": 1788606294.183187,
+      "side": "LONG",
+      "sl": 0.07290907142857143,
+      "tp": 0.07808649567392816,
+      "l1_price": 0.07420342748991061,
+      "l2_price": 0.0,
+      "l1_order_id": "115ab81b-0476-486f-ac7c-2cd4f8cfb82d",
+      "l2_order_id": null,
+      "qty": 13476.4,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -0.358,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "NEARUSDT": {
+      "placed_at": 1788606294.5500085,
+      "side": "LONG",
+      "sl": 2.161585714285714,
+      "tp": 2.2039735084670995,
+      "l1_price": 2.1721826628310605,
+      "l2_price": 0.0,
+      "l1_order_id": "0771f480-a798-4f9c-8200-93a129c07b2f",
+      "l2_order_id": null,
+      "qty": 460.3,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -3.673,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "DOTUSDT": {
+      "placed_at": 1788606294.8861728,
+      "side": "LONG",
+      "sl": 0.8815964285714286,
+      "tp": 0.9297226841328308,
+      "l1_price": 0.8936279924617792,
+      "l2_price": 0.0,
+      "l1_order_id": "5acc8ebf-4605-4173-b68b-eb59a97c6534",
+      "l2_order_id": null,
+      "qty": 1119.0,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -1.561,
         "quality": null
       },
       "note": "AUTO-PORTFOLIO: $1,000 margin 10x"

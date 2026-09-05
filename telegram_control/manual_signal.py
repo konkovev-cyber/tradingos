@@ -2497,7 +2497,8 @@ def _sl_hard_buffer(symbol: str, sl: float, price: float) -> float:
 
 def _place_market_order(symbol: str, side: str, usd_amount: float,
                         sl: float, tp: float, leverage: int | None = None,
-                        order_type: str = "Market") -> dict:
+                        order_type: str = "Market",
+                        contour: str = "", decision_id: str = "") -> dict:
     """Открыть позицию ордером через raw signed POST.
 
     leverage: опциональное плечо для ЭТОГО ордера (напр. 10 при выборе
@@ -2506,6 +2507,8 @@ def _place_market_order(symbol: str, side: str, usd_amount: float,
     плечо влияет только на маржу и ликвидационную цену.
     order_type: "Market" (по умолч.) или "Limit" — лимитка = мейкер-комиссия
     (funding-capture: экономия ~0.035%/сторону, 2026-08-31).
+    contour/decision_id: телеметрия контура (2026-09-05) — попадает в
+    guardian state → trade_results.contour.
 
     Returns: {"ok": bool, "error": str, "qty": float, "order_id": str}
     """
@@ -2690,6 +2693,8 @@ def _place_market_order(symbol: str, side: str, usd_amount: float,
                         "sl_initial": sl_soft,
                         "tp_initial": tp,
                         "source": "MANUAL",
+                        "contour": contour or "MANUAL",
+                        "decision_id": decision_id,
                         "entry_time": _time.time(),
                     }
                     if recovery_on:

@@ -126,6 +126,13 @@ async def _scan_once():
     tm = _load_tm()
     if not bool(tm.get("live_trading_enabled", False)):
         log.info("⏸ ma_bb: live off"); return
+    # Глобальный night_ban (2026-09-05, Class A) — как во всех контурах
+    try:
+        from tradingos.operations.risk_guards import night_ban_active, night_ban_window
+        if night_ban_active():
+            log.info(f"🌙 ma_bb: night_ban ({night_ban_window()})"); return
+    except Exception:
+        pass
     state = _load_state()
     try:
         from tradingos.strategies.bybit_position_check import count_open_positions
@@ -146,9 +153,9 @@ async def _scan_once():
 
         proposal = TradeProposal(
             symbol=sym, side=side, entry=entry, stop_loss=sl, take_profit=tp,
-            rr=2.0, confidence=0.6, strategy="MA_BB_H1",
+            rr=2.0, confidence=0.6, strategy="REALITY_DISCOVERY",
             decision_id=f"MB-{generate_decision_id()}",
-            reason=[f"MA30+Bollinger: {sym} {side} MA30 vs BB, SL={sl:.6g} TP={tp:.6g} (R:R 1:2)"],
+            reason=[f"MA30+Bollinger(H1): {sym} {side} MA30 vs BB, SL={sl:.6g} TP={tp:.6g} (R:R 1:2)"],
             session="MA_BB", timestamp=datetime.now(timezone.utc).isoformat())
         valid, msg = proposal.validate()
         if not valid:

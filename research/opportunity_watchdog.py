@@ -239,7 +239,8 @@ def _auto_execute_funding(sym: str, side: str, px: float, tp_v: float,
     # создавала позицию без стопа (SL-механика после филла есть только для
     # wait-limit, не для funding). Маркет-вход с attached SL/TP — надёжнее:
     # позиция всегда под защитой, комиссия 0.055% приемлема для $25 риска.
-    res = _place_market_order(sym, side, usd_amount, sl_v, tp_v)
+    res = _place_market_order(sym, side, usd_amount, sl_v, tp_v,
+                              contour="funding")
     rec = {"event": "AUTO_FUNDING_EXECUTED" if res.get("ok") else "AUTO_FUNDING_REJECTED",
            "ts": datetime.now(timezone.utc).isoformat(),
            "symbol": sym, "side": side, "funding_bps": round(f_bps, 2),
