@@ -91,5 +91,14 @@
   "note_leverage_10x_2026_09_02": "owner: увеличить плечо до 10x и посмотреть. Риск 0, тот же, просто меньше маржа на позицию. Откат: max_leverage=5.",
   "note_risk_50_2026_09_02": "owner: риск 0/сделку, плечо 10x → ноушнл 00. Было risk_per_trade_pct=0.006 (0.74) — заробітки копеечные. Откат: 0.006.",
   "note_max_notional_500_2026_09_02": "ЖЁСТКИЙ кап ноушнл 00/сделку. Был 0 (не ограничено): риск 0 при SL-дистанции 0.26% давал позицию 7,790 (BTRUSDT −4.57). Теперь позиция НЕ может превысить 00.",
-  "note_global_risk_guards_2026_09_05": "Class A risk-control (owner: 'исключить просадки'). Аудит 01-05.09 (104 сделки, NET +$522, maxDD $197): ночные убытки 00-06Z = -$321 шли мимо night_ban (был только в reality), ношнл $5-6.25k (DOT/BBX/PYTH) мимо капа $500 (был только в trade_executor). Введён operations/risk_guards.py: night_ban + notional cap подключены в long_limit_auto.place_order, opportunity_watchdog (funding), dn_sweep_live_detector. Блокировки логируются (RISK_BLOCKED в long_limit_ledger / reason=night_ban). Сигнальная логика НЕ тронута — Evidence Gate не нарушен."
+  "note_global_risk_guards_2026_09_05": "Class A risk-control (owner: 'исключить просадки'). Аудит 01-05.09 (104 сделки, NET +$522, maxDD $197): ночные убытки 00-06Z = -$321 шли мимо night_ban (был только в reality), ношнл $5-6.25k (DOT/BBX/PYTH) мимо капа $500 (был только в trade_executor). Введён operations/risk_guards.py: night_ban + notional cap подключены в long_limit_auto.place_order, opportunity_watchdog (funding), dn_sweep_live_detector. Блокировки логируются (RISK_BLOCKED в long_limit_ledger / reason=night_ban). Сигнальная логика НЕ тронута — Evidence Gate не нарушен.",
+  "conviction_sizing": {
+    "enabled": true,
+    "min_prob": 0.58,
+    "min_rr": 2.0,
+    "require_quality": "GOOD",
+    "mult": 1.5,
+    "max_per_day": 3,
+    "note": "2026-09-05 (owner: 'если сделка 100% сработает — жирнее'). Данные n=86: prob>=0.58 WR 62% avg +$7.95 vs 0.55-0.58 WR 45% avg +$3.91; GOOD avg +$13.53. Потолок x1.5 жёсткий. Плечо НЕ меняется (риск = размер/SL, не плечо). Пристальный guardian: BE @ 0.5R для conviction-позиций. Откат: enabled=false."
+  }
 }

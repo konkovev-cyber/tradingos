@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-05T11:38:58.302329+00:00",
+  "generated_at": "2026-09-05T12:38:52.303784+00:00",
   "window": {
     "last_24h": true,
     "all_time": true
@@ -50,8 +50,8 @@
   },
   "rejection_reasons_24h": {
     "pre_trade_filter": 27,
-    "max_positions": 11,
-    "exchange_min_size": 9
+    "exchange_min_size": 9,
+    "max_positions": 7
   },
   "order_block_reason_all": {
     "MIN_NOTIONAL_BLOCK": 14

@@ -588,5 +588,35 @@
   "owner_bet": true,
   "hours_to_outcome": 24.05399166226387,
   "quality": null
+ },
+ {
+  "sym": "ALGOUSDT",
+  "ts": 1788609904.4192758,
+  "outcome": "EXPIRED",
+  "side": "LONG",
+  "gap_pct": -0.182,
+  "owner_bet": true,
+  "hours_to_outcome": 24.001648979650604,
+  "quality": null
+ },
+ {
+  "sym": "IMXUSDT",
+  "ts": 1788609904.4203353,
+  "outcome": "EXPIRED",
+  "side": "LONG",
+  "gap_pct": -0.408,
+  "owner_bet": true,
+  "hours_to_outcome": 24.001434769630432,
+  "quality": null
+ },
+ {
+  "sym": "COINUSDT",
+  "ts": 1788611702.6510239,
+  "outcome": "EXPIRED",
+  "side": "LONG",
+  "gap_pct": -0.373,
+  "owner_bet": true,
+  "hours_to_outcome": 24.003300042086178,
+  "quality": null
  }
 ]

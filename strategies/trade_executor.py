@@ -76,6 +76,7 @@ class TradeProposal:
     decision_version: int = 1
     parent_decision_id: Optional[str] = None
     session: str = ""
+    quality: str = ""  # GOOD/MEDIUM/LOW от signal_scorer (для conviction sizing)
     reason: list = field(default_factory=list)
     status: str = "PENDING"  # PENDING → APPROVED → REJECTED → EXECUTED → CLOSED
     timestamp: str = ""
@@ -539,6 +540,47 @@ async def _execute_reality(proposal: TradeProposal) -> dict:
                 risk = float(cfg.get("risk_per_trade", 0.25))
     except Exception:
         pass
+    # ─── CONVICTION SIZING (2026-09-05, owner: «уверенная сделка — жирнее») ───
+    # Данные (n=86, trade_lifecycle): prob≥0.58 = WR 62%/avg +$7.95 против
+    # WR 45%/avg +$3.91 у 0.55-0.58; quality=GOOD avg +$13.53 (n=11).
+    # Ограничения: множитель ×1.5 MAX, prob≥0.58 + quality=GOOD + R:R≥2,
+    # квота 3 conviction-филла/сутки (журнал executed_contours).
+    # ВАЖНО: «100% уверенных сделок не существует» (потолок модели 0.66, R178);
+    # плечо НЕ трогаем — риск определяется размером против SL, не плечом.
+    _conviction = False
+    try:
+        _cv = json.load(open("/root/tradingos/operations/trading_mode.json")).get("conviction_sizing", {})
+        if _cv.get("enabled", False):
+            _min_prob = float(_cv.get("min_prob", 0.58))
+            _mult = min(float(_cv.get("mult", 1.5)), 1.5)  # жёсткий потолок 1.5x
+            _rr_ok = proposal.rr >= float(_cv.get("min_rr", 2.0))
+            if (proposal.confidence >= _min_prob
+                    and getattr(proposal, "quality", "") == "GOOD"
+                    and _rr_ok):
+                # квота: не более N conviction-филлов за сегодня
+                from pathlib import Path as _P
+                _today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+                _cnt = 0
+                _max_day = int(_cv.get("max_per_day", 3))
+                _jc = _P("/root/tradingos/logs/executed_contours.jsonl")
+                if _jc.exists():
+                    for _line in _jc.read_text(errors="replace").splitlines()[-300:]:
+                        try:
+                            _r = json.loads(_line)
+                        except Exception:
+                            continue
+                        if (_r.get("conviction") and str(_r.get("ts", "")).startswith(_today)):
+                            _cnt += 1
+                if _cnt < _max_day:
+                    risk *= _mult
+                    _conviction = True
+                    logger.info(f"💪 CONVICTION SIZING: {proposal.symbol} prob={proposal.confidence:.2f} "
+                                f"quality={proposal.quality} → риск ×{_mult} = ${risk:.2f} "
+                                f"(квота {_max_day}/день, сегодня {_cnt})")
+                else:
+                    logger.info(f"⏸️ CONVICTION quota hit ({_cnt}/{_max_day}) — обычный риск")
+    except Exception as _ce:
+        logger.debug(f"conviction sizing check err: {_ce}")
     risk_per_unit = abs(proposal.entry - proposal.stop_loss)
     if risk_per_unit <= 0:
         return {"status": "ERROR", "error": "Invalid SL (zero risk distance)"}
@@ -804,6 +846,7 @@ async def _execute_reality(proposal: TradeProposal) -> dict:
                     "session": getattr(proposal, "session", ""),
                     "decision_id": proposal.decision_id,
                     "ticket": order.order_id,
+                    "conviction": _conviction,
                     # Телеметрия проскальзывания ВХОДА (2026-09-05, review):
                     # fill_price (реальная) vs proposal.entry (ожидаемая сигналом)
                     "expected_entry": proposal.entry,

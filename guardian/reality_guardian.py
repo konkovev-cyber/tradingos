@@ -932,6 +932,25 @@ def _process_position(pos, state):
 
     # Send OPEN notification on first sight
     if is_new_position:
+        # CONVICTION lookup (2026-09-05): позиция от conviction-сайзинга →
+        # более пристальный guardian (BE при 0.5R вместо глобального порога).
+        try:
+            _ec = Path("/root/tradingos/logs/executed_contours.jsonl")
+            if _ec.exists():
+                for _line in reversed(_ec.read_text(errors="replace").splitlines()[-200:]):
+                    try:
+                        _r = json.loads(_line)
+                    except Exception:
+                        continue
+                    if (_r.get("symbol") == symbol
+                            and str(_r.get("side", "")).lower() == str(side).lower()
+                            and _r.get("conviction")):
+                        sym_state["conviction"] = True
+                        sym_state["be_r_override"] = 0.5
+                        logger.info(f"💪 CONVICTION позиция: {symbol} — guardian пристальный (BE @ 0.5R)")
+                        break
+        except Exception:
+            pass
         _enqueue_telegram_open(
             symbol=symbol, side=side,
             entry_price=entry, qty=size,
@@ -1150,6 +1169,14 @@ def _process_position(pos, state):
         _be_cfg = json.loads(Path("/root/tradingos/operations/trading_mode.json").read_text())
         _be_r = float(_be_cfg.get("be_threshold_r", BE_THRESHOLD) or BE_THRESHOLD)
         _be_pct = float(_be_cfg.get("be_min_price_pct", BE_MIN_PRICE_PCT) or BE_MIN_PRICE_PCT)
+    except Exception:
+        pass
+    # CONVICTION override (2026-09-05): пристальный guardian для conviction-
+    # позиций — BE при 0.5R (раньше глобального), чтобы «не пролететь».
+    try:
+        _cv_be = float(sym_state.get("be_r_override") or 0)
+        if _cv_be > 0:
+            _be_r = min(_be_r, _cv_be)
     except Exception:
         pass
     _mfe_pct_price = (sym_state["mfe_peak"] * risk_per_unit) / entry * 100 if entry and risk_per_unit else 0.0
@@ -1792,6 +1819,11 @@ def _record_trade_closure(symbol, state_entry):
                         state_entry["contour"] = _r.get("contour") or "unknown"
                         if _r.get("decision_id"):
                             state_entry.setdefault("decision_id", _r["decision_id"])
+                        # CONVICTION-позиция (2026-09-05): более пристальный
+                        # guardian — BE триггер раньше (0.5R вместо глобального)
+                        if _r.get("conviction"):
+                            state_entry["conviction"] = True
+                            state_entry.setdefault("be_r_override", 0.5)
                         break
         except Exception:
             pass
