@@ -943,7 +943,39 @@ def _process_position(pos, state):
     # Update MFE peak (max profit reached)
     if r_multiple > sym_state.get("mfe_peak", 0):
         sym_state["mfe_peak"] = r_multiple
-    
+        # SHADOW TRAIL PEAK (2026-09-05): копим максимум пика на момент БЫ
+        # (для анализа альтернативного трейлинга «50% отдачи от пика»).
+        sym_state["peak_last_r"] = r_multiple
+
+    # SHADOW TRAIL LOGIC (2026-09-05, read-only): альтернативный выход —
+    # «закрыть, когда сделка отдала ≥50% от своего пика (пик ≥ 1.0R)».
+    # НЕ двигает SL, НЕ закрывает — только пишет в shadow_trail.jsonl,
+    # чтобы сравнить с фактическим исходом при закрытии. 22 сделки за
+    # неделю отдали ≥0.5R от пика — здесь рождается число «сколько бы
+    # спас такой трейлинг».
+    try:
+        _peak = sym_state.get("mfe_peak", 0)
+        _trail_level = _peak * 0.5
+        if _peak >= 1.0 and r_multiple < _trail_level and not sym_state.get("shadow_trail_fired"):
+            sym_state["shadow_trail_fired"] = True
+            sym_state["shadow_trail_would_r"] = _trail_level
+            sym_state["shadow_trail_actual_peak"] = _peak
+            _st_path = Path("/root/tradingos/logs/trades/shadow_trail.jsonl")
+            _st_path.parent.mkdir(parents=True, exist_ok=True)
+            with _st_path.open("a") as _f:
+                _f.write(json.dumps({
+                    "ts": datetime.now(timezone.utc).isoformat(),
+                    "symbol": symbol, "side": side,
+                    "peak_r": round(_peak, 3),
+                    "would_exit_r": round(_trail_level, 3),
+                    "current_r": round(r_multiple, 3),
+                    "be_fired": sym_state.get("be_fired", False),
+                }) + "\n")
+            logger.info(f"🚪 SHADOW TRAIL: {symbol} отдал {(1 - r_multiple / _peak) * 100:.0f}% "
+                        f"от пика {_peak:.2f}R → would-exit {_trail_level:.2f}R (тень, не исполняем)")
+    except Exception as _ste:
+        logger.debug(f"shadow trail err: {_ste}")
+
     # Update MAE trough (max adverse excursion)
     if r_multiple < sym_state.get("mae_trough", 0):
         sym_state["mae_trough"] = r_multiple

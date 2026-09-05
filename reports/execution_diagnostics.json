@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-05T11:09:09.486010+00:00",
+  "generated_at": "2026-09-05T11:38:58.302329+00:00",
   "window": {
     "last_24h": true,
     "all_time": true
@@ -8,8 +8,8 @@
   "filled_total": 86,
   "fill_rate_pct": 31.4,
   "cancelled_rate_pct": 68.6,
-  "proposals_24h": 10,
-  "filled_24h": 2,
+  "proposals_24h": 9,
+  "filled_24h": 1,
   "timing": {
     "signal_to_proposal_s": {
       "n": 243,
@@ -24,10 +24,10 @@
       "p95": 8.0
     },
     "proposal_to_fill_s_24h": {
-      "n": 2,
-      "avg": 6.9,
+      "n": 1,
+      "avg": 6.6,
       "median": 6.6,
-      "p95": 7.2
+      "p95": 6.6
     },
     "fill_to_exit_hours": {
       "n": 81,

@@ -1372,6 +1372,34 @@ class ObservationRunner:
                 _log_funnel_event("proposal", proposal)
                 self._last_reality_proposal_time = now
                 self._last_symbol_proposal[proposal.symbol] = now
+                # ─── ENTRY GATE SHADOW (2026-09-05) ─────────────────────────
+                # «Правильный вход»: гейт качества входа работает в ТЕНЕВОМ
+                # режиме (не блокирует). 44% сделок не доходят до 0.3R —
+                # копим пары decision→outcome, чтобы через 2 недели доказать
+                # или опровергнуть перевод SKIP в блокирующий режим.
+                # Свечи — из feature_store (без живых HTTP-запросов, урок
+                # rate-limit инцидента 2026-08-31).
+                try:
+                    from trade.entry_quality_gate import gate as eq_gate_shadow
+                    _fs_df_shadow = None
+                    _fs_candles_shadow = self.feature_store.get_candles(best["symbol"], "1h")
+                    if _fs_candles_shadow and len(_fs_candles_shadow) >= 60:
+                        import pandas as _pd_shadow
+                        _fs_df_shadow = _pd_shadow.DataFrame({
+                            "ts": [c.timestamp for c in _fs_candles_shadow],
+                            "o": [c.open for c in _fs_candles_shadow],
+                            "h": [c.high for c in _fs_candles_shadow],
+                            "l": [c.low for c in _fs_candles_shadow],
+                            "c": [c.close for c in _fs_candles_shadow],
+                        })
+                    if _fs_df_shadow is not None:
+                        _g = eq_gate_shadow(
+                            best["symbol"], best["direction"], time.time(),
+                            _fs_df_shadow, log=True, meta={"source": "reality_shadow"})
+                        log.info(f"🚪 GATE SHADOW: {best['symbol']} {best['direction']} "
+                                 f"decision={_g.get('decision')} reason={_g.get('reason')}")
+                except Exception as _ge:
+                    log.debug(f"gate shadow err: {_ge}")
                 log.info(f"🌟 REALITY PROPOSAL: {best['symbol']} {best['direction']} "
                          f"conf={best['probability']:.2f}")
                 
