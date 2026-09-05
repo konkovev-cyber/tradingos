@@ -804,6 +804,10 @@ async def _execute_reality(proposal: TradeProposal) -> dict:
                     "session": getattr(proposal, "session", ""),
                     "decision_id": proposal.decision_id,
                     "ticket": order.order_id,
+                    # Телеметрия проскальзывания ВХОДА (2026-09-05, review):
+                    # fill_price (реальная) vs proposal.entry (ожидаемая сигналом)
+                    "expected_entry": proposal.entry,
+                    "fill_price": order.fill_price,
                 }) + "\n")
         except Exception as _e:
             logger.debug(f"contour journal write failed: {_e}")
