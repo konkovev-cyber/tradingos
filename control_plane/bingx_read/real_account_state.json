@@ -1,0 +1,15 @@
+{
+  "timestamp": "2026-09-05T06:07:04.074745+00:00",
+  "source": "BINGX_API_HMAC",
+  "userId": "1586188652750692355",
+  "account": {
+    "equity": 731.0015,
+    "wallet": 731.0015,
+    "available": 478.3314,
+    "unrealized_pnl": 0.0,
+    "realized_pnl": 0.0
+  },
+  "positions": [],
+  "position_count": 0,
+  "total_unrealized": 0
+}

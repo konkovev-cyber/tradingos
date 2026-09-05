@@ -1,0 +1,20 @@
+{
+  "ENAUSDT": {
+    "be_fired": false,
+    "partial_fired": false,
+    "tight_fired": false,
+    "mfe_peak": 0.0544871794871804,
+    "entry_to_sl_risk": 0.0031200000000000117,
+    "side": "Buy",
+    "entry": 0.16403,
+    "size": 6096.0,
+    "sl_initial": 0.16091,
+    "tp_initial": 0.17338,
+    "entry_time": 1788580108.4,
+    "recovery_state": null,
+    "recovery_attempted": true,
+    "last_check": 1788580309.368914,
+    "last_r": 0.012820512820507802,
+    "recovery_outcome": "RECOVERED"
+  }
+}

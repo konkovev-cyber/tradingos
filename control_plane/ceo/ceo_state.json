@@ -1,0 +1,35 @@
+{
+  "timestamp": "2026-07-21T01:48:35.691021+00:00",
+  "system_status": "BLOCK",
+  "overall_health": "WARNING",
+  "summary": "Capital: +38.6501 USDT (PROFITABLE) | Positions: 13 | Risk: HIGH | Health: WARNING (55.8/100)",
+  "capital": {
+    "pnl": "+38.6501 USDT",
+    "status": "PROFITABLE"
+  },
+  "positions": 13,
+  "risk": {
+    "level": "HIGH",
+    "biggest_exposure": "VELVET-USDT (79.6%)"
+  },
+  "experiments": [
+    {
+      "name": "PG v1.1",
+      "progress": "18/20",
+      "target": "20 valid MOVE_SL",
+      "status": "COLLECTING"
+    },
+    {
+      "name": "Action Shadow v0.1",
+      "progress": "2/20",
+      "target": "20 unique + 10 completed",
+      "status": "COLLECTING"
+    }
+  ],
+  "blockers": [
+    "DATA_QUALITY",
+    "RISK_CONCENTRATION",
+    "EXECUTION_PERMISSION"
+  ],
+  "next_allowed_step": "FIX_CRITICAL_ISSUES"
+}

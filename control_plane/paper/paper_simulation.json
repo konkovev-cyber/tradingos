@@ -1,0 +1,36 @@
+{
+  "timestamp": "2026-07-21T01:48:35.760930+00:00",
+  "symbol": "VELVET-USDT",
+  "base_position_value": 251.34822,
+  "best_action": "HOLD",
+  "best_delta": 0,
+  "scenarios": [
+    {
+      "scenario_id": "S1",
+      "action": "HOLD",
+      "hold_pnl": 43.916940000000004,
+      "action_pnl": 43.916940000000004,
+      "delta": 0,
+      "verdict": "BASELINE",
+      "notes": "No action, keep current position"
+    },
+    {
+      "scenario_id": "S2",
+      "action": "MOVE_SL_BE",
+      "hold_pnl": 43.916940000000004,
+      "action_pnl": 43.916940000000004,
+      "delta": 0.0,
+      "verdict": "NEUTRAL",
+      "notes": "Move SL to entry+0.5%, worst case breakeven"
+    },
+    {
+      "scenario_id": "S3",
+      "action": "TAKE_PARTIAL",
+      "hold_pnl": 43.916940000000004,
+      "action_pnl": 37.329399,
+      "delta": -6.5875,
+      "verdict": "HOLD_BETTER",
+      "notes": "Close 25% at current price"
+    }
+  ]
+}

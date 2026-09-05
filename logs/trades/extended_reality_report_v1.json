@@ -1,0 +1,74 @@
+{
+  "version": "Extended_Reality_Report_v1",
+  "source": "trade_results.jsonl (22 Bybit-validated records)",
+  "criteria_locked": "/root/tradingos/logs/trades/decision_criteria_v1.json",
+  "performance": {
+    "total": {
+      "n": 23,
+      "wins": 5,
+      "losses": 18,
+      "win_rate": 0.2174,
+      "win_rate_95ci": [
+        0.0488,
+        0.386
+      ],
+      "expectancy": -0.07,
+      "expectancy_95ci": [
+        -0.1498,
+        0.0099
+      ],
+      "profit_factor": 0.41,
+      "net_pnl": -1.6099,
+      "avg_r": -0.166,
+      "pnl_std": 0.1954,
+      "max_losing_streak": 7
+    },
+    "sell": {
+      "n": 19,
+      "wins": 3,
+      "losses": 16,
+      "win_rate": 0.1579,
+      "win_rate_95ci": [
+        -0.0061,
+        0.3219
+      ],
+      "expectancy": -0.0874,
+      "expectancy_95ci": [
+        -0.1716,
+        -0.0031
+      ],
+      "profit_factor": 0.31,
+      "net_pnl": -1.6605,
+      "avg_r": -0.317,
+      "pnl_std": 0.1874,
+      "max_losing_streak": 7
+    },
+    "buy": {
+      "n": 4,
+      "wins": 2,
+      "losses": 2,
+      "win_rate": 0.5,
+      "win_rate_95ci": [
+        0.01,
+        0.99
+      ],
+      "expectancy": 0.0127,
+      "expectancy_95ci": [
+        -0.194,
+        0.2193
+      ],
+      "profit_factor": 1.16,
+      "net_pnl": 0.0507,
+      "avg_r": 0.549,
+      "pnl_std": 0.2109,
+      "max_losing_streak": 1
+    }
+  },
+  "current_state": {
+    "buy_shadow_events": 4,
+    "target": 30,
+    "remaining": 26
+  },
+  "no_changes_to_strategy": true,
+  "next_step": "Continue v3 shadow collection to 30 events"
+}

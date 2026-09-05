@@ -1,0 +1,20 @@
+{
+  "timestamp": "2026-07-31T05:03:11.579628+00:00",
+  "total_trades": 10,
+  "wins": 3,
+  "losses": 7,
+  "win_rate": 30.0,
+  "net_pnl": -0.3651,
+  "total_fees": 0.0,
+  "profit_factor": 0.61,
+  "avg_holding_h": 6.2,
+  "exit_reasons": {
+    "?": 10
+  },
+  "simulation_vs_reality": {
+    "trades_gap": -90,
+    "win_rate_gap": -22.0,
+    "pf_gap": -1.83
+  },
+  "decision": "ANALYZE"
+}

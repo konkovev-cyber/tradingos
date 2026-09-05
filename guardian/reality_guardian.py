@@ -1570,12 +1570,18 @@ def _fetch_actual_close_price(symbol: str, side: str, fallback: float) -> float:
     return fallback
 
 
-def _fetch_closed_trade(symbol: str, side: str) -> Optional[dict]:
+def _fetch_closed_trade(symbol: str, side: str,
+                         min_created_time_ms: float = None) -> Optional[dict]:
     """Fetch the most recent closed trade for a symbol with REAL fees/PnL.
 
     Returns dict with: avgEntryPrice, avgExitPrice, qty, closedPnl, openFee,
     closeFee, execType, createdTime — or None if not found.
     Retries 3x with backoff (closed-pnl endpoint can lag the fill).
+
+    When min_created_time_ms is given, records older than that are rejected:
+    the endpoint returns the SYMBOL's most recent closed trade, which after a
+    poll miss can be a stale record from a previous unrelated closure (NEARUSDT
+    incident 2026-09-04: Sept-3 Sell-reset −99 PnL attached to a live LONG).
     """
     ak, as_ = _load_credentials()
     if not ak or not as_:
@@ -1584,7 +1590,7 @@ def _fetch_closed_trade(symbol: str, side: str) -> Optional[dict]:
     for attempt in range(3):
         try:
             ts = str(int(time.time() * 1000))
-            q = f"category=linear&symbol={symbol}&limit=1"
+            q = f"category=linear&symbol={symbol}&limit=3"
             sign = hmac.new(as_.encode(), f"{ts}{ak}5000{q}".encode(), hashlib.sha256).hexdigest()
             headers = {
                 "X-BAPI-API-KEY": ak, "X-BAPI-TIMESTAMP": ts,
@@ -1594,8 +1600,17 @@ def _fetch_closed_trade(symbol: str, side: str) -> Optional[dict]:
             d = r.json()
             if d.get("retCode") == 0:
                 items = d["result"].get("list", [])
-                if items:
-                    it = items[0]
+                it = None
+                for candidate in items:
+                    if side and str(candidate.get("side", "")).lower() != side.lower():
+                        continue  # side filter — a Sell record is not proof for a Buy
+                    if min_created_time_ms is not None:
+                        created = _safe_float(candidate.get("createdTime")) or 0
+                        if created < min_created_time_ms:
+                            continue  # stale record from a previous closure
+                    it = candidate
+                    break
+                if it:
                     return {
                         # FIX 2026-08-24: defend against Bybit returning "" for
                         # numeric fields (seen on qty/fees) — float('') raises and
@@ -1617,14 +1632,15 @@ def _fetch_closed_trade(symbol: str, side: str) -> Optional[dict]:
     return None
 
 
-def _confirm_position_closed(symbol: str, attempts: int = 2) -> bool:
+def _confirm_position_closed(symbol: str, attempts: int = 2,
+                             entry_time: float = None) -> bool:
     """Confirm a position close using the EXCHANGE as source of truth.
 
     A single poll can transiently miss a live symbol (rate-limit / lag) →
     false 'phantom close' card. Returns True if EITHER:
       - position is absent on a fresh request (full close), OR
-      - there is a closed-pnl record (partial close — position may still be
-        alive but a reduce/TP fill already happened; not a phantom).
+      - there is a closed-pnl record newer than the position's entry_time
+        (partial close — a reduce/TP fill already happened; not a phantom).
     """
     import hmac, hashlib, httpx
     ak, as_ = _load_credentials()
@@ -1646,11 +1662,14 @@ def _confirm_position_closed(symbol: str, attempts: int = 2) -> bool:
                 still_open = any(float(p.get("size", 0)) > 0 for p in raw if isinstance(p, dict))
                 if not still_open:
                     return True  # confirmed fully gone
-                # Position still alive — check if a partial close happened
-                # (closed-pnl record exists = real reduce/TP fill, not phantom).
+                # Position still alive — check if a partial close happened.
+                # Only a closed-pnl record NEWER than entry_time proves a
+                # reduce/TP fill for THIS position; a stale record from a
+                # previous unrelated closure proves nothing (NEARUSDT incident).
                 try:
-                    cp = _fetch_closed_trade(symbol, "")
-                    if cp and cp.get("closedPnl") is not None and abs(cp.get("closedPnl", 0)) > 0:
+                    cp = _fetch_closed_trade(symbol, "",
+                                             entry_time * 1000 if entry_time else None)
+                    if cp and cp.get("closedPnl") is not None and abs(cp.get("closedPnl", 0) or 0) > 0:
                         return True  # partial close confirmed via closed-pnl
                 except Exception:
                     pass
@@ -1748,8 +1767,13 @@ def _record_trade_closure(symbol, state_entry):
         guardian_trigger = "NONE"
         guardian_sl_at_close = 0  # no SL change
 
-    # Get actual close data from Bybit (real fees, PnL, exit price)
-    closed = _fetch_closed_trade(symbol, side)
+    # Get actual close data from Bybit (real fees, PnL, exit price).
+    # Records older than the position's entry_time are rejected — the endpoint
+    # returns the symbol's most recent closed trade, which can be a stale
+    # record from a previous unrelated closure.
+    entry_time = state_entry.get("entry_time", 0)
+    closed = _fetch_closed_trade(symbol, side,
+                                 entry_time * 1000 if entry_time else None)
     if closed and closed.get("avgExitPrice", 0) > 0:
         close_price = closed["avgExitPrice"]
         real_fees = abs(closed.get("openFee", 0)) + abs(closed.get("closeFee", 0))
@@ -2079,7 +2103,8 @@ async def run_guardian():
                     # exchange before recording a close. A transient API error can
                     # make a live symbol disappear from one poll → false "phantom
                     # close" card (ADA/ARB incident). Re-query the exchange.
-                    if not _confirm_position_closed(sym):
+                    if not _confirm_position_closed(
+                        sym, entry_time=state[sym].get("entry_time", 0)):
                         logger.warning(
                             f"⚠️ PHANTOM CLOSE: {sym} missing from poll but still "
                             f"on exchange — not recording closure"

@@ -1,0 +1,71 @@
+{
+  "test_id": "MICRO_LIVE_1",
+  "mode": "MONITORING",
+  "purpose": "Infrastructure validation",
+  "created_at": "2026-07-21T10:50:00Z",
+  "symbol": "BTC-USDT",
+  "side": "LONG",
+  "entry_price": 1.1307,
+  "stop_loss": 1.1147,
+  "take_profit": 1.1487,
+  "position_value": 6.63,
+  "risk_pct": 0.5,
+  "risk_amount": 0.033,
+  "leverage": 1,
+  "executor": "MANUAL_BINGX_UI",
+  "status": "PROTECTED",
+  "status_history": [
+    "PENDING",
+    "CREATED",
+    "EXECUTED",
+    "PROTECTED"
+  ],
+  "rules": {
+    "no_manual_sl_move": true,
+    "no_manual_tp_change": true,
+    "no_manual_close": true,
+    "rts_monitor_only": true
+  },
+  "approval": {
+    "required": true,
+    "approved_by": null,
+    "approved_at": null
+  },
+  "pre_checks": {
+    "reconciliation": "SYNCED",
+    "safety_gate": "ALLOW",
+    "rts_guard": "OK",
+    "protection": "READY",
+    "risk_governor": "ALLOW"
+  },
+  "protection": {
+    "sl_preserved": true,
+    "tp_preserved": true,
+    "protection_events": []
+  },
+  "result": {
+    "pnl": null,
+    "fees": null,
+    "slippage": null
+  },
+  "decision_log": [
+    {
+      "timestamp": "2026-07-21T10:55:00Z",
+      "component": "SYSTEM",
+      "entry": "MICRO_LIVE_001",
+      "action": "EXECUTED",
+      "planned_symbol": "BTC-USDT",
+      "executed_symbol": "XRP-USDT",
+      "reason": "API format: MARKET+BOTH worked for XRP-USDT",
+      "status": "PASS"
+    }
+  ],
+  "conclusion": null,
+  "planned_symbol": "BTC-USDT",
+  "executed_symbol": "XRP-USDT",
+  "symbol_change_reason": "BTC-USDT execution API format issue, switched to XRP-USDT (same entry available, better liquidity)",
+  "creation_reason": "Infrastructure validation \u2014 first TradingOS real position lifecycle test",
+  "milestone": "M1 \u2014 Real Position Protection Achieved",
+  "milestone_date": "2026-07-21",
+  "milestone_result": "PASS"
+}

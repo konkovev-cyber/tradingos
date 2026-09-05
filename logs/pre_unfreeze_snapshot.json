@@ -1,0 +1,78 @@
+{
+  "timestamp": "2026-08-24T03:58:56.012307+00:00",
+  "purpose": "PRE-UNFREEZE IMMUTABLE SNAPSHOT",
+  "config": {
+    "mode": "MANUAL",
+    "kill_switch": true,
+    "risk_per_trade": 0.5,
+    "max_positions": 4,
+    "max_same_side_positions": 1,
+    "max_leverage": 5,
+    "max_daily_loss_pct": 1.5,
+    "max_total_loss_pct": 4.0,
+    "max_open_risk_pct": 3.0
+  },
+  "wallet": {
+    "totalAvailableBalance": "39.59888617",
+    "accountIMRate": "0.5066",
+    "accountMMRate": "0.0538",
+    "totalInitialMargin": "40.66564595",
+    "totalMaintenanceMargin": "4.32448316"
+  },
+  "positions": [
+    {
+      "symbol": "DOTUSDT",
+      "side": "Sell",
+      "size": "114",
+      "avgPrice": "0.9055",
+      "markPrice": "0.9005",
+      "stopLoss": "",
+      "takeProfit": "",
+      "leverage": "10",
+      "unrealisedPnl": "0.57",
+      "createdTime": "1787481040017",
+      "classification": "EXTERNAL_UNMANAGED"
+    },
+    {
+      "symbol": "XRPUSDT",
+      "side": "Sell",
+      "size": "39.2",
+      "avgPrice": "1.4815",
+      "markPrice": "1.4643",
+      "stopLoss": "",
+      "takeProfit": "",
+      "leverage": "5",
+      "unrealisedPnl": "0.67424",
+      "createdTime": "1785638318962",
+      "classification": "EXTERNAL_UNMANAGED"
+    },
+    {
+      "symbol": "FILUSDT",
+      "side": "Sell",
+      "size": "147",
+      "avgPrice": "0.7506",
+      "markPrice": "0.7546",
+      "stopLoss": "",
+      "takeProfit": "",
+      "leverage": "10",
+      "unrealisedPnl": "-0.588",
+      "createdTime": "1787480143730",
+      "classification": "EXTERNAL_UNMANAGED"
+    },
+    {
+      "symbol": "APTUSDT",
+      "side": "Sell",
+      "size": "121",
+      "avgPrice": "0.6216",
+      "markPrice": "0.6154",
+      "stopLoss": "",
+      "takeProfit": "",
+      "leverage": "10",
+      "unrealisedPnl": "0.7502",
+      "createdTime": "1787481942667",
+      "classification": "EXTERNAL_UNMANAGED"
+    }
+  ],
+  "guardian_state_symbols": [],
+  "dedup_log_entries": 0
+}

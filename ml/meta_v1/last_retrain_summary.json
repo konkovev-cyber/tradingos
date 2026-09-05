@@ -1,0 +1,43 @@
+{
+  "mean_auc": 0.5902034067304541,
+  "std_auc": 0.05852685377785595,
+  "n_train": 6523,
+  "wr_pct": 26.01563697685114,
+  "feature_importance": [
+    {
+      "f": "atr",
+      "imp": 13853
+    },
+    {
+      "f": "rsi",
+      "imp": 9091
+    },
+    {
+      "f": "adx",
+      "imp": 8439
+    },
+    {
+      "f": "ema20",
+      "imp": 7749
+    },
+    {
+      "f": "score",
+      "imp": 4348
+    },
+    {
+      "f": "final_probability",
+      "imp": 1787
+    },
+    {
+      "f": "rejected",
+      "imp": 17
+    },
+    {
+      "f": "confidence",
+      "imp": 10
+    }
+  ],
+  "n_folds": 5,
+  "generated_at": "2026-08-30T03:01:19.040422",
+  "elapsed_sec": 70.5
+}

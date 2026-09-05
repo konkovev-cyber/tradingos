@@ -1,0 +1,81 @@
+{
+  "time": "2026-07-28 16:43:17.282543",
+  "tier_a": 0,
+  "tier_b": 1,
+  "tier_b_watch": 2,
+  "tier_c": 5,
+  "top_candidates": [
+    {
+      "symbol": "AKEUSDT",
+      "prob": 0.54,
+      "pf": 0.38,
+      "wr": 27.3,
+      "tr": 11,
+      "adx": 54,
+      "rsi": 52
+    },
+    {
+      "symbol": "EULUSDT",
+      "prob": 0.51,
+      "pf": 0.0,
+      "wr": 0.0,
+      "tr": 0,
+      "adx": 0,
+      "rsi": 0
+    },
+    {
+      "symbol": "MUUSDT",
+      "prob": 0.49,
+      "pf": 0.5,
+      "wr": 33.3,
+      "tr": 9,
+      "adx": 43,
+      "rsi": 23
+    },
+    {
+      "symbol": "BNBUSDT",
+      "prob": 0.48,
+      "pf": 200.0,
+      "wr": 100.0,
+      "tr": 2,
+      "adx": 22,
+      "rsi": 51
+    },
+    {
+      "symbol": "BEATUSDT",
+      "prob": 0.45,
+      "pf": 1.5,
+      "wr": 60.0,
+      "tr": 10,
+      "adx": 20,
+      "rsi": 50
+    },
+    {
+      "symbol": "ETHUSDT",
+      "prob": 0.44,
+      "pf": 2.0,
+      "wr": 66.7,
+      "tr": 6,
+      "adx": 32,
+      "rsi": 45
+    },
+    {
+      "symbol": "ADAUSDT",
+      "prob": 0.39,
+      "pf": 5.0,
+      "wr": 83.3,
+      "tr": 6,
+      "adx": 35,
+      "rsi": 45
+    },
+    {
+      "symbol": "DOGEUSDT",
+      "prob": 0.33,
+      "pf": 2.0,
+      "wr": 66.7,
+      "tr": 3,
+      "adx": 35,
+      "rsi": 29
+    }
+  ]
+}

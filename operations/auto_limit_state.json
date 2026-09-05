@@ -1,0 +1,859 @@
+{
+  "active_limits": {
+    "GRTUSDT": {
+      "placed_at": 1788518206.3369539,
+      "side": "LONG",
+      "sl": 0.01684192857142857,
+      "tp": 0.017707886695544094,
+      "l1_price": 0.01705841810245745,
+      "l2_price": 0.0,
+      "l1_order_id": "0ddd162a-b655-41a6-8da3-6b12ac7ed33f",
+      "l2_order_id": null,
+      "qty": 58622.0,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -1.51,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "ALGOUSDT": {
+      "placed_at": 1788523498.482951,
+      "side": "LONG",
+      "sl": 0.09117464285714286,
+      "tp": 0.09612035714285713,
+      "l1_price": 0.09241107142857143,
+      "l2_price": 0.0,
+      "l1_order_id": "c72fdbb8-a581-4359-a6b6-9e5157d3c78e",
+      "l2_order_id": null,
+      "qty": 10821.2,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -0.182,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "IMXUSDT": {
+      "placed_at": 1788523499.2551663,
+      "side": "LONG",
+      "sl": 0.12333392857142857,
+      "tp": 0.13194021428571429,
+      "l1_price": 0.1254855,
+      "l2_price": 0.0,
+      "l1_order_id": "ecae0902-2d26-4a34-b785-a852c618cc8b",
+      "l2_order_id": null,
+      "qty": 7969.0,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -0.408,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "COINUSDT": {
+      "placed_at": 1788525290.7708738,
+      "side": "LONG",
+      "sl": 184.79399999999998,
+      "tp": 186.04230000000007,
+      "l1_price": 185.106075,
+      "l2_price": 0.0,
+      "l1_order_id": "5b124f24-c7eb-4e58-bb96-ff7f992d8641",
+      "l2_order_id": null,
+      "qty": 5.4,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -0.373,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "GOOGLUSDT": {
+      "placed_at": 1788537879.9843924,
+      "side": "LONG",
+      "sl": 337.3143214285714,
+      "tp": 337.43513571428565,
+      "l1_price": 337.344525,
+      "l2_price": 0.0,
+      "l1_order_id": "8aa89d5b-6ef5-4e35-aa1d-51e59467124f",
+      "l2_order_id": null,
+      "qty": 2.96,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": true,
+      "place_meta": {
+        "gap_pct": -0.241,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "BLURUSDT": {
+      "placed_at": 1788573887.0259259,
+      "side": "LONG",
+      "sl": 0.016104325,
+      "tp": 0.01696741500000001,
+      "l1_price": 0.016320097500000002,
+      "l2_price": 0.0,
+      "l1_order_id": "146f0fee-5082-4be7-b596-13cf975e5979",
+      "l2_order_id": null,
+      "qty": 61274.0,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -0.293,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "LQTYUSDT": {
+      "placed_at": 1788573887.356091,
+      "side": "LONG",
+      "sl": 0.2197707142857143,
+      "tp": 0.2296598571428571,
+      "l1_price": 0.222243,
+      "l2_price": 0.0,
+      "l1_order_id": "6ef1d430-4db3-4da1-985e-7ea0ae78c3de",
+      "l2_order_id": null,
+      "qty": 4499.5,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -0.25,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "LTCUSDT": {
+      "placed_at": 1788573888.032548,
+      "side": "LONG",
+      "sl": 49.843964285714286,
+      "tp": 53.7159064308538,
+      "l1_price": 50.811949821999164,
+      "l2_price": 0.0,
+      "l1_order_id": "66a093df-6c0f-42b0-b1f7-ac64154c37ed",
+      "l2_order_id": null,
+      "qty": 19.6,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -0.951,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "AXSUSDT": {
+      "placed_at": 1788577482.6309493,
+      "side": "LONG",
+      "sl": 0.9153764285714285,
+      "tp": 0.9812217702954837,
+      "l1_price": 0.9318377640024423,
+      "l2_price": 0.0,
+      "l1_order_id": "3b496039-19a2-4960-b7d0-a5aded01a58e",
+      "l2_order_id": null,
+      "qty": 1073.1,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -1.037,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "SUIUSDT": {
+      "placed_at": 1788581069.375342,
+      "side": "LONG",
+      "sl": 0.74678,
+      "tp": 0.8056101912324756,
+      "l1_price": 0.7614875478081189,
+      "l2_price": 0.0,
+      "l1_order_id": "b39c330f-0105-4bbc-8a01-ebeacdb6dc42",
+      "l2_order_id": null,
+      "qty": 1310.0,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -0.264,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "SPCXUSDT": {
+      "placed_at": 1788584677.1275964,
+      "side": "LONG",
+      "sl": 147.33078571428572,
+      "tp": 151.08124285714277,
+      "l1_price": 148.26839999999999,
+      "l2_price": 0.0,
+      "l1_order_id": "95582ab1-88eb-4f10-859a-1bc9248126d2",
+      "l2_order_id": null,
+      "qty": 6.74,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -0.25,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "MARAUSDT": {
+      "placed_at": 1788586466.6734943,
+      "side": "LONG",
+      "sl": 11.249607142857142,
+      "tp": 11.497778571428574,
+      "l1_price": 11.31165,
+      "l2_price": 0.0,
+      "l1_order_id": "0f8029a3-ad41-49e3-b8d6-42206b189cc4",
+      "l2_order_id": null,
+      "qty": 88.4,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -0.25,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "ATOMUSDT": {
+      "placed_at": 1788588324.4764729,
+      "side": "LONG",
+      "sl": 1.483125,
+      "tp": 1.5975266594659556,
+      "l1_price": 1.511725414866489,
+      "l2_price": 0.0,
+      "l1_order_id": "becdd8a2-947c-494d-a7e6-531868bfa184",
+      "l2_order_id": null,
+      "qty": 661.4,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -1.9,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "TQQQUSDT": {
+      "placed_at": 1788588330.2892294,
+      "side": "LONG",
+      "sl": 71.93764285714286,
+      "tp": 72.74387142857137,
+      "l1_price": 72.13919999999999,
+      "l2_price": 0.0,
+      "l1_order_id": "bc1d548e-6dcb-451f-b7b9-2a4a062f69e7",
+      "l2_order_id": null,
+      "qty": 13.86,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -0.25,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "ALTUSDT": {
+      "placed_at": 1788591891.9067109,
+      "side": "LONG",
+      "sl": 0.006325585714285715,
+      "tp": 0.0065480417636799735,
+      "l1_price": 0.006381199726634279,
+      "l2_price": 0.0,
+      "l1_order_id": "9efe0b24-06e5-4dec-937a-beb1228c538f",
+      "l2_order_id": null,
+      "qty": 156710.0,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -0.666,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "LINKUSDT": {
+      "placed_at": 1788591892.2635987,
+      "side": "LONG",
+      "sl": 11.575,
+      "tp": 11.977950000000003,
+      "l1_price": 11.6757375,
+      "l2_price": 0.0,
+      "l1_order_id": "c5065436-01a6-4ada-a458-8065769ea93f",
+      "l2_order_id": null,
+      "qty": 85.6,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -0.301,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "DOGEUSDT": {
+      "placed_at": 1788597382.397951,
+      "side": "LONG",
+      "sl": 0.08409410714285714,
+      "tp": 0.08833008499331474,
+      "l1_price": 0.08515310160547154,
+      "l2_price": 0.0,
+      "l1_order_id": "85aed0bd-a3b6-4942-bec0-b3b0b2d76cd6",
+      "l2_order_id": null,
+      "qty": 11743.0,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -0.406,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "XLMUSDT": {
+      "placed_at": 1788597382.8271434,
+      "side": "LONG",
+      "sl": 0.17801785714285714,
+      "tp": 0.18890063126059167,
+      "l1_price": 0.18073855067229078,
+      "l2_price": 0.0,
+      "l1_order_id": "4b863ac1-fcb2-484d-afee-6d56ea11366b",
+      "l2_order_id": null,
+      "qty": 5532.0,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -0.584,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "MSTRUSDT": {
+      "placed_at": 1788597383.2380967,
+      "side": "LONG",
+      "sl": 141.5244285714286,
+      "tp": 141.84711428571433,
+      "l1_price": 141.60510000000002,
+      "l2_price": 0.0,
+      "l1_order_id": "d09fb4c0-9c7f-4626-ad3e-f05eb4e522ee",
+      "l2_order_id": null,
+      "qty": 7.06,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -0.25,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "NVDAUSDT": {
+      "placed_at": 1788599086.308236,
+      "side": "LONG",
+      "sl": 229.69357142857143,
+      "tp": 231.33248571428578,
+      "l1_price": 230.10330000000002,
+      "l2_price": 0.0,
+      "l1_order_id": "ce2c54af-44b4-4a04-851e-3d62f9d273be",
+      "l2_order_id": null,
+      "qty": 4.34,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -0.25,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "HBARUSDT": {
+      "placed_at": 1788600872.8587463,
+      "side": "LONG",
+      "sl": 0.07752107142857143,
+      "tp": 0.08255600563934154,
+      "l1_price": 0.07877980498126395,
+      "l2_price": 0.0,
+      "l1_order_id": "531daf8e-d060-484a-bfe0-3944e4409777",
+      "l2_order_id": null,
+      "qty": 12693.0,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -1.954,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "AVAXUSDT": {
+      "placed_at": 1788602688.4487827,
+      "side": "LONG",
+      "sl": 7.328964285714285,
+      "tp": 7.722401293072259,
+      "l1_price": 7.427323537553779,
+      "l2_price": 0.0,
+      "l1_order_id": "54745afb-d984-4cde-9433-bd955c96606b",
+      "l2_order_id": null,
+      "qty": 134.6,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -0.969,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "VETUSDT": {
+      "placed_at": 1788602688.7986567,
+      "side": "LONG",
+      "sl": 0.006735092857142857,
+      "tp": 0.0071757402898083395,
+      "l1_price": 0.006845254715309228,
+      "l2_price": 0.0,
+      "l1_order_id": "9945a06c-da74-41a7-a374-dbe704cffdfb",
+      "l2_order_id": null,
+      "qty": 146086.0,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -0.707,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    }
+  },
+  "filled": {
+    "ETHUSDT": {
+      "entry": 2398.69471429,
+      "side": "SHORT",
+      "sl": 2432.72142857,
+      "tp": 2312.62714286,
+      "qty": 0.73,
+      "filled_at": 1788372114.0,
+      "level": "L1",
+      "sltp_ok": true
+    },
+    "SOLUSDT": {
+      "entry": 99.57171429,
+      "side": "SHORT",
+      "sl": 101.28142857,
+      "tp": 95.24714286,
+      "qty": 14.6,
+      "filled_at": 1788372114.0,
+      "level": "L1",
+      "sltp_ok": true
+    },
+    "XRPUSDT": {
+      "entry": 1.4554049999999998,
+      "side": "SHORT",
+      "sl": 1.470457857142857,
+      "tp": 1.4102464285714282,
+      "qty": 687.0,
+      "filled_at": 1788455400.81354,
+      "level": "STEALTH_FILL",
+      "sltp_ok": false,
+      "sltp_error": "not modified"
+    },
+    "DOGEUSDT": {
+      "entry": 0.08921142857142858,
+      "side": "SHORT",
+      "sl": 0.09014085714285715,
+      "tp": 0.08642314285714288,
+      "qty": 11209.0,
+      "filled_at": 1788471301.478273,
+      "level": "STEALTH_FILL",
+      "sltp_ok": false,
+      "sltp_error": "not modified"
+    },
+    "ALGOUSDT": {
+      "entry": 0.09305089285714285,
+      "side": "LONG",
+      "sl": 0.09134453571428572,
+      "tp": 0.09816996428571426,
+      "qty": 10746.8,
+      "filled_at": 1788495003.5446227,
+      "level": "STEALTH_FILL",
+      "sltp_ok": true,
+      "sltp_error": ""
+    },
+    "PYTHUSDT": {
+      "entry": 0.056227320000000004,
+      "side": "LONG",
+      "sl": 0.05572546428571428,
+      "tp": 0.057732887142857174,
+      "qty": 88924.0,
+      "filled_at": 1788453600.7296038,
+      "level": "STEALTH_FILL",
+      "sltp_ok": true,
+      "sltp_error": ""
+    },
+    "ARBUSDT": {
+      "entry": 0.1309671874637576,
+      "side": "LONG",
+      "sl": 0.12902867857142855,
+      "tp": 0.13678271414074475,
+      "qty": 7635.5,
+      "filled_at": 1788525303.8780274,
+      "level": "STEALTH_FILL",
+      "sltp_ok": true,
+      "sltp_error": ""
+    },
+    "HBARUSDT": {
+      "entry": 0.07960890000000001,
+      "side": "SHORT",
+      "sl": 0.08111564285714286,
+      "tp": 0.07508867142857147,
+      "qty": 12561.0,
+      "filled_at": 1788459000.7392287,
+      "level": "STEALTH_FILL",
+      "sltp_ok": false,
+      "sltp_error": "not modified"
+    },
+    "GRTUSDT": {
+      "entry": 0.01702209877777551,
+      "side": "LONG",
+      "sl": 0.01681625,
+      "tp": 0.017639645111102036,
+      "qty": 58747.1,
+      "filled_at": 1788492603.519125,
+      "level": "STEALTH_FILL",
+      "sltp_ok": true,
+      "sltp_error": ""
+    },
+    "ZROUSDT": {
+      "entry": 1.104324487393171,
+      "side": "LONG",
+      "sl": 1.0844142857142858,
+      "tp": 1.1640550924298267,
+      "qty": 905.5,
+      "filled_at": 1788501629.9490554,
+      "level": "STEALTH_FILL",
+      "sltp_ok": false,
+      "sltp_error": "not modified"
+    },
+    "ADAUSDT": {
+      "entry": 0.22284479999999998,
+      "side": "SHORT",
+      "sl": 0.22538,
+      "tp": 0.21523919999999994,
+      "qty": 4487.0,
+      "filled_at": 1788462302.7174919,
+      "level": "STEALTH_FILL",
+      "sltp_ok": false,
+      "sltp_error": "not modified"
+    },
+    "ETCUSDT": {
+      "entry": 7.535234978827359,
+      "side": "LONG",
+      "sl": 7.502332142857143,
+      "tp": 7.633943486738006,
+      "qty": 132.7,
+      "filled_at": 1788501302.4917717,
+      "level": "STEALTH_FILL",
+      "sltp_ok": false,
+      "sltp_error": "not modified"
+    },
+    "SUIUSDT": {
+      "entry": 0.7743,
+      "side": "LONG",
+      "sl": 0.76158,
+      "tp": 0.8124599999999998,
+      "qty": 1290.0,
+      "filled_at": 1788515407.082202,
+      "level": "STEALTH_FILL",
+      "sltp_ok": false,
+      "sltp_error": "not modified"
+    },
+    "BBXUSDT": {
+      "entry": 7.733285,
+      "side": "SHORT",
+      "sl": 7.776103571428572,
+      "tp": 7.604829285714286,
+      "qty": 129.3,
+      "filled_at": 1788596404.2574067,
+      "level": "STEALTH_FILL",
+      "sltp_ok": false,
+      "sltp_error": "not modified"
+    },
+    "JUPUSDT": {
+      "entry": 0.2279392857142857,
+      "side": "LONG",
+      "sl": 0.22572357142857144,
+      "tp": 0.2345864285714285,
+      "qty": 4387.0,
+      "filled_at": 1788483302.454344,
+      "level": "STEALTH_FILL",
+      "sltp_ok": false,
+      "sltp_error": "not modified"
+    },
+    "DOTUSDT": {
+      "entry": 0.8777002500000001,
+      "side": "LONG",
+      "sl": 0.8608578571428571,
+      "tp": 0.9282274285714289,
+      "qty": 1139.3,
+      "filled_at": 1788513332.1218805,
+      "level": "STEALTH_FILL",
+      "sltp_ok": false,
+      "sltp_error": "not modified"
+    },
+    "AXSUSDT": {
+      "entry": 0.93994425,
+      "side": "LONG",
+      "sl": 0.9216042857142857,
+      "tp": 0.9949641428571432,
+      "qty": 1063.8,
+      "filled_at": 1788525000.8055322,
+      "level": "STEALTH_FILL",
+      "sltp_ok": false,
+      "sltp_error": "not modified"
+    },
+    "ICPUSDT": {
+      "entry": 2.5070535714285715,
+      "side": "LONG",
+      "sl": 2.490232142857143,
+      "tp": 2.557517857142858,
+      "qty": 398.8,
+      "filled_at": 1788489602.0015454,
+      "level": "STEALTH_FILL",
+      "sltp_ok": false,
+      "sltp_error": "not modified"
+    },
+    "NEARUSDT": {
+      "entry": 1.9451836225295212,
+      "side": "LONG",
+      "sl": 1.9238642857142856,
+      "tp": 2.009141632975228,
+      "qty": 514.0,
+      "filled_at": 1788491702.0301223,
+      "level": "STEALTH_FILL",
+      "sltp_ok": true,
+      "sltp_error": ""
+    },
+    "LQTYUSDT": {
+      "entry": 0.2217799592139718,
+      "side": "LONG",
+      "sl": 0.21976428571428572,
+      "tp": 0.2278269797130301,
+      "qty": 4508.9,
+      "filled_at": 1788516600.8090177,
+      "level": "STEALTH_FILL",
+      "sltp_ok": false,
+      "sltp_error": "not modified"
+    },
+    "ETHFIUSDT": {
+      "entry": 0.5817125,
+      "side": "LONG",
+      "sl": 0.5761674999999999,
+      "tp": 0.5983475,
+      "qty": 1719.0,
+      "filled_at": 1788492603.519125,
+      "level": "STEALTH_FILL",
+      "sltp_ok": false,
+      "sltp_error": "not modified"
+    },
+    "ORDIUSDT": {
+      "entry": 4.116928571428572,
+      "side": "LONG",
+      "sl": 4.103357142857143,
+      "tp": 4.157642857142858,
+      "qty": 242.89,
+      "filled_at": 1788500102.0825005,
+      "level": "STEALTH_FILL",
+      "sltp_ok": false,
+      "sltp_error": "not modified"
+    },
+    "AVAXUSDT": {
+      "entry": 7.443214136068028,
+      "side": "LONG",
+      "sl": 7.405998065387688,
+      "tp": 7.55486234810905,
+      "qty": 134.3,
+      "filled_at": 1788500703.4484437,
+      "level": "STEALTH_FILL",
+      "sltp_ok": true,
+      "sltp_error": ""
+    },
+    "TQQQUSDT": {
+      "entry": 72.089325,
+      "side": "LONG",
+      "sl": 71.68578571428571,
+      "tp": 73.29994285714287,
+      "qty": 13.87,
+      "filled_at": 1788542702.5833704,
+      "level": "STEALTH_FILL",
+      "sltp_ok": true,
+      "sltp_error": ""
+    },
+    "LDOUSDT": {
+      "entry": 0.38394464285714286,
+      "side": "LONG",
+      "sl": 0.3779467857142857,
+      "tp": 0.40193821428571436,
+      "qty": 2604.5,
+      "filled_at": 1788594302.405267,
+      "level": "STEALTH_FILL",
+      "sltp_ok": false,
+      "sltp_error": "not modified"
+    },
+    "SPCXUSDT": {
+      "entry": 148.91771321644168,
+      "side": "LONG",
+      "sl": 148.17312465035948,
+      "tp": 151.15147891468828,
+      "qty": 6.71,
+      "filled_at": 1788522601.478573,
+      "level": "STEALTH_FILL",
+      "sltp_ok": true,
+      "sltp_error": ""
+    },
+    "UNIUSDT": {
+      "entry": 6.24475,
+      "side": "LONG",
+      "sl": 6.14645,
+      "tp": 6.53965,
+      "qty": 800.6,
+      "filled_at": 1788525000.8055322,
+      "level": "STEALTH_FILL",
+      "sltp_ok": false,
+      "sltp_error": "not modified"
+    },
+    "AAPLUSDT": {
+      "entry": 326.1825,
+      "side": "LONG",
+      "sl": 325.76446428571427,
+      "tp": 327.4366071428572,
+      "qty": 3.06,
+      "filled_at": 1788525000.8055322,
+      "level": "STEALTH_FILL",
+      "sltp_ok": false,
+      "sltp_error": "not modified"
+    },
+    "LTCUSDT": {
+      "entry": 50.613150000000005,
+      "side": "LONG",
+      "sl": 49.66903571428571,
+      "tp": 53.44549285714288,
+      "qty": 19.7,
+      "filled_at": 1788559500.8224053,
+      "level": "STEALTH_FILL",
+      "sltp_ok": true,
+      "sltp_error": ""
+    },
+    "WIFUSDT": {
+      "entry": 0.20083276053762936,
+      "side": "LONG",
+      "sl": 0.19805107142857145,
+      "tp": 0.20917782786480307,
+      "qty": 4979.0,
+      "filled_at": 1788525303.8780274,
+      "level": "STEALTH_FILL",
+      "sltp_ok": true,
+      "sltp_error": ""
+    },
+    "MANAUSDT": {
+      "entry": 0.0740376840293681,
+      "side": "LONG",
+      "sl": 0.0732967142857143,
+      "tp": 0.0762605932603295,
+      "qty": 13506.6,
+      "filled_at": 1788525303.8780274,
+      "level": "STEALTH_FILL",
+      "sltp_ok": false,
+      "sltp_error": "not modified"
+    },
+    "PENDLEUSDT": {
+      "entry": 1.9293499852692573,
+      "side": "LONG",
+      "sl": 1.9097571428571427,
+      "tp": 1.988128512505601,
+      "qty": 2591.0,
+      "filled_at": 1788525303.8780274,
+      "level": "STEALTH_FILL",
+      "sltp_ok": true,
+      "sltp_error": ""
+    },
+    "VETUSDT": {
+      "entry": 0.006639979413669859,
+      "side": "LONG",
+      "sl": 0.0065123285714285715,
+      "tp": 0.00702293194039372,
+      "qty": 150602.0,
+      "filled_at": 1788525303.8780274,
+      "level": "STEALTH_FILL",
+      "sltp_ok": false,
+      "sltp_error": "not modified"
+    },
+    "NFLXUSDT": {
+      "entry": 81.59648,
+      "side": "LONG",
+      "sl": 81.1884976,
+      "tp": 82.82042719999998,
+      "qty": 12.25,
+      "filled_at": 1788530401.0934386,
+      "level": "STEALTH_FILL",
+      "sltp_ok": false,
+      "sltp_error": "not modified"
+    },
+    "LINKUSDT": {
+      "entry": 11.528625,
+      "side": "LONG",
+      "sl": 11.414375000000001,
+      "tp": 11.871374999999995,
+      "qty": 86.7,
+      "filled_at": 1788533104.7149508,
+      "level": "STEALTH_FILL",
+      "sltp_ok": true,
+      "sltp_error": ""
+    },
+    "GALAUSDT": {
+      "entry": 0.0017721071428571428,
+      "side": "SHORT",
+      "sl": 0.0017988642857142858,
+      "tp": 0.0016918357142857135,
+      "qty": 564299.0,
+      "filled_at": 1788570602.3724115,
+      "level": "STEALTH_FILL",
+      "sltp_ok": false,
+      "sltp_error": "not modified"
+    },
+    "ENAUSDT": {
+      "entry": 0.16403232142857144,
+      "side": "LONG",
+      "sl": 0.16091539285714287,
+      "tp": 0.17338310714285712,
+      "qty": 6096.0,
+      "filled_at": 1788580201.4806015,
+      "level": "STEALTH_FILL",
+      "sltp_ok": true,
+      "sltp_error": ""
+    },
+    "JTOUSDT": {
+      "entry": 0.41408214285714284,
+      "side": "SHORT",
+      "sl": 0.4143692857142857,
+      "tp": 0.4132207142857142,
+      "qty": 2414.9,
+      "filled_at": 1788601802.5815117,
+      "level": "STEALTH_FILL",
+      "sltp_ok": false,
+      "sltp_error": "not modified"
+    }
+  }
+}

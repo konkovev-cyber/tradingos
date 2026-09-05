@@ -1,0 +1,21 @@
+{
+  "HEMIUSDT": {
+    "be_fired": false,
+    "partial_fired": false,
+    "tight_fired": false,
+    "mfe_peak": 0.01354136002355046,
+    "entry_to_sl_risk": 0.003396999999999999,
+    "side": "Buy",
+    "entry": 0.014724,
+    "size": 5897.0,
+    "sl_initial": 0.011327,
+    "tp_initial": 0.019805,
+    "entry_time": 1788339581.764,
+    "recovery_state": null,
+    "recovery_attempted": true,
+    "last_check": 1788342674.3120804,
+    "last_r": -0.08566382101854568,
+    "mae_trough": -0.20841919340594606,
+    "recovery_outcome": "RECOVERED"
+  }
+}

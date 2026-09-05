@@ -1,0 +1,19 @@
+{
+  "symbol": "KAITOUSDT",
+  "side": "BUY",
+  "entry": 1.164,
+  "stop_loss": 1.0902255042119455,
+  "take_profit": 1.3115489915761087,
+  "rr": 2.0,
+  "confidence": 0.52,
+  "strategy": "REALITY_DISCOVERY",
+  "decision_id": "R-D-20260729-C692F6",
+  "decision_version": 1,
+  "parent_decision_id": null,
+  "session": "REALITY",
+  "reason": [
+    "Reality TOP candidate: KAITOUSDT BUY prob=0.52 score=58 quality=MEDIUM"
+  ],
+  "status": "PENDING",
+  "timestamp": "2026-07-28T23:02:28.745900+00:00"
+}

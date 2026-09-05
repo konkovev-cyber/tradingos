@@ -1,0 +1,19 @@
+{
+  "symbol": "DOGEUSDT",
+  "side": "SELL",
+  "entry": 0.07081,
+  "stop_loss": 0.07192374799574844,
+  "take_profit": 0.06858250400850313,
+  "rr": 2.0,
+  "confidence": 0.52,
+  "strategy": "REALITY_DISCOVERY",
+  "decision_id": "R-D-20260729-25603E",
+  "decision_version": 1,
+  "parent_decision_id": null,
+  "session": "REALITY",
+  "reason": [
+    "Reality TOP candidate: DOGEUSDT SELL prob=0.52 score=58 quality=MEDIUM"
+  ],
+  "status": "PENDING",
+  "timestamp": "2026-07-29T11:04:22.213214+00:00"
+}

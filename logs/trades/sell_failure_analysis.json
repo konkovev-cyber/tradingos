@@ -1,0 +1,102 @@
+{
+  "version": "SELL_Failure_Analysis_v1",
+  "source": "trade_results.jsonl (SELL trades only, 19 trades)",
+  "total_sell": 19,
+  "sell_wins": 3,
+  "sell_losses": 16,
+  "sell_win_rate": 15.8,
+  "sell_pnl_total": -1.6605,
+  "sell_pnl_wins": 0.7422,
+  "sell_pnl_losses": -2.4027,
+  "instant_losses_pct": 52.6,
+  "holding_distribution": {
+    "instant": 10,
+    "0_1h": 0,
+    "1_3h": 4,
+    "3_12h": 2,
+    "12_plus": 3
+  },
+  "loss_pattern": {
+    "small_move_loss": 9,
+    "medium_move_loss": 4,
+    "large_move_loss": 3
+  },
+  "by_symbol": {
+    "WLFIUSDT": {
+      "count": 1,
+      "wins": 0,
+      "pnl": -0.3337
+    },
+    "LAUSDT": {
+      "count": 1,
+      "wins": 0,
+      "pnl": -0.0467
+    },
+    "WUSDT": {
+      "count": 1,
+      "wins": 1,
+      "pnl": 0.4321
+    },
+    "DOGEUSDT": {
+      "count": 2,
+      "wins": 0,
+      "pnl": -0.142
+    },
+    "ENAUSDT": {
+      "count": 1,
+      "wins": 0,
+      "pnl": -0.0438
+    },
+    "WLDUSDT": {
+      "count": 2,
+      "wins": 0,
+      "pnl": -0.0325
+    },
+    "XPLUSDT": {
+      "count": 1,
+      "wins": 1,
+      "pnl": 0.1609
+    },
+    "HOMEUSDT": {
+      "count": 2,
+      "wins": 0,
+      "pnl": -0.3021
+    },
+    "SHIB1000USDT": {
+      "count": 2,
+      "wins": 1,
+      "pnl": -0.1467
+    },
+    "SAHARAUSDT": {
+      "count": 1,
+      "wins": 0,
+      "pnl": -0.1321
+    },
+    "BIOUSDT": {
+      "count": 1,
+      "wins": 0,
+      "pnl": -0.1463
+    },
+    "FARTCOINUSDT": {
+      "count": 1,
+      "wins": 0,
+      "pnl": -0.0736
+    },
+    "VETUSDT": {
+      "count": 1,
+      "wins": 0,
+      "pnl": -0.3061
+    },
+    "CHILLGUYUSDT": {
+      "count": 1,
+      "wins": 0,
+      "pnl": -0.2704
+    },
+    "PEOPLEUSDT": {
+      "count": 1,
+      "wins": 0,
+      "pnl": -0.2775
+    }
+  },
+  "decision": "SELL frozen in v3 shadow; BUY-only validation continues"
+}

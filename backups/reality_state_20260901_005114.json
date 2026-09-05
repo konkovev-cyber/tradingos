@@ -1,0 +1,36 @@
+{
+  "ADAUSDT": {
+    "be_fired": false,
+    "partial_fired": false,
+    "tight_fired": false,
+    "mfe_peak": 0.17647058823529668,
+    "entry_to_sl_risk": 0.005099999999999993,
+    "side": "Sell",
+    "entry": 0.1985,
+    "size": 2089.0,
+    "sl_initial": 0.2036,
+    "tp_initial": 0.1905,
+    "entry_time": 1788208719.894,
+    "last_check": 1788213045.6877198,
+    "last_r": -0.235294117647055,
+    "mae_trough": -0.2549019607843132
+  },
+  "ROSEUSDT": {
+    "be_fired": true,
+    "partial_fired": false,
+    "tight_fired": false,
+    "mfe_peak": 0.20853080568720245,
+    "entry_to_sl_risk": 0.00021100000000000025,
+    "side": "Buy",
+    "entry": 0.006074,
+    "size": 25772.0,
+    "sl_initial": 0.00605,
+    "tp_initial": 0.006234,
+    "entry_time": 1788210738.105,
+    "last_check": 1788213045.3148658,
+    "last_r": 0.20853080568720245,
+    "mae_trough": -0.09952606635071166,
+    "be_fired_at": 1788212763.795301,
+    "be_sl": 0.006050737200000001
+  }
+}

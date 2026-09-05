@@ -1,0 +1,42 @@
+{
+  "timestamp": "2026-07-21T01:48:35.566773+00:00",
+  "portfolio_health": 32,
+  "analysis": {
+    "total_exposure": 55.1696,
+    "long_exposure": 46.9099,
+    "short_exposure": -8.2598,
+    "long_count": 4,
+    "short_count": 8,
+    "position_count": 12,
+    "win_rate": 0.333,
+    "concentration": {
+      "largest_symbol": "VELVET-USDT",
+      "largest_pct": 79.6,
+      "status": "CRITICAL"
+    },
+    "lab_diversification": null,
+    "lab_expected_pf": null,
+    "lab_expected_dd": null
+  },
+  "stress_scenarios": [
+    {
+      "scenario": "VELVET-USDT -20%",
+      "impact": -6.15,
+      "description": "If largest position drops 20%"
+    },
+    {
+      "scenario": "All positions -10%",
+      "impact": -3.87,
+      "description": "If every position drops 10%"
+    },
+    {
+      "scenario": "3 worst positions closed",
+      "impact": -7.75,
+      "description": "If 3 worst positions hit stop loss"
+    }
+  ],
+  "recommendations": [
+    "REDUCE_SINGLE_POSITION_CONCENTRATION",
+    "REVIEW_POSITION_QUALITY"
+  ]
+}

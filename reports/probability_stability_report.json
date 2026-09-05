@@ -1,0 +1,4444 @@
+{
+  "generated_at": "2026-08-06T21:13:59.337301+00:00",
+  "meta": {
+    "candidate_cycles": 1035,
+    "runs": 468
+  },
+  "method": "run = consecutive candidate cycles (gap<=10min); outcome = close±2ATR, 1:1, walk 1h bars to TP/SL, horizon 168h",
+  "by_run_length": {
+    "1_cycle_flash": {
+      "n": 263,
+      "winrate_pct": 47.9,
+      "pf": 0.92,
+      "avg_r": -0.042,
+      "expired": 0,
+      "no_data": 0,
+      "winrate_2h_pct": 51.0,
+      "median_hours": 1
+    },
+    "2_cycles": {
+      "n": 72,
+      "winrate_pct": 41.7,
+      "pf": 0.71,
+      "avg_r": -0.167,
+      "expired": 0,
+      "no_data": 0,
+      "winrate_2h_pct": 41.2,
+      "median_hours": 1.0
+    },
+    "3plus_cycles": {
+      "n": 102,
+      "winrate_pct": 43.1,
+      "pf": 0.76,
+      "avg_r": -0.137,
+      "expired": 0,
+      "no_data": 0,
+      "winrate_2h_pct": 45.7,
+      "median_hours": 1.0
+    }
+  },
+  "by_prob_at_entry": {
+    "p_55_60": {
+      "n": 394,
+      "winrate_pct": 47.5,
+      "pf": 0.9,
+      "avg_r": -0.051,
+      "expired": 0,
+      "no_data": 0,
+      "winrate_2h_pct": 49.7,
+      "median_hours": 1.0
+    },
+    "p_60plus": {
+      "n": 43,
+      "winrate_pct": 30.2,
+      "pf": 0.43,
+      "avg_r": -0.395,
+      "expired": 0,
+      "no_data": 0,
+      "winrate_2h_pct": 33.3,
+      "median_hours": 1
+    }
+  },
+  "overall": {
+    "n": 437,
+    "winrate_pct": 45.8,
+    "pf": 0.84,
+    "avg_r": -0.085,
+    "expired": 0,
+    "no_data": 0,
+    "winrate_2h_pct": 48.1,
+    "median_hours": 1
+  },
+  "runs_detail": [
+    {
+      "symbol": "BTCUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 6,
+      "r": -1.0
+    },
+    {
+      "symbol": "BTCUSDT",
+      "run_len": 4,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 6,
+      "r": -1.0
+    },
+    {
+      "symbol": "DOGEUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "DOGEUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "DOGEUSDT",
+      "run_len": 3,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "DOGEUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "DOGEUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "DOGEUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "XRPUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "XRPUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "ADAUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.6,
+      "prob_last": 0.6,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "ADAUSDT",
+      "run_len": 7,
+      "prob_at_entry": 0.6,
+      "prob_last": 0.6,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "ADAUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 7,
+      "r": -1.0
+    },
+    {
+      "symbol": "ADAUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 7,
+      "r": -1.0
+    },
+    {
+      "symbol": "ADAUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.6,
+      "prob_last": 0.6,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 7,
+      "r": -1.0
+    },
+    {
+      "symbol": "ADAUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 7,
+      "r": -1.0
+    },
+    {
+      "symbol": "ADAUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 7,
+      "r": -1.0
+    },
+    {
+      "symbol": "ADAUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 7,
+      "r": -1.0
+    },
+    {
+      "symbol": "ADAUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 7,
+      "r": -1.0
+    },
+    {
+      "symbol": "ADAUSDT",
+      "run_len": 4,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 7,
+      "r": -1.0
+    },
+    {
+      "symbol": "ADAUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.6,
+      "prob_last": 0.6,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 7,
+      "r": -1.0
+    },
+    {
+      "symbol": "ADAUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 7,
+      "r": -1.0
+    },
+    {
+      "symbol": "ADAUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 7,
+      "r": -1.0
+    },
+    {
+      "symbol": "ADAUSDT",
+      "run_len": 3,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.6,
+      "prob_trend": 0.03,
+      "outcome": "SL",
+      "hours": 15,
+      "r": -1.0
+    },
+    {
+      "symbol": "COTIUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 162,
+      "r": -1.0
+    },
+    {
+      "symbol": "COTIUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 162,
+      "r": -1.0
+    },
+    {
+      "symbol": "COTIUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.58,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "COTIUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "COTIUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.58,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "COTIUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "COTIUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.58,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "COTIUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.55,
+      "prob_trend": -0.03,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "COTIUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "COTIUSDT",
+      "run_len": 3,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "COTIUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "COTIUSDT",
+      "run_len": 5,
+      "prob_at_entry": 0.59,
+      "prob_last": 0.59,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "COTIUSDT",
+      "run_len": 3,
+      "prob_at_entry": 0.59,
+      "prob_last": 0.59,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "COTIUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "COTIUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "COTIUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "COTIUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "COTIUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.58,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "COTIUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "COTIUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "KAITOUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "HBARUSDT",
+      "run_len": 3,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "HBARUSDT",
+      "run_len": 3,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "HBARUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "SHIB1000USDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "SHIB1000USDT",
+      "run_len": 1,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.58,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "SHIB1000USDT",
+      "run_len": 2,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.58,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "VANRYUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "VANRYUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "VANRYUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "VANRYUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0000000000000022
+    },
+    {
+      "symbol": "VANRYUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0000000000000022
+    },
+    {
+      "symbol": "VANRYUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0000000000000022
+    },
+    {
+      "symbol": "VANRYUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0000000000000022
+    },
+    {
+      "symbol": "VANRYUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0000000000000022
+    },
+    {
+      "symbol": "VANRYUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0000000000000022
+    },
+    {
+      "symbol": "VANRYUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0000000000000022
+    },
+    {
+      "symbol": "VANRYUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0000000000000022
+    },
+    {
+      "symbol": "VANRYUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0000000000000022
+    },
+    {
+      "symbol": "VANRYUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0000000000000022
+    },
+    {
+      "symbol": "VANRYUSDT",
+      "run_len": 6,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.57,
+      "prob_trend": 0.01,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0000000000000022
+    },
+    {
+      "symbol": "VANRYUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0000000000000022
+    },
+    {
+      "symbol": "VANRYUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.6,
+      "prob_last": 0.6,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0000000000000022
+    },
+    {
+      "symbol": "VANRYUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0000000000000022
+    },
+    {
+      "symbol": "VANRYUSDT",
+      "run_len": 3,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0000000000000022
+    },
+    {
+      "symbol": "VANRYUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0000000000000022
+    },
+    {
+      "symbol": "PENGUUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "PENGUUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "PENGUUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "PENGUUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "PENGUUSDT",
+      "run_len": 3,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "PENGUUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "PENGUUSDT",
+      "run_len": 9,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "PENGUUSDT",
+      "run_len": 4,
+      "prob_at_entry": 0.6,
+      "prob_last": 0.6,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "ACHUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "ACHUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "ACHUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "ACHUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "ACHUSDT",
+      "run_len": 7,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.58,
+      "prob_trend": 0.02,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "ACHUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "ACHUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "BANKUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "BANKUSDT",
+      "run_len": 4,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "BANKUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.59,
+      "prob_last": 0.59,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "BANKUSDT",
+      "run_len": 6,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.58,
+      "prob_trend": 0.03,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "BANKUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.58,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "BANKUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.55,
+      "prob_trend": -0.03,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "BANKUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.58,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "HOMEUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "HOMEUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "HOMEUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.58,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "PEOPLEUSDT",
+      "run_len": 3,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "PEOPLEUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "PEOPLEUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "PEOPLEUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "PEOPLEUSDT",
+      "run_len": 5,
+      "prob_at_entry": 0.6,
+      "prob_last": 0.63,
+      "prob_trend": 0.03,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "PEOPLEUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "PEOPLEUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "PEOPLEUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "PEOPLEUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "PEOPLEUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "PEOPLEUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "ESPORTSUSDT",
+      "run_len": 3,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "ESPORTSUSDT",
+      "run_len": 5,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "ESPORTSUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "ESPORTSUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.58,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "ESPORTSUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "ESPORTSUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "ESPORTSUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "ESPORTSUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.58,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "ESPORTSUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.58,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "ESPORTSUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "ESPORTSUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "ESPORTSUSDT",
+      "run_len": 3,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "ESPORTSUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "ESPORTSUSDT",
+      "run_len": 3,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "ESPORTSUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "ESPORTSUSDT",
+      "run_len": 5,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "ESPORTSUSDT",
+      "run_len": 3,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.6,
+      "prob_trend": 0.03,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "ESPORTSUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "ESPORTSUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "ESPORTSUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "ESPORTSUSDT",
+      "run_len": 6,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "ESPORTSUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "ESPORTSUSDT",
+      "run_len": 8,
+      "prob_at_entry": 0.6,
+      "prob_last": 0.63,
+      "prob_trend": 0.03,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "ESPORTSUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.63,
+      "prob_last": 0.63,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "ESPORTSUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.63,
+      "prob_last": 0.63,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "ESPORTSUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.63,
+      "prob_last": 0.63,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "ESPORTSUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.59,
+      "prob_last": 0.59,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "ESPORTSUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.59,
+      "prob_last": 0.59,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "ESPORTSUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "ESPORTSUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "ESPORTSUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.6,
+      "prob_last": 0.6,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "ESPORTSUSDT",
+      "run_len": 7,
+      "prob_at_entry": 0.63,
+      "prob_last": 0.59,
+      "prob_trend": -0.04,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "ESPORTSUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "ESPORTSUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "ENAUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.59,
+      "prob_last": 0.59,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "ENAUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "ENAUSDT",
+      "run_len": 5,
+      "prob_at_entry": 0.6,
+      "prob_last": 0.6,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "ENAUSDT",
+      "run_len": 11,
+      "prob_at_entry": 0.6,
+      "prob_last": 0.57,
+      "prob_trend": -0.03,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "ENAUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "BTWUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "BTWUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.58,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "BTWUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "BTWUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "BTWUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "BTWUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "BTWUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "BTWUSDT",
+      "run_len": 3,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "BTWUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "BTWUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "BTWUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.58,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "BTWUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "BTWUSDT",
+      "run_len": 3,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "BTWUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "BTWUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "BTWUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.58,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "BTWUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "BTWUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "BTWUSDT",
+      "run_len": 7,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.58,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "BTWUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.58,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "BTWUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.58,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "BTWUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.58,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "BTWUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.58,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "BTWUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.58,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "BTWUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.58,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "BTWUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.58,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "BTWUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "BTWUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "SAHARAUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.6,
+      "prob_last": 0.6,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "SAHARAUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "SAHARAUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "SAHARAUSDT",
+      "run_len": 4,
+      "prob_at_entry": 0.63,
+      "prob_last": 0.63,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "SAHARAUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "SAHARAUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "SAHARAUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "SAHARAUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "SAHARAUSDT",
+      "run_len": 17,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.6,
+      "prob_trend": 0.04,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "SAHARAUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "SAHARAUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0000000000000044
+    },
+    {
+      "symbol": "SAHARAUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "CAPUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.59,
+      "prob_last": 0.59,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "CAPUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.58,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "CAPUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "ROSEUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "PLUMEUSDT",
+      "run_len": 4,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 2,
+      "r": 1.0
+    },
+    {
+      "symbol": "FLOWUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "FLOWUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "FLOWUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "FLOWUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "ZKUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "ZKUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "ZAMAUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "ZAMAUSDT",
+      "run_len": 4,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "ZAMAUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "ZAMAUSDT",
+      "run_len": 5,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.55,
+      "prob_trend": -0.03,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "ZAMAUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "ZAMAUSDT",
+      "run_len": 6,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "1000XECUSDT",
+      "run_len": 4,
+      "prob_at_entry": 0.59,
+      "prob_last": 0.56,
+      "prob_trend": -0.03,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "1000XECUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "1000XECUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.6,
+      "prob_last": 0.6,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "1000XECUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "1000XECUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "1000XECUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.6,
+      "prob_last": 0.6,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "INXUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.6,
+      "prob_last": 0.6,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "XPLUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "XPLUSDT",
+      "run_len": 5,
+      "prob_at_entry": 0.59,
+      "prob_last": 0.59,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "XPLUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "XPLUSDT",
+      "run_len": 4,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "XPLUSDT",
+      "run_len": 7,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.59,
+      "prob_trend": 0.03,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "XPLUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "XPLUSDT",
+      "run_len": 3,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "XPLUSDT",
+      "run_len": 5,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "XPLUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "XPLUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "ESPUSDT",
+      "run_len": 13,
+      "prob_at_entry": 0.59,
+      "prob_last": 0.59,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "ESPUSDT",
+      "run_len": 3,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.59,
+      "prob_trend": 0.03,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "ESPUSDT",
+      "run_len": 4,
+      "prob_at_entry": 0.59,
+      "prob_last": 0.59,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "ESPUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.59,
+      "prob_last": 0.59,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "GWEIUSDT",
+      "run_len": 6,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.58,
+      "prob_trend": 0.03,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "GWEIUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.58,
+      "prob_trend": 0.03,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "GWEIUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.58,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "GWEIUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "GWEIUSDT",
+      "run_len": 6,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.58,
+      "prob_trend": 0.02,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "GWEIUSDT",
+      "run_len": 11,
+      "prob_at_entry": 0.6,
+      "prob_last": 0.6,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "GWEIUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.58,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "GWEIUSDT",
+      "run_len": 9,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.58,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "GWEIUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.58,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "GWEIUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "GWEIUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "GWEIUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "GWEIUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "GWEIUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "WUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.6,
+      "prob_last": 0.6,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "WUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.6,
+      "prob_last": 0.6,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "WUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.6,
+      "prob_last": 0.6,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "WUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "STRKUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "STRKUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "STRKUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "STRKUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "STRKUSDT",
+      "run_len": 3,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "IRYSUSDT",
+      "run_len": 3,
+      "prob_at_entry": 0.59,
+      "prob_last": 0.6,
+      "prob_trend": 0.01,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "IRYSUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.6,
+      "prob_last": 0.6,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "IRYSUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "IRYSUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "HEMIUSDT",
+      "run_len": 7,
+      "prob_at_entry": 0.59,
+      "prob_last": 0.59,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "HEMIUSDT",
+      "run_len": 8,
+      "prob_at_entry": 0.6,
+      "prob_last": 0.6,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "HEMIUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "HEMIUSDT",
+      "run_len": 8,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.63,
+      "prob_trend": 0.06,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "HEMIUSDT",
+      "run_len": 12,
+      "prob_at_entry": 0.63,
+      "prob_last": 0.63,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "HEMIUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "UBUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 5,
+      "r": -1.0
+    },
+    {
+      "symbol": "UBUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "UBUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "UBUSDT",
+      "run_len": 3,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "UBUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "UBUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "UBUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.59,
+      "prob_last": 0.59,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "UBUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.59,
+      "prob_last": 0.59,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "UBUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "UBUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 6,
+      "r": 1.0
+    },
+    {
+      "symbol": "USUSDT",
+      "run_len": 3,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "USUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "USUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.58,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "USUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.58,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "USUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "USUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "USUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.58,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "USUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.58,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "USUSDT",
+      "run_len": 5,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "USUSDT",
+      "run_len": 8,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "USUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "USUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "USUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "USUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "USUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "USUSDT",
+      "run_len": 4,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "USUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "USUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "USUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "USUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.56,
+      "prob_trend": -0.01,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "USUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "USUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "ARBUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "ARBUSDT",
+      "run_len": 3,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.6,
+      "prob_trend": 0.03,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "ARBUSDT",
+      "run_len": 4,
+      "prob_at_entry": 0.6,
+      "prob_last": 0.6,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "ARBUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.6,
+      "prob_last": 0.57,
+      "prob_trend": -0.03,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "ARBUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "ARBUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.6,
+      "prob_last": 0.6,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "ARBUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "ARBUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "ARBUSDT",
+      "run_len": 10,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.6,
+      "prob_trend": 0.03,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "ARBUSDT",
+      "run_len": 12,
+      "prob_at_entry": 0.6,
+      "prob_last": 0.57,
+      "prob_trend": -0.03,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "ARBUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "ARBUSDT",
+      "run_len": 5,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "ARBUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "ARBUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.6,
+      "prob_last": 0.6,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "FARTCOINUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "FARTCOINUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "FARTCOINUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.59,
+      "prob_last": 0.56,
+      "prob_trend": -0.03,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "FARTCOINUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "FARTCOINUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "FARTCOINUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "FARTCOINUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "FARTCOINUSDT",
+      "run_len": 5,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "FARTCOINUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "FARTCOINUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "FARTCOINUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "FARTCOINUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 6,
+      "r": -1.0
+    },
+    {
+      "symbol": "FARTCOINUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.63,
+      "prob_last": 0.63,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 5,
+      "r": -1.0
+    },
+    {
+      "symbol": "FARTCOINUSDT",
+      "run_len": 3,
+      "prob_at_entry": 0.63,
+      "prob_last": 0.6,
+      "prob_trend": -0.03,
+      "outcome": "SL",
+      "hours": 5,
+      "r": -1.0
+    },
+    {
+      "symbol": "CHIPUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "CHIPUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.63,
+      "prob_last": 0.63,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "CHIPUSDT",
+      "run_len": 4,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.57,
+      "prob_trend": 0.02,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "CHIPUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "SEIUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "SEIUSDT",
+      "run_len": 7,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.6,
+      "prob_trend": 0.03,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "SEIUSDT",
+      "run_len": 8,
+      "prob_at_entry": 0.6,
+      "prob_last": 0.6,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "SEIUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.6,
+      "prob_last": 0.6,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "WLDUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.6,
+      "prob_last": 0.6,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "WLDUSDT",
+      "run_len": 4,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.6,
+      "prob_trend": 0.03,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "WLDUSDT",
+      "run_len": 4,
+      "prob_at_entry": 0.6,
+      "prob_last": 0.57,
+      "prob_trend": -0.03,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "WLDUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "WLDUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "WLDUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.6,
+      "prob_last": 0.6,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "WLDUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "WLDUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "WLDUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "WLDUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "WLDUSDT",
+      "run_len": 7,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.57,
+      "prob_trend": 0.01,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "BLESSUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0000000000000009
+    },
+    {
+      "symbol": "OPUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "MOVEUSDT",
+      "run_len": 7,
+      "prob_at_entry": 0.6,
+      "prob_last": 0.63,
+      "prob_trend": 0.03,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "MOVEUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "MOVEUSDT",
+      "run_len": 6,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "MOVEUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "MOVEUSDT",
+      "run_len": 4,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.6,
+      "prob_trend": 0.03,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "MOVEUSDT",
+      "run_len": 4,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.6,
+      "prob_trend": 0.03,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "MOVEUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.6,
+      "prob_last": 0.6,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "MOVEUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.59,
+      "prob_last": 0.59,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "MOVEUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.59,
+      "prob_last": 0.59,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "MOVEUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.59,
+      "prob_last": 0.59,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "MOVEUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.59,
+      "prob_last": 0.59,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "GMTUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "GMTUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "GMTUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "SOONUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "SOONUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.58,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "SOONUSDT",
+      "run_len": 3,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "SOONUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.58,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "CHILLGUYUSDT",
+      "run_len": 9,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "CHILLGUYUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "WLFIUSDT",
+      "run_len": 5,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "WLFIUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "ONDOUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "AKEUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "AKEUSDT",
+      "run_len": 3,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.58,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "AKEUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "AKEUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "AKEUSDT",
+      "run_len": 3,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "AKEUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "AKEUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "AKEUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0000000000000022
+    },
+    {
+      "symbol": "AKEUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0000000000000022
+    },
+    {
+      "symbol": "AKEUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.58,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "1000RATSUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.58,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "1000RATSUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.58,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "1000RATSUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "1000RATSUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "1000RATSUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.57,
+      "prob_last": 0.57,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "AEVOUSDT",
+      "run_len": 9,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.58,
+      "prob_trend": 0.03,
+      "outcome": "SL",
+      "hours": 17,
+      "r": -1.0
+    },
+    {
+      "symbol": "AEVOUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 17,
+      "r": -1.0
+    },
+    {
+      "symbol": "BABYUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "BABYUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "BABYUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "BABYUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "BABYUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "BABYUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "UAIUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 2,
+      "r": -1.0
+    },
+    {
+      "symbol": "UAIUSDT",
+      "run_len": 4,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 2,
+      "r": -1.0
+    },
+    {
+      "symbol": "UAIUSDT",
+      "run_len": 4,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 2,
+      "r": -1.0
+    },
+    {
+      "symbol": "BROCCOLIUSDT",
+      "run_len": 3,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 15,
+      "r": -1.0
+    },
+    {
+      "symbol": "PORTALUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "PORTALUSDT",
+      "run_len": 3,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "PORTALUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "PORTALUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "HUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "HUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.58,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "HUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.58,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "SKRUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "SKRUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "SKRUSDT",
+      "run_len": 4,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.58,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "SKRUSDT",
+      "run_len": 3,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.58,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "SKRUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "SKRUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "SKRUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.55,
+      "prob_trend": -0.03,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "SKRUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "COREUSDT",
+      "run_len": 6,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "EDENUSDT",
+      "run_len": 3,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "ZEREBROUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "GPSUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 3,
+      "r": -1.0
+    },
+    {
+      "symbol": "GPSUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.59,
+      "prob_last": 0.59,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 3,
+      "r": -1.0
+    },
+    {
+      "symbol": "PIPPINUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 17,
+      "r": -1.0
+    },
+    {
+      "symbol": "PIPPINUSDT",
+      "run_len": 3,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.55,
+      "prob_trend": -0.03,
+      "outcome": "SL",
+      "hours": 17,
+      "r": -1.0
+    },
+    {
+      "symbol": "PIPPINUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 17,
+      "r": -1.0
+    },
+    {
+      "symbol": "PIPPINUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.58,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 2,
+      "r": -1.0
+    },
+    {
+      "symbol": "PIPPINUSDT",
+      "run_len": 3,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.55,
+      "prob_trend": -0.03,
+      "outcome": "SL",
+      "hours": 2,
+      "r": -1.0
+    },
+    {
+      "symbol": "TUTUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "ROBOUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "ROBOUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "ROBOUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "MONUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "MONUSDT",
+      "run_len": 3,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "ACTUSDT",
+      "run_len": 15,
+      "prob_at_entry": 0.6,
+      "prob_last": 0.56,
+      "prob_trend": -0.04,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "ACTUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "ACTUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "ACTUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "STOUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "STOUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "STOUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "STOUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "SIGNUSDT",
+      "run_len": 4,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.59,
+      "prob_trend": 0.03,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "FIDAUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "FIDAUSDT",
+      "run_len": 3,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "FIDAUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.55,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "FIDAUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.58,
+      "prob_trend": 0.03,
+      "outcome": "TP",
+      "hours": 1,
+      "r": 1.0
+    },
+    {
+      "symbol": "XNYUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.58,
+      "prob_trend": 0.0,
+      "outcome": "SL",
+      "hours": 1,
+      "r": -1.0
+    },
+    {
+      "symbol": "CASHCATUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 12,
+      "r": 1.0000000000000004
+    },
+    {
+      "symbol": "CASHCATUSDT",
+      "run_len": 1,
+      "prob_at_entry": 0.56,
+      "prob_last": 0.56,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 26,
+      "r": 1.0
+    },
+    {
+      "symbol": "CASHCATUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.55,
+      "prob_trend": -0.03,
+      "outcome": "TP",
+      "hours": 12,
+      "r": 1.0
+    },
+    {
+      "symbol": "CASHCATUSDT",
+      "run_len": 2,
+      "prob_at_entry": 0.55,
+      "prob_last": 0.58,
+      "prob_trend": 0.03,
+      "outcome": "TP",
+      "hours": 12,
+      "r": 1.0000000000000004
+    },
+    {
+      "symbol": "CASHCATUSDT",
+      "run_len": 3,
+      "prob_at_entry": 0.58,
+      "prob_last": 0.58,
+      "prob_trend": 0.0,
+      "outcome": "TP",
+      "hours": 12,
+      "r": 1.0
+    }
+  ]
+}

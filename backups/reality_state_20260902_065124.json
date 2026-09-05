@@ -1,0 +1,28 @@
+{
+  "TUTUSDT": {
+    "be_fired": true,
+    "partial_fired": true,
+    "tight_fired": true,
+    "mfe_peak": 1.7423285198556004,
+    "entry_to_sl_risk": 0.0022159999999999958,
+    "side": "Sell",
+    "entry": 0.032147,
+    "size": 2379.0,
+    "sl_initial": 0.029532,
+    "tp_initial": 0.026208,
+    "entry_time": 1788286934.458,
+    "mae_trough": -0.014440433212995202,
+    "last_check": 1788321068.576445,
+    "last_r": 1.7296931407942284,
+    "be_fired_at": 1788287361.9698145,
+    "be_sl": 0.03233394700000001,
+    "recovery_state": null,
+    "recovery_attempted": true,
+    "recovery_outcome": "RECOVERED",
+    "trail_last_peak_r": 1.6800541516245522,
+    "trail_last_sl": 0.029532,
+    "trail_last_tp": 0.026208000000000006,
+    "partial_fired_at": 1788313747.902617,
+    "tight_fired_at": 1788317398.250324
+  }
+}

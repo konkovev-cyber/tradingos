@@ -1,0 +1,15 @@
+[Unit]
+Description=TradingOS H2 Shadow Maker Run (H2 squeeze->expansion detector + post-only executor)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/root/tradingos
+Environment=PYTHONPATH=/root:/root/tradingos
+ExecStart=/usr/bin/python3 /root/tradingos/profit_engines/h2_shadow/scripts/h2_detector.py --mode watch
+Restart=always
+RestartSec=15
+
+[Install]
+WantedBy=multi-user.target

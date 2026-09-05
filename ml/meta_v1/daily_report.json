@@ -1,0 +1,78 @@
+{
+  "generated_at": "2026-09-04T18:00:32.994624+00:00",
+  "summary": {
+    "n_scored_rejections_24h": 94,
+    "mean_meta_v1_prob": 0.09932021276595744,
+    "median_meta_v1_prob": 0.093,
+    "above_0.7_pct": 0.0,
+    "distribution_buckets": {
+      "<0.3": 92,
+      "0.3-0.5": 2,
+      "0.5-0.7": 0,
+      "0.7-0.9": 0,
+      ">0.9": 0
+    },
+    "by_reason": {
+      "max_positions": {
+        "n": 36,
+        "avg_p": 0.13769999999999993
+      },
+      "pre_trade_filter": {
+        "n": 49,
+        "avg_p": 0.08486122448979591
+      },
+      "exchange_min_size": {
+        "n": 9,
+        "avg_p": 0.024522222222222223
+      }
+    },
+    "top_symbols_by_avg_prob": [
+      {
+        "symbol": "PUMPFUNUSDT",
+        "avg_prob": 0.215,
+        "n": 5
+      },
+      {
+        "symbol": "ZORAUSDT",
+        "avg_prob": 0.164,
+        "n": 17
+      },
+      {
+        "symbol": "CAPUSDT",
+        "avg_prob": 0.126,
+        "n": 6
+      },
+      {
+        "symbol": "HEMIUSDT",
+        "avg_prob": 0.117,
+        "n": 16
+      },
+      {
+        "symbol": "AKEUSDT",
+        "avg_prob": 0.102,
+        "n": 11
+      },
+      {
+        "symbol": "MONUSDT",
+        "avg_prob": 0.07,
+        "n": 5
+      },
+      {
+        "symbol": "ANKRUSDT",
+        "avg_prob": 0.047,
+        "n": 18
+      },
+      {
+        "symbol": "PUFFERUSDT",
+        "avg_prob": 0.042,
+        "n": 7
+      },
+      {
+        "symbol": "BTCUSDT",
+        "avg_prob": 0.025,
+        "n": 9
+      }
+    ]
+  },
+  "note": "OOS uplift cannot be computed yet — need ≥30 trade_results on demo for promotion decision. Currently collecting."
+}

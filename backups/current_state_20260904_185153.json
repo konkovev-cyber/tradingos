@@ -1,0 +1,41 @@
+{
+  "timestamp": "2026-09-04T06:00:04.888102+00:00",
+  "system_status": "OPERATIONAL",
+  "research": {
+    "status": "COLLECTING",
+    "active_experiments": 2,
+    "evidence_score": -46.1,
+    "experiments": [
+      "PG-v1.1-SHADOW-001",
+      "Action-Shadow-v0.1"
+    ]
+  },
+  "positions": {
+    "open_count": 37,
+    "unrealized_pnl": 0.0,
+    "in_profit": 0,
+    "in_loss": 0,
+    "guard_mode": "SHADOW",
+    "guard_valid_signals": 2146,
+    "action_shadow_unique": 25,
+    "pending_actions": 25,
+    "risk_concentration": {}
+  },
+  "capital": {
+    "total_unrealized": 38.4356,
+    "total_realized": 0.0,
+    "closed_trades": 0,
+    "open_positions": 17,
+    "biggest_risk_symbol": "VELVET-USDT",
+    "biggest_risk_pct": 79.3,
+    "status": "PROFITABLE"
+  },
+  "execution": {
+    "ubot_status": "inactive",
+    "pie_status": "active",
+    "guard_status": "active",
+    "live_permission": "NONE",
+    "services_running": 5,
+    "services_total": 8
+  }
+}

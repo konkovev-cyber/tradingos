@@ -1,0 +1,26 @@
+{
+  "description": "Blackout-окна вокруг макроэкономических событий (T2, 2026-09-01). Вход reality/tradfi в эти окна блокируется (за 15 мин до и через 30 мин после).",
+  "enabled": true,
+  "margin_before_min": 15,
+  "margin_after_min": 30,
+  "events_2026": [
+    {"name": "FOMC", "month": 1, "day": 28, "hour_utc": 19},
+    {"name": "FOMC", "month": 3, "day": 18, "hour_utc": 18},
+    {"name": "FOMC", "month": 5, "day": 7, "hour_utc": 18},
+    {"name": "FOMC", "month": 6, "day": 18, "hour_utc": 18},
+    {"name": "FOMC", "month": 7, "day": 30, "hour_utc": 18},
+    {"name": "FOMC", "month": 9, "day": 17, "hour_utc": 18},
+    {"name": "FOMC", "month": 10, "day": 29, "hour_utc": 18},
+    {"name": "FOMC", "month": 12, "day": 10, "hour_utc": 19},
+    {"name": "CPI", "month": 1, "day": 14, "hour_utc": 13},
+    {"name": "CPI", "month": 2, "day": 12, "hour_utc": 13},
+    {"name": "CPI", "month": 3, "day": 12, "hour_utc": 13},
+    {"name": "CPI", "month": 4, "day": 10, "hour_utc": 13},
+    {"name": "CPI", "month": 5, "day": 15, "hour_utc": 13},
+    {"name": "NFP", "month": 1, "day": 9, "hour_utc": 13},
+    {"name": "NFP", "month": 2, "day": 6, "hour_utc": 13},
+    {"name": "NFP", "month": 3, "day": 7, "hour_utc": 13},
+    {"name": "NFP", "month": 4, "day": 3, "hour_utc": 13},
+    {"name": "NFP", "month": 5, "day": 1, "hour_utc": 13}
+  ]
+}

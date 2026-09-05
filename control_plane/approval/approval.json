@@ -1,0 +1,30 @@
+[
+  {
+    "request_id": "15703db2",
+    "recommendation": "PROTECT_PROFIT_ON_VELVET",
+    "source": "CEO_CONTROL",
+    "reasons": [
+      "Risk concentration 79.6%"
+    ],
+    "status": "APPROVED",
+    "operator_action": "ALLOW_PAPER_SIMULATION",
+    "approved_by": "operator",
+    "timestamp_created": "2026-07-21T01:28:21.494358+00:00",
+    "timestamp_resolved": "2026-07-21T01:28:21.709100+00:00",
+    "notes": "Capital Intelligence flagged CRITICAL"
+  },
+  {
+    "request_id": "ae8a9fd0",
+    "recommendation": "SET_TP_ON_ARBUSDT_PROFIT_PROTECTION",
+    "source": "PROFIT_WATCH",
+    "reasons": [
+      "ARB-USDT PnL=+1.56% TP=NO position unprotected. SL=0.0899 exists, TP missing. Profit can disappear on any pullback."
+    ],
+    "status": "APPROVED",
+    "operator_action": "SET_TP_ARBUSDT_0.0920_PROFIT_PROTECTION",
+    "approved_by": "operator",
+    "timestamp_created": "2026-07-21T07:19:51.964185+00:00",
+    "timestamp_resolved": "2026-07-21T07:22:42.622484+00:00",
+    "notes": "First real profit protection test. ArB currently has SL but no TP. Test cycle: Reality\u2192Paper\u2192Decision\u2192Approval\u2192Manual execution. CTE-001 related."
+  }
+]

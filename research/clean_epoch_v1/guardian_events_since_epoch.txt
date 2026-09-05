@@ -1,0 +1,22 @@
+авг 13 17:26:26 vpn python3[153221]: 2026-08-13 17:26:26,337 [reality_guardian] 🟢 OPEN detected: BTRUSDT Buy @ 0.02989 qty=527.0 lev=5x SL=0.02932 TP=0.0309
+авг 13 17:36:52 vpn python3[153221]: 2026-08-13 17:36:52,235 [TradingOS.Notifier] TRADE_CLOSE_NOTIFICATION symbol=PLUMEUSDT side=Sell chart_bytes=49896 caption_chars=374 status=GENERATED
+авг 13 17:36:52 vpn python3[153221]: 2026-08-13 17:36:52,236 [reality_guardian] TRADE_CLOSE_NOTIFICATION symbol=PLUMEUSDT side=Sell entry=0.01207 exit=0.01233 sl=0.01232 pnl=-0.3722796 holding_hours=0 status=SUCCESS
+авг 13 17:42:01 vpn python3[153221]: 2026-08-13 17:42:01,517 [reality_guardian] 🟢 OPEN detected: MAVUSDT Sell @ 0.009071 qty=1728.0 lev=5x SL=0.009333 TP=0.008751
+авг 13 17:49:20 vpn python3[153221]: 2026-08-13 17:49:20,982 [TradingOS.Notifier] TRADE_CLOSE_NOTIFICATION symbol=BTRUSDT side=Buy chart_bytes=51566 caption_chars=369 status=GENERATED
+авг 13 17:49:20 vpn python3[153221]: 2026-08-13 17:49:20,983 [reality_guardian] TRADE_CLOSE_NOTIFICATION symbol=BTRUSDT side=Buy entry=0.02989 exit=0.03053 sl=0.02932 pnl=0.30225451 holding_hours=0 status=SUCCESS
+авг 13 18:07:20 vpn python3[153221]: 2026-08-13 18:07:20,363 [reality_guardian] 🟢 OPEN detected: GWEIUSDT Buy @ 0.02465552 qty=640.0 lev=5x SL=0.02409 TP=0.0265
+авг 13 18:51:01 vpn python3[153221]: 2026-08-13 18:51:01,225 [TradingOS.Notifier] TRADE_CLOSE_NOTIFICATION symbol=GWEIUSDT side=Buy chart_bytes=55388 caption_chars=372 status=GENERATED
+авг 13 18:51:01 vpn python3[153221]: 2026-08-13 18:51:01,227 [reality_guardian] TRADE_CLOSE_NOTIFICATION symbol=GWEIUSDT side=Buy entry=0.02465552 exit=0.02389 sl=0.02409 pnl=-0.52410605 holding_hours=0 status=SUCCESS
+авг 13 20:34:13 vpn python3[153221]: 2026-08-13 20:34:13,176 [reality_guardian] 🟢 OPEN detected: BTRUSDT Buy @ 0.02984 qty=519.0 lev=5x SL=0.02889 TP=0.03124
+авг 13 21:25:57 vpn python3[153221]: 2026-08-13 21:25:57,010 [TradingOS.Notifier] TRADE_CLOSE_NOTIFICATION symbol=MAVUSDT side=Sell chart_bytes=57135 caption_chars=380 status=GENERATED
+авг 13 21:25:57 vpn python3[153221]: 2026-08-13 21:25:57,014 [reality_guardian] TRADE_CLOSE_NOTIFICATION symbol=MAVUSDT side=Sell entry=0.009071 exit=0.00874059 sl=0.009333 pnl=0.54177352 holding_hours=0 status=SUCCESS
+авг 13 22:40:57 vpn python3[153221]: 2026-08-13 22:40:57,133 [reality_guardian] 🟢 OPEN detected: VINEUSDT Sell @ 0.007001 qty=2257.0 lev=5x SL=0.007057 TP=0.006804
+авг 13 22:46:40 vpn python3[153221]: 2026-08-13 22:46:40,463 [TradingOS.Notifier] TRADE_CLOSE_NOTIFICATION symbol=VINEUSDT side=Sell chart_bytes=48140 caption_chars=372 status=GENERATED
+авг 13 22:46:40 vpn python3[153221]: 2026-08-13 22:46:40,464 [reality_guardian] TRADE_CLOSE_NOTIFICATION symbol=VINEUSDT side=Sell entry=0.007001 exit=0.007042 sl=0.007057 pnl=-0.12423206 holding_hours=0 status=SUCCESS
+авг 14 01:16:31 vpn python3[153221]: 2026-08-14 01:16:31,596 [reality_guardian] 🟢 OPEN detected: BIOUSDT Sell @ 0.02479 qty=635.0 lev=5x SL=0.02517 TP=0.02442
+авг 14 06:12:35 vpn python3[153221]: 2026-08-14 06:12:35,487 [TradingOS.Notifier] TRADE_CLOSE_NOTIFICATION symbol=BTRUSDT side=Buy chart_bytes=68758 caption_chars=369 status=GENERATED
+авг 14 06:12:35 vpn python3[153221]: 2026-08-14 06:12:35,488 [reality_guardian] TRADE_CLOSE_NOTIFICATION symbol=BTRUSDT side=Buy entry=0.02984 exit=0.0313 sl=0.02889 pnl=0.6718692 holding_hours=0 status=SUCCESS
+авг 14 09:07:46 vpn python3[153221]: 2026-08-14 09:07:46,258 [TradingOS.Notifier] TRADE_CLOSE_NOTIFICATION symbol=BIOUSDT side=Sell chart_bytes=65955 caption_chars=368 status=GENERATED
+авг 14 09:07:46 vpn python3[153221]: 2026-08-14 09:07:46,259 [reality_guardian] TRADE_CLOSE_NOTIFICATION symbol=BIOUSDT side=Sell entry=0.02479 exit=0.0248 sl=0.02517 pnl=-0.03627311 holding_hours=0 status=SUCCESS
+авг 14 12:05:55 vpn python3[153221]: 2026-08-14 12:05:55,815 [TradingOS.Notifier] TRADE_CLOSE_NOTIFICATION symbol=SQQQUSDT side=Sell chart_bytes=51667 caption_chars=367 status=GENERATED
+авг 14 12:05:55 vpn python3[153221]: 2026-08-14 12:05:55,816 [reality_guardian] TRADE_CLOSE_NOTIFICATION symbol=SQQQUSDT side=Sell entry=36.32 exit=36.04 sl=36.50561925 pnl=0.07022727 holding_hours=0 status=SUCCESS

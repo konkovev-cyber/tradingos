@@ -1,0 +1,56 @@
+{
+  "version": "Decision_Criteria_v1",
+  "created": "2026-08-02T03:30:00Z",
+  "status": "LOCKED",
+  "locked_at_sample": "Pre-30-events (current: 7 BUY shadow events)",
+  "rule": "These criteria CANNOT be changed after data collection. Only future v2 criteria allowed.",
+  "outcomes": {
+    "SCALE": {
+      "criteria": "BUY has positive Expectancy AND PF > 1.0 AND acceptable drawdown AND no degradation signs",
+      "min_buy_trades": 30,
+      "required": {
+        "positive_expectancy_per_trade": true,
+        "profit_factor_gt_1": true,
+        "max_consecutive_losses": 8,
+        "max_drawdown_pct": 30,
+        "no_degradation_trend": true
+      }
+    },
+    "TUNE": {
+      "criteria": "BUY better than SELL but statistics insufficient OR metrics ambiguous",
+      "min_buy_trades": 20,
+      "indicators": {
+        "expectancy_positive_but_ci_includes_zero": true,
+        "pf_above_0.8_but_below_1.0": true,
+        "high_variance_winning_trades": true
+      }
+    },
+    "STOP": {
+      "criteria": "BUY also shows negative Expectancy OR does not beat random",
+      "indicators": {
+        "negative_expectancy_persistently": true,
+        "win_rate_below_30pct": true,
+        "pf_below_0.8_consistently": true,
+        "failures_concentrated_in_specific_market_conditions": true
+      }
+    }
+  },
+  "metrics_to_compute": {
+    "primary": ["win_rate", "profit_factor", "expectancy", "avg_R", "max_drawdown"],
+    "secondary": ["95ci_winrate", "bootstrap_ci_expectancy", "std_trade_pnl", "max_losing_streak", "mae_mfe_distribution", "hold_time_distribution"],
+    "comparison_format": "SELL vs BUY side-by-side table at 30+ events each"
+  },
+  "conditions_must_remain_unchanged": {
+    "risk_per_trade": 0.25,
+    "universe_size": 554,
+    "execution_path": "BybitAdapter",
+    "commission_rate": 0.00075,
+    "guardian_rules": {
+      "BE_threshold_R": 0.8,
+      "PARTIAL_threshold_R": 1.0,
+      "TIGHT_threshold_R": 1.5,
+      "TIMEOUT_hours": 48
+    },
+    "exit_method": "proposal-defined SL/TP, no changes"
+  }
+}

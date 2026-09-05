@@ -1,0 +1,17 @@
+{
+  "CHILLGUYUSDT": {
+    "be_fired": false,
+    "partial_fired": false,
+    "tight_fired": false,
+    "mfe_peak": 0.008836524300442152,
+    "entry_to_sl_risk": 0.002036999999999999,
+    "side": "Sell",
+    "entry": 0.010965,
+    "size": 9818.0,
+    "sl_initial": 0.013002,
+    "tp_initial": 0.005872,
+    "entry_time": 1788406738.848,
+    "last_check": 1788407467.9288356,
+    "last_r": 0.008836524300442152
+  }
+}

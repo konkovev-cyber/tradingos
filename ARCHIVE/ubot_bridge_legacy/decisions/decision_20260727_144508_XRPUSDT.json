@@ -1,0 +1,26 @@
+{
+  "trace_id": "3c17caa9-6329-43ff-b12a-724faa2bc0ea",
+  "decision_id": "08197ce3-636f-413b-abe8-3099ab994b2b",
+  "event_id": "522fdbf7-4ca3-4718-b52a-2f8e6d76d9d1",
+  "symbol": "XRPUSDT",
+  "direction": "SELL",
+  "quantity": 45.2,
+  "entry_price": 1.1048,
+  "stop_loss": 1.140593,
+  "take_profit": 1.084272,
+  "action": "OPEN_POSITION",
+  "source": "ubot_bingx_bridge",
+  "confidence": 1.0,
+  "reason": "strategy=breakout; regime=unknown; tradeability=27.7",
+  "mode": "SHADOW",
+  "_meta": {
+    "original_symbol": "XRP-USDT",
+    "strategy": "breakout",
+    "score": 100.0,
+    "tradeability": 27.7,
+    "regime": "unknown",
+    "signal_timestamp": "2026-07-23 18:06",
+    "bridge_version": "1.0",
+    "bridge_timestamp": "2026-07-27T14:45:08.472903+00:00"
+  }
+}

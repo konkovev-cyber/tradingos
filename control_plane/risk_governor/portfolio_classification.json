@@ -1,0 +1,98 @@
+{
+  "timestamp": "2026-07-21T05:52:26.652863+00:00",
+  "total": 9,
+  "legacy": 9,
+  "experiment": 0,
+  "positions": [
+    {
+      "symbol": "ATOM-USDT",
+      "side": "LONG",
+      "entry_price": 1.503,
+      "qty": 2.2,
+      "unrealized_pnl": 0.0,
+      "source": "MT5_LEGACY",
+      "owner": "MT5_LEGACY",
+      "status": "OBSERVE_ONLY"
+    },
+    {
+      "symbol": "SOL-USDT",
+      "side": "SHORT",
+      "entry_price": 77.624,
+      "qty": 0.04,
+      "unrealized_pnl": -0.036,
+      "source": "MT5_LEGACY",
+      "owner": "MT5_LEGACY",
+      "status": "OBSERVE_ONLY"
+    },
+    {
+      "symbol": "NEAR-USDT",
+      "side": "SHORT",
+      "entry_price": 2.026,
+      "qty": 1.0,
+      "unrealized_pnl": -0.019,
+      "source": "MT5_LEGACY",
+      "owner": "MT5_LEGACY",
+      "status": "OBSERVE_ONLY"
+    },
+    {
+      "symbol": "ARB-USDT",
+      "side": "LONG",
+      "entry_price": 0.09001,
+      "qty": 36.7,
+      "unrealized_pnl": 0.0125,
+      "source": "MT5_LEGACY",
+      "owner": "MT5_LEGACY",
+      "status": "OBSERVE_ONLY"
+    },
+    {
+      "symbol": "BCH-USDT",
+      "side": "SHORT",
+      "entry_price": 222.67,
+      "qty": 0.01,
+      "unrealized_pnl": -0.0164,
+      "source": "MT5_LEGACY",
+      "owner": "MT5_LEGACY",
+      "status": "OBSERVE_ONLY"
+    },
+    {
+      "symbol": "FIL-USDT",
+      "side": "LONG",
+      "entry_price": 0.7441,
+      "qty": 4.4,
+      "unrealized_pnl": -0.0115,
+      "source": "MT5_LEGACY",
+      "owner": "MT5_LEGACY",
+      "status": "OBSERVE_ONLY"
+    },
+    {
+      "symbol": "LINK-USDT",
+      "side": "SHORT",
+      "entry_price": 8.727,
+      "qty": 0.3,
+      "unrealized_pnl": -0.0057,
+      "source": "MT5_LEGACY",
+      "owner": "MT5_LEGACY",
+      "status": "OBSERVE_ONLY"
+    },
+    {
+      "symbol": "XRP-USDT",
+      "side": "LONG",
+      "entry_price": 1.131,
+      "qty": 2.0,
+      "unrealized_pnl": 0.0014,
+      "source": "MT5_LEGACY",
+      "owner": "MT5_LEGACY",
+      "status": "OBSERVE_ONLY"
+    },
+    {
+      "symbol": "SUI-USDT",
+      "side": "LONG",
+      "entry_price": 0.7759,
+      "qty": 4.0,
+      "unrealized_pnl": -0.0012,
+      "source": "MT5_LEGACY",
+      "owner": "MT5_LEGACY",
+      "status": "OBSERVE_ONLY"
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "timestamp": "2026-09-05T06:07:10.595625+00:00",
+  "experiment": "ACTION_SHADOW_v1",
+  "verdict": {
+    "decision": "NOT_READY",
+    "confidence": 0.8,
+    "reasons": [
+      "DQ=-46.2 critical (need \u226580)"
+    ],
+    "next_action": "WAIT_FOR_DATA_QUALITY"
+  },
+  "data_quality": {
+    "score": -46.2,
+    "experiments": 2
+  },
+  "action_stats": {
+    "pg_total": 607144,
+    "pg_valid_move_sl": 1724,
+    "pg_skipped": 574208,
+    "action_total": 49804,
+    "action_approved_raw": 25888,
+    "action_unique": 25
+  },
+  "kpi_samples": {
+    "te": 140766,
+    "esr": 140766,
+    "erg": 140766
+  },
+  "local_signals": {
+    "current": {
+      "paper_delta": 0,
+      "net_vs_hold": 0,
+      "local_recommendation": "BASELINE"
+    }
+  },
+  "notes": "Approvals: 2 approved, 0 rejected"
+}

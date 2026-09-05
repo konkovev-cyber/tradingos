@@ -1,0 +1,10 @@
+{
+ "operating_mode": "READY_FOR_LIVE_SIGNAL",
+ "credential_state": "PRESENT",
+ "permission_state": "PERMISSION_OK",
+ "cumulative_pnl_usd": 0.0,
+ "consecutive_losses": 0,
+ "open_position": false,
+ "trades_today": 0,
+ "halted_reason": null
+}

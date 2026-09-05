@@ -1,0 +1,18 @@
+{
+  "ZKCUSDT": {
+    "be_fired": false,
+    "partial_fired": false,
+    "tight_fired": false,
+    "mfe_peak": 0.126315789473684,
+    "entry_to_sl_risk": 0.005699999999999997,
+    "side": "Buy",
+    "entry": 0.05343,
+    "size": 940.5,
+    "sl_initial": 0.04773,
+    "tp_initial": 0.065,
+    "entry_time": 1788233317.79,
+    "last_check": 1788256257.8840773,
+    "last_r": -0.47719298245614067,
+    "mae_trough": -0.5877192982456142
+  }
+}

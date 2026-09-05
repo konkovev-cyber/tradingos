@@ -1,0 +1,56 @@
+{
+  "experiment": "PG-v1.1-SHADOW-001",
+  "event": "MOVE_SL_VALID",
+  "schema_version": "v1",
+
+  "position": {
+    "symbol": "",
+    "side": "",
+    "position_id": ""
+  },
+
+  "signal": {
+    "evaluation_id": "",
+    "timestamp_utc": "",
+    "pnl_pct": null,
+    "mfe_pct": null,
+    "health": null,
+    "mark_price": null,
+    "proposed_stop": null,
+    "confidence": null
+  },
+
+  "validation": {
+    "pie_status": "",
+    "reconciler_status": "",
+    "data_quality_score_at_signal": null
+  },
+
+  "outcome": {
+    "follow_up_at": [],
+    "post_signal_mfe_pct": null,
+    "post_signal_mae_pct": null,
+    "stop_was_hit": null,
+    "actual_close_price": null,
+    "actual_close_pnl_pct": null,
+
+    "virtual_guard_scenario": {
+      "exit_price": null,
+      "exit_reason": "proposed_stop_hit_or_close",
+      "virtual_pnl_pct": null
+    },
+
+    "delta": {
+      "saved_pct": null,
+      "category": "PENDING",
+      "category_options": [
+        "SUCCESS_PROTECTION",
+        "NEUTRAL",
+        "MISSED_UPSIDE",
+        "FALSE_SIGNAL"
+      ]
+    }
+  },
+
+  "notes": ""
+}

@@ -1,0 +1,38 @@
+{
+  "AKEUSDT": {
+    "be_fired": true,
+    "partial_fired": false,
+    "tight_fired": false,
+    "mfe_peak": 0.22335025380710527,
+    "entry_to_sl_risk": 0.0007880000000000005,
+    "side": "Sell",
+    "entry": 0.008093,
+    "size": 33700.0,
+    "sl_initial": 0.008114,
+    "tp_initial": 0.007129,
+    "entry_time": 1788092689.316,
+    "mae_trough": -0.299492385786802,
+    "last_check": 1788105052.617741,
+    "last_r": 0.09771573604060774,
+    "be_fired_at": 1788103640.4942508,
+    "trail_last_peak_r": 0.22335025380710527,
+    "trail_last_sl": 0.008114,
+    "trail_last_tp": 0.007129
+  },
+  "XANUSDT": {
+    "be_fired": false,
+    "partial_fired": false,
+    "tight_fired": false,
+    "mfe_peak": 0.055105348460290506,
+    "entry_to_sl_risk": 0.0006170000000000012,
+    "side": "Buy",
+    "entry": 0.013024,
+    "size": 40237.0,
+    "sl_initial": 0.012407,
+    "tp_initial": 0.014296,
+    "entry_time": 1788100815.516,
+    "last_check": 1788105052.9285634,
+    "last_r": -0.18152350081037402,
+    "mae_trough": -0.3387358184764999
+  }
+}

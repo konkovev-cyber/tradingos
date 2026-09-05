@@ -1,0 +1,84 @@
+{
+  "levels": [
+    {
+      "symbol": "BNBUSDT",
+      "level": 704.7,
+      "side": "SHORT",
+      "break": "up",
+      "label": "SL-зона / сопротивление, пробой вверх = риск для шорта",
+      "auto_disable": true,
+      "active": false,
+      "last_notified_ts": "2026-09-03T10:56:01.215959+00:00"
+    },
+    {
+      "symbol": "BNBUSDT",
+      "level": 677.0,
+      "side": "SHORT",
+      "break": "down",
+      "label": "Ключевая поддержка, пробой вниз = путь к TP 637",
+      "auto_disable": true,
+      "active": false,
+      "last_notified_ts": "2026-09-01T18:44:54.906726+00:00"
+    },
+    {
+      "symbol": "BNBUSDT",
+      "level": 637.0,
+      "side": "SHORT",
+      "break": "down",
+      "label": "TP-зона, цена достигла цели",
+      "auto_disable": false,
+      "active": true,
+      "last_notified_ts": null
+    },
+    {
+      "symbol": "BTCUSDT",
+      "level": 76000,
+      "side": "LONG",
+      "break": "down",
+      "label": "Зона докупки BTC #1 (76k) — первая коррекция",
+      "auto_disable": true,
+      "active": true,
+      "last_notified_ts": null
+    },
+    {
+      "symbol": "BTCUSDT",
+      "level": 74000,
+      "side": "LONG",
+      "break": "down",
+      "label": "Зона докупки BTC #2 (74k) — глубже",
+      "auto_disable": true,
+      "active": true,
+      "last_notified_ts": null
+    },
+    {
+      "symbol": "BTCUSDT",
+      "level": 72000,
+      "side": "LONG",
+      "break": "down",
+      "label": "Зона докупки BTC #3 (72k) — максимум коррекции",
+      "auto_disable": true,
+      "active": true,
+      "last_notified_ts": null
+    },
+    {
+      "symbol": "BTCUSDT",
+      "level": 70000,
+      "side": "LONG",
+      "break": "down",
+      "label": "СТОП-ИДЕЯ: ниже 70k сценарий роста нарушен",
+      "auto_disable": false,
+      "active": true,
+      "last_notified_ts": null
+    },
+    {
+      "symbol": "BTCUSDT",
+      "level": 82500,
+      "side": "LONG",
+      "break": "up",
+      "label": "Первая цель (82.5k) — фиксация части",
+      "auto_disable": true,
+      "active": true,
+      "last_notified_ts": null
+    }
+  ]
+}

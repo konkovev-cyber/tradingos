@@ -1,0 +1,143 @@
+{
+  "time": "2026-07-28T13:25:50.589169+00:00",
+  "days": 90,
+  "results": [
+    {
+      "symbol": "BTCUSDT",
+      "candles": 2160,
+      "adx_avg": 27.5,
+      "atr_avg": 398.4903,
+      "spread_pct_avg": 0.6,
+      "trades": 5,
+      "wr": 60.0,
+      "pf": 1.5,
+      "net_r": 1.0,
+      "avg_r": 0.2
+    },
+    {
+      "symbol": "ETHUSDT",
+      "candles": 2160,
+      "adx_avg": 29.0,
+      "atr_avg": 14.6608,
+      "spread_pct_avg": 0.8,
+      "trades": 6,
+      "wr": 66.7,
+      "pf": 2.0,
+      "net_r": 2.0,
+      "avg_r": 0.33
+    },
+    {
+      "symbol": "DOGEUSDT",
+      "candles": 2160,
+      "adx_avg": 27.0,
+      "atr_avg": 0.0008,
+      "spread_pct_avg": 0.9,
+      "trades": 3,
+      "wr": 66.7,
+      "pf": 2.0,
+      "net_r": 1.0,
+      "avg_r": 0.33
+    },
+    {
+      "symbol": "SOLUSDT",
+      "candles": 2160,
+      "adx_avg": 27.7,
+      "atr_avg": 0.7157,
+      "spread_pct_avg": 0.94,
+      "trades": 6,
+      "wr": 66.7,
+      "pf": 2.0,
+      "net_r": 2.0,
+      "avg_r": 0.33
+    },
+    {
+      "symbol": "XRPUSDT",
+      "candles": 2160,
+      "adx_avg": 26.8,
+      "atr_avg": 0.0096,
+      "spread_pct_avg": 0.8,
+      "trades": 3,
+      "wr": 66.7,
+      "pf": 2.0,
+      "net_r": 1.0,
+      "avg_r": 0.33
+    },
+    {
+      "symbol": "ADAUSDT",
+      "candles": 2160,
+      "adx_avg": 27.1,
+      "atr_avg": 0.0021,
+      "spread_pct_avg": 1.13,
+      "trades": 6,
+      "wr": 83.3,
+      "pf": 5.0,
+      "net_r": 4.0,
+      "avg_r": 0.67
+    },
+    {
+      "symbol": "BNBUSDT",
+      "candles": 2160,
+      "adx_avg": 26.1,
+      "atr_avg": 3.8734,
+      "spread_pct_avg": 0.63,
+      "trades": 2,
+      "wr": 100.0,
+      "pf": 200.0,
+      "net_r": 2.0,
+      "avg_r": 1.0
+    },
+    {
+      "symbol": "BEATUSDT",
+      "candles": 2160,
+      "adx_avg": 24.8,
+      "atr_avg": 0.128,
+      "spread_pct_avg": 4.7,
+      "trades": 10,
+      "wr": 60.0,
+      "pf": 1.5,
+      "net_r": 2.0,
+      "avg_r": 0.2
+    },
+    {
+      "symbol": "COTIUSDT",
+      "candles": 2160,
+      "adx_avg": 25.7,
+      "atr_avg": 0.0001,
+      "spread_pct_avg": 1.28,
+      "trades": 6,
+      "wr": 83.3,
+      "pf": 5.0,
+      "net_r": 4.0,
+      "avg_r": 0.67
+    },
+    {
+      "symbol": "KAITOUSDT",
+      "candles": 2160,
+      "adx_avg": 27.4,
+      "atr_avg": 0.0113,
+      "spread_pct_avg": 1.8,
+      "trades": 8,
+      "wr": 87.5,
+      "pf": 7.0,
+      "net_r": 6.0,
+      "avg_r": 0.75
+    },
+    {
+      "symbol": "LAUSDT",
+      "candles": 2160,
+      "adx_avg": 26.9,
+      "atr_avg": 0.0015,
+      "spread_pct_avg": 1.84,
+      "trades": 16,
+      "wr": 62.5,
+      "pf": 1.67,
+      "net_r": 4.0,
+      "avg_r": 0.25
+    }
+  ],
+  "summary": {
+    "keep": 10,
+    "watch": 1,
+    "review": 0
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "decision": "BLOCK",
+  "confidence": 0.32,
+  "total_score": 45,
+  "reasons": [
+    "DATA_QUALITY: DQ 75.4/100 (critical)",
+    "PG_PROGRESS: PG valid 18/20 (close)",
+    "ACTION_SHADOW: Action unique 2/20 (far)",
+    "CAPITAL_HEALTH: Capital profitable (+38.65)",
+    "RISK_CONCENTRATION: CRITICAL: VELVET-USDT = 79.6% of risk",
+    "EXECUTION_PERMISSION: Live permission: NONE",
+    "SERVICES_HEALTHY: All 8 services running",
+    "CRITICAL BLOCKERS: ['DATA_QUALITY', 'RISK_CONCENTRATION', 'EXECUTION_PERMISSION']"
+  ],
+  "allowed_actions": [
+    "FIX_CRITICAL_ISSUES"
+  ],
+  "rules": [
+    {
+      "name": "DATA_QUALITY",
+      "passed": false,
+      "score": 0,
+      "reason": "DQ 75.4/100 (critical)"
+    },
+    {
+      "name": "PG_PROGRESS",
+      "passed": false,
+      "score": 10,
+      "reason": "PG valid 18/20 (close)"
+    },
+    {
+      "name": "ACTION_SHADOW",
+      "passed": false,
+      "score": 5,
+      "reason": "Action unique 2/20 (far)"
+    },
+    {
+      "name": "CAPITAL_HEALTH",
+      "passed": true,
+      "score": 20,
+      "reason": "Capital profitable (+38.65)"
+    },
+    {
+      "name": "RISK_CONCENTRATION",
+      "passed": false,
+      "score": 0,
+      "reason": "CRITICAL: VELVET-USDT = 79.6% of risk"
+    },
+    {
+      "name": "EXECUTION_PERMISSION",
+      "passed": false,
+      "score": 0,
+      "reason": "Live permission: NONE"
+    },
+    {
+      "name": "SERVICES_HEALTHY",
+      "passed": true,
+      "score": 10,
+      "reason": "All 8 services running"
+    }
+  ]
+}

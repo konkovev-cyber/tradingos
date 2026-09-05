@@ -1,0 +1,978 @@
+[
+  {
+    "symbol": "BTRUSDT",
+    "last": 0.16743,
+    "turnover24h": 101958792.0829,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 94889007.0,
+    "index": 0.16753
+  },
+  {
+    "symbol": "AKEUSDT",
+    "last": 0.008469,
+    "turnover24h": 79196081.0837,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 2023305500.0,
+    "index": 0.00848
+  },
+  {
+    "symbol": "MAGMAUSDT",
+    "last": 0.515,
+    "turnover24h": 66591480.0939,
+    "fundingRate_bps8h": 5.8842,
+    "openInterest": 9373805.0,
+    "index": 0.51505
+  },
+  {
+    "symbol": "BEATUSDT",
+    "last": 0.13608,
+    "turnover24h": 30392536.0791,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 59217606.0,
+    "index": 0.13599
+  },
+  {
+    "symbol": "HEMIUSDT",
+    "last": 0.011301,
+    "turnover24h": 29408793.8655,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 357726277.0,
+    "index": 0.011279
+  },
+  {
+    "symbol": "TUTUSDT",
+    "last": 0.035311,
+    "turnover24h": 20312590.2336,
+    "fundingRate_bps8h": -28.7887,
+    "openInterest": 116427410.0,
+    "index": 0.035454
+  },
+  {
+    "symbol": "CASHCATUSDT",
+    "last": 0.20698,
+    "turnover24h": 16236275.0909,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 59461470.0,
+    "index": 0.2069
+  },
+  {
+    "symbol": "4USDT",
+    "last": 0.016097,
+    "turnover24h": 15501967.3256,
+    "fundingRate_bps8h": 9.5427,
+    "openInterest": 164303059.0,
+    "index": 0.016112
+  },
+  {
+    "symbol": "LIGHTUSDT",
+    "last": 0.2111,
+    "turnover24h": 7876696.3445,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 12325912.0,
+    "index": 0.21072
+  },
+  {
+    "symbol": "NIULAIUSDT",
+    "last": 0.0505,
+    "turnover24h": 7741450.6188,
+    "fundingRate_bps8h": 7.7446,
+    "openInterest": 15664980.0,
+    "index": 0.05041
+  },
+  {
+    "symbol": "VVVUSDT",
+    "last": 16.244,
+    "turnover24h": 7308121.1283,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 743393.47,
+    "index": 16.2371
+  },
+  {
+    "symbol": "CYSUSDT",
+    "last": 0.6662,
+    "turnover24h": 6912256.9986,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 6868852.0,
+    "index": 0.6654
+  },
+  {
+    "symbol": "BLESSUSDT",
+    "last": 0.011303,
+    "turnover24h": 6741807.6732,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 317656980.0,
+    "index": 0.011279
+  },
+  {
+    "symbol": "BANKUSDT",
+    "last": 0.03694,
+    "turnover24h": 6682315.4613,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 93386670.0,
+    "index": 0.03691
+  },
+  {
+    "symbol": "TACUSDT",
+    "last": 0.002506,
+    "turnover24h": 6427615.3177,
+    "fundingRate_bps8h": 0.6776,
+    "openInterest": 626981380.0,
+    "index": 0.002498
+  },
+  {
+    "symbol": "DOSUSDT",
+    "last": 0.276,
+    "turnover24h": 6065613.7643,
+    "fundingRate_bps8h": 1.0215,
+    "openInterest": 6794242.0,
+    "index": 0.2753
+  },
+  {
+    "symbol": "CLOUSDT",
+    "last": 0.12271,
+    "turnover24h": 6027684.1905,
+    "fundingRate_bps8h": 1.8147000000000002,
+    "openInterest": 12429688.0,
+    "index": 0.12277
+  },
+  {
+    "symbol": "OUSDT",
+    "last": 0.5367,
+    "turnover24h": 4844318.1423,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 2544430.0,
+    "index": 0.5373
+  },
+  {
+    "symbol": "ZKPUSDT",
+    "last": 0.05064,
+    "turnover24h": 4636990.9738,
+    "fundingRate_bps8h": -8.4824,
+    "openInterest": 28255546.0,
+    "index": 0.05088
+  },
+  {
+    "symbol": "GIGGLEUSDT",
+    "last": 43.68,
+    "turnover24h": 3873883.0041,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 62155.128,
+    "index": 43.67
+  },
+  {
+    "symbol": "GRVTUSDT",
+    "last": 0.17499,
+    "turnover24h": 3836121.9092,
+    "fundingRate_bps8h": -0.9909,
+    "openInterest": 15085595.0,
+    "index": 0.17531
+  },
+  {
+    "symbol": "TMXUSDT",
+    "last": 0.1188,
+    "turnover24h": 3746453.7299,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 7629658.0,
+    "index": 0.1178
+  },
+  {
+    "symbol": "VELVETUSDT",
+    "last": 0.1079,
+    "turnover24h": 3374030.5895,
+    "fundingRate_bps8h": 2.9581,
+    "openInterest": 19478720.0,
+    "index": 0.1076
+  },
+  {
+    "symbol": "BMTUSDT",
+    "last": 0.022664,
+    "turnover24h": 3352481.6713,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 87911094.0,
+    "index": 0.02266
+  },
+  {
+    "symbol": "LABUSDT",
+    "last": 0.0748,
+    "turnover24h": 3338641.6443,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 57602898.0,
+    "index": 0.0746
+  },
+  {
+    "symbol": "USUSDT",
+    "last": 0.0179,
+    "turnover24h": 3292715.1468,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 223326150.0,
+    "index": 0.01788
+  },
+  {
+    "symbol": "AEONUSDT",
+    "last": 0.06498,
+    "turnover24h": 3211279.0273,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 8465780.0,
+    "index": 0.06498
+  },
+  {
+    "symbol": "UBUSDT",
+    "last": 0.13832,
+    "turnover24h": 2982745.9349,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 8078880.0,
+    "index": 0.138164
+  },
+  {
+    "symbol": "USELESSUSDT",
+    "last": 0.06267,
+    "turnover24h": 2644593.7448,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 83939016.0,
+    "index": 0.06273
+  },
+  {
+    "symbol": "OPGUSDT",
+    "last": 0.09898,
+    "turnover24h": 2627470.59,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 17365452.0,
+    "index": 0.09892
+  },
+  {
+    "symbol": "BLUAIUSDT",
+    "last": 0.012862,
+    "turnover24h": 2233125.9623,
+    "fundingRate_bps8h": 6.2522,
+    "openInterest": 129008440.0,
+    "index": 0.012841
+  },
+  {
+    "symbol": "SIRENUSDT",
+    "last": 0.03031,
+    "turnover24h": 2216023.9132,
+    "fundingRate_bps8h": -2.0514,
+    "openInterest": 79712776.0,
+    "index": 0.03018
+  },
+  {
+    "symbol": "CAPUSDT",
+    "last": 0.06783,
+    "turnover24h": 1981882.8962,
+    "fundingRate_bps8h": -1.7977999999999998,
+    "openInterest": 84711790.0,
+    "index": 0.06794
+  },
+  {
+    "symbol": "PROMPTUSDT",
+    "last": 0.02541,
+    "turnover24h": 1698635.2732,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 20313546.0,
+    "index": 0.02535
+  },
+  {
+    "symbol": "GWEIUSDT",
+    "last": 0.02379,
+    "turnover24h": 1541822.5969,
+    "fundingRate_bps8h": -1.885,
+    "openInterest": 40494834.0,
+    "index": 0.02383
+  },
+  {
+    "symbol": "ACUUSDT",
+    "last": 0.12296,
+    "turnover24h": 1389615.4501,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 11195654.0,
+    "index": 0.12289
+  },
+  {
+    "symbol": "ESPORTSUSDT",
+    "last": 0.01467,
+    "turnover24h": 1367924.0536,
+    "fundingRate_bps8h": 8.1521,
+    "openInterest": 188247691.0,
+    "index": 0.014649
+  },
+  {
+    "symbol": "PIEVERSEUSDT",
+    "last": 1.0886,
+    "turnover24h": 1267152.3147,
+    "fundingRate_bps8h": 3.4906,
+    "openInterest": 6783491.0,
+    "index": 1.08621
+  },
+  {
+    "symbol": "ALLOUSDT",
+    "last": 0.2585,
+    "turnover24h": 1254325.0511,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 12735813.0,
+    "index": 0.25883
+  },
+  {
+    "symbol": "GPSUSDT",
+    "last": 0.009561,
+    "turnover24h": 1241610.2092,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 154092964.0,
+    "index": 0.009569
+  },
+  {
+    "symbol": "APRUSDT",
+    "last": 0.1896,
+    "turnover24h": 1211181.4791,
+    "fundingRate_bps8h": 0.5021,
+    "openInterest": 8059530.0,
+    "index": 0.18922
+  },
+  {
+    "symbol": "BSBUSDT",
+    "last": 0.10582,
+    "turnover24h": 1167868.0281,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 18324696.0,
+    "index": 0.10567
+  },
+  {
+    "symbol": "TRIAUSDT",
+    "last": 0.0055,
+    "turnover24h": 1092854.0824,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 518753780.0,
+    "index": 0.0055
+  },
+  {
+    "symbol": "AGIUSDT",
+    "last": 0.006915,
+    "turnover24h": 1055214.6266,
+    "fundingRate_bps8h": -2.7343,
+    "openInterest": 181464970.0,
+    "index": 0.006948
+  },
+  {
+    "symbol": "UAIUSDT",
+    "last": 0.2649,
+    "turnover24h": 1032142.6438,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 7413274.0,
+    "index": 0.26461
+  },
+  {
+    "symbol": "BROCCOLIUSDT",
+    "last": 0.01985,
+    "turnover24h": 1007193.3461,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 85210240.0,
+    "index": 0.019828
+  },
+  {
+    "symbol": "XDCUSDT",
+    "last": 0.02757,
+    "turnover24h": 955776.982,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 74147586.0,
+    "index": 0.02759
+  },
+  {
+    "symbol": "PEAQUSDT",
+    "last": 0.024076,
+    "turnover24h": 858678.7128,
+    "fundingRate_bps8h": 1.0,
+    "openInterest": 39570482.0,
+    "index": 0.024066
+  },
+  {
+    "symbol": "PRLUSDT",
+    "last": 0.1807,
+    "turnover24h": 800715.0439,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 6194190.0,
+    "index": 0.1806
+  },
+  {
+    "symbol": "BRUSDT",
+    "last": 0.23481,
+    "turnover24h": 780574.7165,
+    "fundingRate_bps8h": 0.6967,
+    "openInterest": 6834469.0,
+    "index": 0.23506
+  },
+  {
+    "symbol": "AVNTUSDT",
+    "last": 0.10097,
+    "turnover24h": 771878.8124,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 26855816.0,
+    "index": 0.10101
+  },
+  {
+    "symbol": "MUSDT",
+    "last": 1.0564,
+    "turnover24h": 759610.754,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 3407998.0,
+    "index": 1.0565
+  },
+  {
+    "symbol": "ARIAUSDT",
+    "last": 0.03453,
+    "turnover24h": 743802.7407,
+    "fundingRate_bps8h": 6.7367,
+    "openInterest": 28568782.0,
+    "index": 0.03433
+  },
+  {
+    "symbol": "EPICUSDT",
+    "last": 0.3543,
+    "turnover24h": 695275.1384,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 3344409.0,
+    "index": 0.3547
+  },
+  {
+    "symbol": "SCRTUSDT",
+    "last": 0.01075,
+    "turnover24h": 677882.2623,
+    "fundingRate_bps8h": 3.4863,
+    "openInterest": 48223229.6,
+    "index": 0.01066
+  },
+  {
+    "symbol": "STBLUSDT",
+    "last": 0.02825,
+    "turnover24h": 645528.542,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 48506222.0,
+    "index": 0.02819
+  },
+  {
+    "symbol": "STOUSDT",
+    "last": 0.04201,
+    "turnover24h": 606830.5568,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 18312775.0,
+    "index": 0.0419
+  },
+  {
+    "symbol": "XPINUSDT",
+    "last": 0.0010914,
+    "turnover24h": 561152.9386,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 2214624200.0,
+    "index": 0.0010886
+  },
+  {
+    "symbol": "JCTUSDT",
+    "last": 0.001685,
+    "turnover24h": 546815.4481,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 800129900.0,
+    "index": 0.001679
+  },
+  {
+    "symbol": "TAUSDT",
+    "last": 0.06479,
+    "turnover24h": 546481.685,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 34382012.0,
+    "index": 0.06469
+  },
+  {
+    "symbol": "MYXUSDT",
+    "last": 0.07228,
+    "turnover24h": 526141.454,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 35484685.0,
+    "index": 0.07234
+  },
+  {
+    "symbol": "RAVEUSDT",
+    "last": 0.2713,
+    "turnover24h": 519095.7923,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 8762590.0,
+    "index": 0.27093
+  },
+  {
+    "symbol": "ARXUSDT",
+    "last": 0.1172,
+    "turnover24h": 513199.4128,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 17125792.0,
+    "index": 0.1172
+  },
+  {
+    "symbol": "NAORISUSDT",
+    "last": 0.02898,
+    "turnover24h": 494278.3512,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 32658800.0,
+    "index": 0.028814
+  },
+  {
+    "symbol": "BASEDUSDT",
+    "last": 0.07124,
+    "turnover24h": 485334.868,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 23318640.0,
+    "index": 0.07113
+  },
+  {
+    "symbol": "BILLUSDT",
+    "last": 0.02002,
+    "turnover24h": 481278.3199,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 49733200.0,
+    "index": 0.02
+  },
+  {
+    "symbol": "SPACEUSDT",
+    "last": 0.00514,
+    "turnover24h": 437934.5636,
+    "fundingRate_bps8h": 2.1851,
+    "openInterest": 190903000.0,
+    "index": 0.005126
+  },
+  {
+    "symbol": "QUSDT",
+    "last": 0.02267,
+    "turnover24h": 434721.4816,
+    "fundingRate_bps8h": 1.8149,
+    "openInterest": 82786560.0,
+    "index": 0.022656
+  },
+  {
+    "symbol": "BUSDT",
+    "last": 0.14069,
+    "turnover24h": 386181.2877,
+    "fundingRate_bps8h": 2.2014,
+    "openInterest": 6773977.0,
+    "index": 0.14065
+  },
+  {
+    "symbol": "HANAUSDT",
+    "last": 0.01997,
+    "turnover24h": 381658.481,
+    "fundingRate_bps8h": 0.8,
+    "openInterest": 49569030.0,
+    "index": 0.019848
+  },
+  {
+    "symbol": "AIOZUSDT",
+    "last": 0.05722,
+    "turnover24h": 341604.445,
+    "fundingRate_bps8h": 1.0,
+    "openInterest": 9113797.0,
+    "index": 0.05722
+  },
+  {
+    "symbol": "FOLKSUSDT",
+    "last": 2.0421,
+    "turnover24h": 335936.5001,
+    "fundingRate_bps8h": 4.6577,
+    "openInterest": 623810.76,
+    "index": 2.0385
+  },
+  {
+    "symbol": "FHEUSDT",
+    "last": 0.02293,
+    "turnover24h": 334121.0633,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 56924990.0,
+    "index": 0.02294
+  },
+  {
+    "symbol": "COAIUSDT",
+    "last": 0.3081,
+    "turnover24h": 313359.8284,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 8305087.0,
+    "index": 0.3078
+  },
+  {
+    "symbol": "NESAUSDT",
+    "last": 0.1175,
+    "turnover24h": 310172.6659,
+    "fundingRate_bps8h": 23.863999999999997,
+    "openInterest": 2289674.0,
+    "index": 0.116
+  },
+  {
+    "symbol": "ATUSDT",
+    "last": 0.13374,
+    "turnover24h": 306722.2765,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 3076606.0,
+    "index": 0.13355
+  },
+  {
+    "symbol": "JELLYJELLYUSDT",
+    "last": 0.05586,
+    "turnover24h": 290756.289,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 37257298.0,
+    "index": 0.055692
+  },
+  {
+    "symbol": "B2USDT",
+    "last": 0.4409,
+    "turnover24h": 281485.9512,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 2490078.0,
+    "index": 0.4386
+  },
+  {
+    "symbol": "TLMUSDT",
+    "last": 0.0014337,
+    "turnover24h": 270388.5013,
+    "fundingRate_bps8h": 1.0,
+    "openInterest": 395533076.0,
+    "index": 0.0014331
+  },
+  {
+    "symbol": "AIGENSYNUSDT",
+    "last": 0.02027,
+    "turnover24h": 258237.1085,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 27035880.0,
+    "index": 0.02026
+  },
+  {
+    "symbol": "ZESTUSDT",
+    "last": 0.1402,
+    "turnover24h": 257955.1813,
+    "fundingRate_bps8h": 7.6464,
+    "openInterest": 9372830.0,
+    "index": 0.14
+  },
+  {
+    "symbol": "OPENUSDT",
+    "last": 0.15317,
+    "turnover24h": 256462.035,
+    "fundingRate_bps8h": 0.8598,
+    "openInterest": 12113008.0,
+    "index": 0.15288
+  },
+  {
+    "symbol": "PTBUSDT",
+    "last": 0.000796,
+    "turnover24h": 249986.4318,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 1278786220.0,
+    "index": 0.0007928
+  },
+  {
+    "symbol": "LUMIAUSDT",
+    "last": 0.08727,
+    "turnover24h": 241010.0918,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 8374736.8,
+    "index": 0.08713
+  },
+  {
+    "symbol": "INUSDT",
+    "last": 0.03234,
+    "turnover24h": 227279.7006,
+    "fundingRate_bps8h": 0.5615,
+    "openInterest": 29623980.0,
+    "index": 0.03229
+  },
+  {
+    "symbol": "XNYUSDT",
+    "last": 0.007073,
+    "turnover24h": 220839.4371,
+    "fundingRate_bps8h": 3.8702,
+    "openInterest": 75635720.0,
+    "index": 0.007046
+  },
+  {
+    "symbol": "AIOUSDT",
+    "last": 0.04327,
+    "turnover24h": 217606.3269,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 21940680.0,
+    "index": 0.04324
+  },
+  {
+    "symbol": "FLOCKUSDT",
+    "last": 0.03269,
+    "turnover24h": 216540.5102,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 19407616.0,
+    "index": 0.03263
+  },
+  {
+    "symbol": "POWERUSDT",
+    "last": 0.08248,
+    "turnover24h": 213060.6458,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 16733575.0,
+    "index": 0.08234
+  },
+  {
+    "symbol": "GENIUSUSDT",
+    "last": 0.2834,
+    "turnover24h": 211841.9794,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 2111396.0,
+    "index": 0.2834
+  },
+  {
+    "symbol": "FIGHTUSDT",
+    "last": 0.003561,
+    "turnover24h": 202008.1893,
+    "fundingRate_bps8h": 0.6365000000000001,
+    "openInterest": 447113350.0,
+    "index": 0.003554
+  },
+  {
+    "symbol": "DOLOUSDT",
+    "last": 0.02573,
+    "turnover24h": 193710.0991,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 13108490.0,
+    "index": 0.02577
+  },
+  {
+    "symbol": "DOODUSDT",
+    "last": 0.001341,
+    "turnover24h": 172671.1778,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 362926720.0,
+    "index": 0.001341
+  },
+  {
+    "symbol": "BIRBUSDT",
+    "last": 0.05657,
+    "turnover24h": 166169.6838,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 15009137.0,
+    "index": 0.05657
+  },
+  {
+    "symbol": "CROSSUSDT",
+    "last": 0.11102,
+    "turnover24h": 165720.4708,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 3880119.0,
+    "index": 0.11077
+  },
+  {
+    "symbol": "ELSAUSDT",
+    "last": 0.04638,
+    "turnover24h": 160556.5892,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 17712336.0,
+    "index": 0.0464
+  },
+  {
+    "symbol": "DUSKUSDT",
+    "last": 0.06705,
+    "turnover24h": 152113.4452,
+    "fundingRate_bps8h": 1.0,
+    "openInterest": 11201832.0,
+    "index": 0.0669
+  },
+  {
+    "symbol": "IRYSUSDT",
+    "last": 0.013463,
+    "turnover24h": 139452.214,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 64920200.0,
+    "index": 0.013483
+  },
+  {
+    "symbol": "MITOUSDT",
+    "last": 0.02439,
+    "turnover24h": 137845.7669,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 20213634.0,
+    "index": 0.02434
+  },
+  {
+    "symbol": "BLENDUSDT",
+    "last": 0.0653,
+    "turnover24h": 137580.5686,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 9838024.0,
+    "index": 0.06519
+  },
+  {
+    "symbol": "RECALLUSDT",
+    "last": 0.04751,
+    "turnover24h": 125121.7446,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 15678947.0,
+    "index": 0.04743
+  },
+  {
+    "symbol": "CUSDT",
+    "last": 0.06235,
+    "turnover24h": 123778.225,
+    "fundingRate_bps8h": -1.5665000000000002,
+    "openInterest": 7162826.0,
+    "index": 0.06242
+  },
+  {
+    "symbol": "SAPIENUSDT",
+    "last": 0.08095,
+    "turnover24h": 122358.94,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 6816422.0,
+    "index": 0.08097
+  },
+  {
+    "symbol": "AZTECUSDT",
+    "last": 0.0136,
+    "turnover24h": 119885.0243,
+    "fundingRate_bps8h": 0.5095,
+    "openInterest": 59015140.0,
+    "index": 0.013589
+  },
+  {
+    "symbol": "PLAYSOUTUSDT",
+    "last": 0.03652,
+    "turnover24h": 113266.8757,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 17676980.0,
+    "index": 0.03642
+  },
+  {
+    "symbol": "TRUSTUSDT",
+    "last": 0.05101,
+    "turnover24h": 108890.361,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 10059767.0,
+    "index": 0.05092
+  },
+  {
+    "symbol": "ASPUSDT",
+    "last": 0.01064,
+    "turnover24h": 96458.7949,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 20998308.0,
+    "index": 0.01065
+  },
+  {
+    "symbol": "EVAAUSDT",
+    "last": 0.7363,
+    "turnover24h": 95422.0397,
+    "fundingRate_bps8h": 2.0804,
+    "openInterest": 2381275.1,
+    "index": 0.7352
+  },
+  {
+    "symbol": "PHAROSUSDT",
+    "last": 0.4249,
+    "turnover24h": 89966.6799,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 767798.0,
+    "index": 0.4254
+  },
+  {
+    "symbol": "SOSOUSDT",
+    "last": 0.3181,
+    "turnover24h": 80674.6189,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 1486350.0,
+    "index": 0.3182
+  },
+  {
+    "symbol": "AWEUSDT",
+    "last": 0.06242,
+    "turnover24h": 75557.4068,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 7592580.0,
+    "index": 0.06234
+  },
+  {
+    "symbol": "CLANKERUSDT",
+    "last": 12.593,
+    "turnover24h": 68555.8018,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 39694.46,
+    "index": 12.571
+  },
+  {
+    "symbol": "HAEDALUSDT",
+    "last": 0.01859,
+    "turnover24h": 67969.691,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 22411360.0,
+    "index": 0.01862
+  },
+  {
+    "symbol": "ALPINEUSDT",
+    "last": 0.3534,
+    "turnover24h": 67866.2088,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 615150.2,
+    "index": 0.3529
+  },
+  {
+    "symbol": "CTRUSDT",
+    "last": 0.009635,
+    "turnover24h": 63952.3391,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 27077280.0,
+    "index": 0.009641
+  },
+  {
+    "symbol": "SPORTFUNUSDT",
+    "last": 0.02458,
+    "turnover24h": 52640.908,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 21031780.0,
+    "index": 0.0244
+  },
+  {
+    "symbol": "1000TAGUSDT",
+    "last": 0.8339,
+    "turnover24h": 49754.8586,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 558978.0,
+    "index": 0.8305
+  },
+  {
+    "symbol": "BOBAUSDT",
+    "last": 0.02019,
+    "turnover24h": 38660.2311,
+    "fundingRate_bps8h": 1.0,
+    "openInterest": 9798575.2,
+    "index": 0.02019
+  },
+  {
+    "symbol": "ACXUSDT",
+    "last": 0.04006,
+    "turnover24h": 34920.3633,
+    "fundingRate_bps8h": -11.6122,
+    "openInterest": 12559948.0,
+    "index": 0.04017
+  },
+  {
+    "symbol": "TURTLEUSDT",
+    "last": 0.04263,
+    "turnover24h": 31326.7864,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 4938918.0,
+    "index": 0.04251
+  },
+  {
+    "symbol": "DBRUSDT",
+    "last": 0.01454,
+    "turnover24h": 21682.0685,
+    "fundingRate_bps8h": -2.0431,
+    "openInterest": 25030180.0,
+    "index": 0.014597
+  },
+  {
+    "symbol": "ASRUSDT",
+    "last": 0.8858,
+    "turnover24h": 12997.5712,
+    "fundingRate_bps8h": 0.5,
+    "openInterest": 168253.6,
+    "index": 0.8851
+  }
+]

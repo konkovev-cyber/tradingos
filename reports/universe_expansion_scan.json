@@ -1,0 +1,402 @@
+{
+  "generated_at": "2026-08-07T07:24:58.770950+00:00",
+  "risk": 0.25,
+  "window_hours": 72,
+  "expanded_size": 120,
+  "summary": {
+    "current": {
+      "scanned": 8,
+      "with_candidates": 8,
+      "candidate_bars": 11,
+      "runs": 10,
+      "adx_ok": 4,
+      "tradeable_025": 4,
+      "symbols": {
+        "ACTUSDT": {
+          "direction": "BUY",
+          "prob_max": 0.56,
+          "score": 62,
+          "quality": "MEDIUM",
+          "adx": 27.9,
+          "candidate_bars": 1,
+          "runs": 1,
+          "adx_ok": true,
+          "tradeable_025": true
+        },
+        "BANKUSDT": {
+          "direction": "BUY",
+          "prob_max": 0.58,
+          "score": 64,
+          "quality": "MEDIUM",
+          "adx": 18.8,
+          "candidate_bars": 1,
+          "runs": 1,
+          "adx_ok": false,
+          "tradeable_025": false
+        },
+        "ESPORTSUSDT": {
+          "direction": "BUY",
+          "prob_max": 0.6,
+          "score": 66,
+          "quality": "GOOD",
+          "adx": 11.7,
+          "candidate_bars": 3,
+          "runs": 2,
+          "adx_ok": false,
+          "tradeable_025": false
+        },
+        "PENGUUSDT": {
+          "direction": "SELL",
+          "prob_max": 0.6,
+          "score": 66,
+          "quality": "GOOD",
+          "adx": 13.5,
+          "candidate_bars": 2,
+          "runs": 2,
+          "adx_ok": false,
+          "tradeable_025": true
+        },
+        "PLUMEUSDT": {
+          "direction": "BUY",
+          "prob_max": 0.55,
+          "score": 61,
+          "quality": "MEDIUM",
+          "adx": 29.5,
+          "candidate_bars": 1,
+          "runs": 1,
+          "adx_ok": true,
+          "tradeable_025": true
+        },
+        "SKRUSDT": {
+          "direction": "SELL",
+          "prob_max": 0.56,
+          "score": 62,
+          "quality": "MEDIUM",
+          "adx": 13.4,
+          "candidate_bars": 1,
+          "runs": 1,
+          "adx_ok": false,
+          "tradeable_025": false
+        },
+        "ZBTUSDT": {
+          "direction": "BUY",
+          "prob_max": 0.6,
+          "score": 66,
+          "quality": "GOOD",
+          "adx": 49.8,
+          "candidate_bars": 1,
+          "runs": 1,
+          "adx_ok": true,
+          "tradeable_025": false
+        },
+        "ZORAUSDT": {
+          "direction": "SELL",
+          "prob_max": 0.59,
+          "score": 65,
+          "quality": "GOOD",
+          "adx": 31.4,
+          "candidate_bars": 1,
+          "runs": 1,
+          "adx_ok": true,
+          "tradeable_025": true
+        }
+      }
+    },
+    "additional": {
+      "scanned": 26,
+      "with_candidates": 26,
+      "candidate_bars": 28,
+      "runs": 28,
+      "adx_ok": 15,
+      "tradeable_025": 21,
+      "symbols": {
+        "1000BTTUSDT": {
+          "direction": "BUY",
+          "prob_max": 0.56,
+          "score": 62,
+          "quality": "MEDIUM",
+          "adx": 28.0,
+          "candidate_bars": 1,
+          "runs": 1,
+          "adx_ok": true,
+          "tradeable_025": true
+        },
+        "1000RATSUSDT": {
+          "direction": "SELL",
+          "prob_max": 0.57,
+          "score": 63,
+          "quality": "MEDIUM",
+          "adx": 23.6,
+          "candidate_bars": 1,
+          "runs": 1,
+          "adx_ok": true,
+          "tradeable_025": false
+        },
+        "ACHUSDT": {
+          "direction": "SELL",
+          "prob_max": 0.57,
+          "score": 63,
+          "quality": "MEDIUM",
+          "adx": 17.6,
+          "candidate_bars": 1,
+          "runs": 1,
+          "adx_ok": false,
+          "tradeable_025": true
+        },
+        "B3USDT": {
+          "direction": "SELL",
+          "prob_max": 0.57,
+          "score": 63,
+          "quality": "MEDIUM",
+          "adx": 19.8,
+          "candidate_bars": 1,
+          "runs": 1,
+          "adx_ok": false,
+          "tradeable_025": true
+        },
+        "BOMEUSDT": {
+          "direction": "SELL",
+          "prob_max": 0.6,
+          "score": 66,
+          "quality": "GOOD",
+          "adx": 24.1,
+          "candidate_bars": 1,
+          "runs": 1,
+          "adx_ok": true,
+          "tradeable_025": true
+        },
+        "BRETTUSDT": {
+          "direction": "BUY",
+          "prob_max": 0.57,
+          "score": 63,
+          "quality": "MEDIUM",
+          "adx": 13.3,
+          "candidate_bars": 1,
+          "runs": 1,
+          "adx_ok": false,
+          "tradeable_025": true
+        },
+        "FARTCOINUSDT": {
+          "direction": "BUY",
+          "prob_max": 0.6,
+          "score": 66,
+          "quality": "GOOD",
+          "adx": 22.2,
+          "candidate_bars": 1,
+          "runs": 1,
+          "adx_ok": true,
+          "tradeable_025": true
+        },
+        "FIDAUSDT": {
+          "direction": "BUY",
+          "prob_max": 0.55,
+          "score": 61,
+          "quality": "MEDIUM",
+          "adx": 37.7,
+          "candidate_bars": 2,
+          "runs": 2,
+          "adx_ok": true,
+          "tradeable_025": false
+        },
+        "FIGHTUSDT": {
+          "direction": "BUY",
+          "prob_max": 0.55,
+          "score": 61,
+          "quality": "MEDIUM",
+          "adx": 28.9,
+          "candidate_bars": 1,
+          "runs": 1,
+          "adx_ok": true,
+          "tradeable_025": true
+        },
+        "GMTUSDT": {
+          "direction": "BUY",
+          "prob_max": 0.57,
+          "score": 63,
+          "quality": "MEDIUM",
+          "adx": 15.0,
+          "candidate_bars": 1,
+          "runs": 1,
+          "adx_ok": false,
+          "tradeable_025": true
+        },
+        "JCTUSDT": {
+          "direction": "BUY",
+          "prob_max": 0.56,
+          "score": 62,
+          "quality": "MEDIUM",
+          "adx": 30.1,
+          "candidate_bars": 1,
+          "runs": 1,
+          "adx_ok": true,
+          "tradeable_025": false
+        },
+        "LINEAUSDT": {
+          "direction": "BUY",
+          "prob_max": 0.57,
+          "score": 63,
+          "quality": "MEDIUM",
+          "adx": 15.0,
+          "candidate_bars": 1,
+          "runs": 1,
+          "adx_ok": false,
+          "tradeable_025": true
+        },
+        "MEMEUSDT": {
+          "direction": "BUY",
+          "prob_max": 0.57,
+          "score": 63,
+          "quality": "MEDIUM",
+          "adx": 23.9,
+          "candidate_bars": 1,
+          "runs": 1,
+          "adx_ok": true,
+          "tradeable_025": true
+        },
+        "MONUSDT": {
+          "direction": "SELL",
+          "prob_max": 0.56,
+          "score": 62,
+          "quality": "MEDIUM",
+          "adx": 18.3,
+          "candidate_bars": 1,
+          "runs": 1,
+          "adx_ok": false,
+          "tradeable_025": true
+        },
+        "NOMUSDT": {
+          "direction": "BUY",
+          "prob_max": 0.57,
+          "score": 63,
+          "quality": "MEDIUM",
+          "adx": 13.5,
+          "candidate_bars": 1,
+          "runs": 1,
+          "adx_ok": false,
+          "tradeable_025": true
+        },
+        "PTBUSDT": {
+          "direction": "BUY",
+          "prob_max": 0.57,
+          "score": 63,
+          "quality": "MEDIUM",
+          "adx": 20.2,
+          "candidate_bars": 1,
+          "runs": 1,
+          "adx_ok": true,
+          "tradeable_025": false
+        },
+        "ROBOUSDT": {
+          "direction": "BUY",
+          "prob_max": 0.55,
+          "score": 61,
+          "quality": "MEDIUM",
+          "adx": 23.5,
+          "candidate_bars": 1,
+          "runs": 1,
+          "adx_ok": true,
+          "tradeable_025": true
+        },
+        "SAHARAUSDT": {
+          "direction": "BUY",
+          "prob_max": 0.57,
+          "score": 63,
+          "quality": "MEDIUM",
+          "adx": 22.2,
+          "candidate_bars": 1,
+          "runs": 1,
+          "adx_ok": true,
+          "tradeable_025": true
+        },
+        "TLMUSDT": {
+          "direction": "BUY",
+          "prob_max": 0.57,
+          "score": 63,
+          "quality": "MEDIUM",
+          "adx": 23.3,
+          "candidate_bars": 1,
+          "runs": 1,
+          "adx_ok": true,
+          "tradeable_025": true
+        },
+        "TOWNSUSDT": {
+          "direction": "BUY",
+          "prob_max": 0.57,
+          "score": 63,
+          "quality": "MEDIUM",
+          "adx": 23.8,
+          "candidate_bars": 1,
+          "runs": 1,
+          "adx_ok": true,
+          "tradeable_025": true
+        },
+        "TRIAUSDT": {
+          "direction": "BUY",
+          "prob_max": 0.58,
+          "score": 64,
+          "quality": "MEDIUM",
+          "adx": 12.5,
+          "candidate_bars": 2,
+          "runs": 2,
+          "adx_ok": false,
+          "tradeable_025": true
+        },
+        "UBUSDT": {
+          "direction": "BUY",
+          "prob_max": 0.57,
+          "score": 63,
+          "quality": "MEDIUM",
+          "adx": 31.6,
+          "candidate_bars": 1,
+          "runs": 1,
+          "adx_ok": true,
+          "tradeable_025": false
+        },
+        "WLFIUSDT": {
+          "direction": "SELL",
+          "prob_max": 0.6,
+          "score": 66,
+          "quality": "GOOD",
+          "adx": 17.3,
+          "candidate_bars": 1,
+          "runs": 1,
+          "adx_ok": false,
+          "tradeable_025": true
+        },
+        "XPINUSDT": {
+          "direction": "BUY",
+          "prob_max": 0.6,
+          "score": 66,
+          "quality": "GOOD",
+          "adx": 10.5,
+          "candidate_bars": 1,
+          "runs": 1,
+          "adx_ok": false,
+          "tradeable_025": true
+        },
+        "XPLUSDT": {
+          "direction": "SELL",
+          "prob_max": 0.57,
+          "score": 63,
+          "quality": "MEDIUM",
+          "adx": 20.5,
+          "candidate_bars": 1,
+          "runs": 1,
+          "adx_ok": true,
+          "tradeable_025": true
+        },
+        "ZAMAUSDT": {
+          "direction": "SELL",
+          "prob_max": 0.57,
+          "score": 63,
+          "quality": "MEDIUM",
+          "adx": 12.4,
+          "candidate_bars": 1,
+          "runs": 1,
+          "adx_ok": false,
+          "tradeable_025": true
+        }
+      }
+    }
+  }
+}

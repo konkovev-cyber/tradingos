@@ -1,0 +1,15 @@
+{
+  "config_version": "v1",
+  "mode": "LIVE",
+  "note_live_2026-09-01": "OWNER-APPROVED: TradFi переключён на LIVE. Риск $0.25/сделку, max 2 позиции, плечо 5x.",
+  "note": "Отдельный tradFi-контур (токенизированные акции + товары Bybit). Только PAPER до решения пользователя.",
+  "risk_per_trade": 5.0,
+  "max_positions": 2,
+  "max_same_side_positions": 1,
+  "max_leverage": 5,
+  "kill_switch": false,
+  "prob_threshold": 0.55,
+  "adx_threshold": 20,
+  "universe_size": 30,
+  "note_risk_fix_2026_09_02": "risk 0.25→5.0: 0.25 не проходил minNotional 5 USDT (PURRUSDT SKIP каждый цикл). 5 = минимально рабочий риск для акций."
+}

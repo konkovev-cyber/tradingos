@@ -1,0 +1,35 @@
+{
+  "dn-sweep-TUTUSDT-1787900000000-2-0": {
+    "order_link_id": "dn-sweep-TUTUSDT-1787900000000-2-0",
+    "symbol": "TUTUSDT",
+    "side": "BUY",
+    "tier": 2,
+    "pattern": "DN_SWEEP",
+    "signal_ts": 1787900000000,
+    "signal_ts_iso": "2026-08-28T06:53:20+00:00",
+    "entry_zone": 10.0,
+    "placed_price": 9.97,
+    "placed_ts": 1787907275178,
+    "placed_ts_iso": "2026-08-28T08:54:35.178096+00:00",
+    "state": "CLOSED_TP",
+    "confidence": 0.9,
+    "regime": 1,
+    "regime_name": "X",
+    "amend_count": 0,
+    "amend_history": [],
+    "fill_price": 9.97,
+    "fill_ts": 1787907275178,
+    "fill_ts_iso": "2026-08-28T08:54:35.178000+00:00",
+    "sl_price": 9.9,
+    "tp_price": 10.11,
+    "exit_price": 10.11,
+    "exit_ts": 1787907275179,
+    "exit_outcome": "TP",
+    "ret_gross": 0.01404212637913729,
+    "ret_net_maker": 0.013042126379137289,
+    "metadata": {
+      "sl_hint": 9.9,
+      "tp_hint": 10.2
+    }
+  }
+}

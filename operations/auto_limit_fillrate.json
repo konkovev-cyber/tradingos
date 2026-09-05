@@ -1,0 +1,582 @@
+[
+ {
+  "sym": "DOGEUSDT",
+  "ts": 1788471309.813942,
+  "outcome": "FILLED",
+  "side": "SHORT",
+  "gap_pct": 0.125,
+  "owner_bet": true,
+  "hours_to_outcome": 0.014035182595252991,
+  "quality": null
+ },
+ {
+  "sym": "ALGOUSDT",
+  "ts": 1788481809.7672586,
+  "outcome": "FILLED",
+  "side": "LONG",
+  "gap_pct": -0.302,
+  "owner_bet": true,
+  "hours_to_outcome": 1.9290932246049246,
+  "quality": null
+ },
+ {
+  "sym": "JUPUSDT",
+  "ts": 1788483311.646249,
+  "outcome": "FILLED",
+  "side": "LONG",
+  "gap_pct": -0.333,
+  "owner_bet": true,
+  "hours_to_outcome": 0.8458501725064383,
+  "quality": null
+ },
+ {
+  "sym": "DOTUSDT",
+  "ts": 1788486310.3529575,
+  "outcome": "FILLED",
+  "side": "LONG",
+  "gap_pct": null,
+  "owner_bet": true,
+  "hours_to_outcome": 7.837260069979561,
+  "quality": null
+ },
+ {
+  "sym": "AXSUSDT",
+  "ts": 1788487811.214275,
+  "outcome": "FILLED",
+  "side": "LONG",
+  "gap_pct": -0.155,
+  "owner_bet": true,
+  "hours_to_outcome": 0.088404095504019,
+  "quality": null
+ },
+ {
+  "sym": "ICPUSDT",
+  "ts": 1788489611.5706294,
+  "outcome": "FILLED",
+  "side": "LONG",
+  "gap_pct": -0.356,
+  "owner_bet": true,
+  "hours_to_outcome": 0.09035464313295152,
+  "quality": null
+ },
+ {
+  "sym": "NEARUSDT",
+  "ts": 1788491715.6503296,
+  "outcome": "FILLED",
+  "side": "LONG",
+  "gap_pct": -0.604,
+  "owner_bet": true,
+  "hours_to_outcome": 0.17340957469410367,
+  "quality": null
+ },
+ {
+  "sym": "LQTYUSDT",
+  "ts": 1788492316.6256504,
+  "outcome": "FILLED",
+  "side": "LONG",
+  "gap_pct": -0.251,
+  "owner_bet": true,
+  "hours_to_outcome": 0.8415401993195216,
+  "quality": null
+ },
+ {
+  "sym": "GRTUSDT",
+  "ts": 1788492612.5724761,
+  "outcome": "FILLED",
+  "side": "LONG",
+  "gap_pct": -0.804,
+  "owner_bet": true,
+  "hours_to_outcome": 1.4223004814651277,
+  "quality": null
+ },
+ {
+  "sym": "ETHFIUSDT",
+  "ts": 1788492615.9086416,
+  "outcome": "FILLED",
+  "side": "LONG",
+  "gap_pct": -0.443,
+  "owner_bet": true,
+  "hours_to_outcome": 0.4236659755971697,
+  "quality": null
+ },
+ {
+  "sym": "ALGOUSDT",
+  "ts": 1788495014.8794794,
+  "outcome": "FILLED",
+  "side": "LONG",
+  "gap_pct": -0.278,
+  "owner_bet": true,
+  "hours_to_outcome": 0.09440410375595093,
+  "quality": null
+ },
+ {
+  "sym": "ORDIUSDT",
+  "ts": 1788500114.0756912,
+  "outcome": "FILLED",
+  "side": "LONG",
+  "gap_pct": -0.509,
+  "owner_bet": true,
+  "hours_to_outcome": 1.5107589565383064,
+  "quality": null
+ },
+ {
+  "sym": "AVAXUSDT",
+  "ts": 1788500715.2429414,
+  "outcome": "FILLED",
+  "side": "LONG",
+  "gap_pct": -0.598,
+  "owner_bet": true,
+  "hours_to_outcome": 2.173123873008622,
+  "quality": null
+ },
+ {
+  "sym": "ETCUSDT",
+  "ts": 1788501317.6131287,
+  "outcome": "FILLED",
+  "side": "LONG",
+  "gap_pct": -0.525,
+  "owner_bet": true,
+  "hours_to_outcome": 0.8414110447963079,
+  "quality": null
+ },
+ {
+  "sym": "ZROUSDT",
+  "ts": 1788501641.2781558,
+  "outcome": "FILLED",
+  "side": "LONG",
+  "gap_pct": -2.497,
+  "owner_bet": true,
+  "hours_to_outcome": 1.9348931716548072,
+  "quality": null
+ },
+ {
+  "sym": "TQQQUSDT",
+  "ts": 1788506118.336842,
+  "outcome": "FILLED",
+  "side": "SHORT",
+  "gap_pct": 0.222,
+  "owner_bet": true,
+  "hours_to_outcome": 0.17621792376041412,
+  "quality": null
+ },
+ {
+  "sym": "LDOUSDT",
+  "ts": 1788507019.7940319,
+  "outcome": "FILLED",
+  "side": "LONG",
+  "gap_pct": -0.534,
+  "owner_bet": true,
+  "hours_to_outcome": 0.4269603204064899,
+  "quality": null
+ },
+ {
+  "sym": "DOTUSDT",
+  "ts": 1788513353.2010007,
+  "outcome": "FILLED",
+  "side": "LONG",
+  "gap_pct": -0.205,
+  "owner_bet": true,
+  "hours_to_outcome": 0.16168824990590414,
+  "quality": null
+ },
+ {
+  "sym": "SUIUSDT",
+  "ts": 1788515427.3562586,
+  "outcome": "FILLED",
+  "side": "LONG",
+  "gap_pct": -0.206,
+  "owner_bet": true,
+  "hours_to_outcome": 0.2418966215186649,
+  "quality": null
+ },
+ {
+  "sym": "LQTYUSDT",
+  "ts": 1788516619.6633441,
+  "outcome": "FILLED",
+  "side": "LONG",
+  "gap_pct": -0.458,
+  "owner_bet": true,
+  "hours_to_outcome": 1.0689397283395132,
+  "quality": null
+ },
+ {
+  "sym": "SPCXUSDT",
+  "ts": 1788522619.8715746,
+  "outcome": "FILLED",
+  "side": "LONG",
+  "gap_pct": -1.091,
+  "owner_bet": true,
+  "hours_to_outcome": 3.7470285170608095,
+  "quality": null
+ },
+ {
+  "sym": "UNIUSDT",
+  "ts": 1788525013.737319,
+  "outcome": "FILLED",
+  "side": "LONG",
+  "gap_pct": null,
+  "owner_bet": true,
+  "hours_to_outcome": 0.8092597189214494,
+  "quality": null
+ },
+ {
+  "sym": "AXSUSDT",
+  "ts": 1788525021.4074874,
+  "outcome": "FILLED",
+  "side": "LONG",
+  "gap_pct": -0.208,
+  "owner_bet": true,
+  "hours_to_outcome": 1.4051907628774643,
+  "quality": null
+ },
+ {
+  "sym": "AAPLUSDT",
+  "ts": 1788525023.3378048,
+  "outcome": "FILLED",
+  "side": "LONG",
+  "gap_pct": -0.235,
+  "owner_bet": true,
+  "hours_to_outcome": 0.4234564228190316,
+  "quality": null
+ },
+ {
+  "sym": "LTCUSDT",
+  "ts": 1788525304.954048,
+  "outcome": "FILLED",
+  "side": "LONG",
+  "gap_pct": null,
+  "owner_bet": true,
+  "hours_to_outcome": 23.074936433898078,
+  "quality": null
+ },
+ {
+  "sym": "WIFUSDT",
+  "ts": 1788525306.718997,
+  "outcome": "FILLED",
+  "side": "LONG",
+  "gap_pct": null,
+  "owner_bet": true,
+  "hours_to_outcome": 20.992900146577092,
+  "quality": null
+ },
+ {
+  "sym": "MANAUSDT",
+  "ts": 1788525308.6022356,
+  "outcome": "FILLED",
+  "side": "LONG",
+  "gap_pct": null,
+  "owner_bet": true,
+  "hours_to_outcome": 20.993423257602586,
+  "quality": null
+ },
+ {
+  "sym": "PENDLEUSDT",
+  "ts": 1788525310.3688087,
+  "outcome": "FILLED",
+  "side": "LONG",
+  "gap_pct": null,
+  "owner_bet": true,
+  "hours_to_outcome": 5.870792432427407,
+  "quality": null
+ },
+ {
+  "sym": "VETUSDT",
+  "ts": 1788525313.147212,
+  "outcome": "FILLED",
+  "side": "LONG",
+  "gap_pct": null,
+  "owner_bet": true,
+  "hours_to_outcome": 20.507892351018057,
+  "quality": null
+ },
+ {
+  "sym": "ARBUSDT",
+  "ts": 1788525315.0337346,
+  "outcome": "FILLED",
+  "side": "LONG",
+  "gap_pct": null,
+  "owner_bet": true,
+  "hours_to_outcome": 18.511116548246807,
+  "quality": null
+ },
+ {
+  "sym": "NFLXUSDT",
+  "ts": 1788530403.7404885,
+  "outcome": "FILLED",
+  "side": "LONG",
+  "gap_pct": null,
+  "owner_bet": true,
+  "hours_to_outcome": 21.42318703459369,
+  "quality": null
+ },
+ {
+  "sym": "LDOUSDT",
+  "ts": 1788533121.9693356,
+  "outcome": "FILLED",
+  "side": "LONG",
+  "gap_pct": -1.278,
+  "owner_bet": true,
+  "hours_to_outcome": 2.1755414259433747,
+  "quality": null
+ },
+ {
+  "sym": "LINKUSDT",
+  "ts": 1788533123.1258023,
+  "outcome": "FILLED",
+  "side": "LONG",
+  "gap_pct": -1.067,
+  "owner_bet": true,
+  "hours_to_outcome": 2.1757624352640574,
+  "quality": null
+ },
+ {
+  "sym": "MSFTUSDT",
+  "ts": 1788535204.4423676,
+  "outcome": "EXPIRED",
+  "side": "SHORT",
+  "gap_pct": null,
+  "owner_bet": true,
+  "hours_to_outcome": 24.009577954808872,
+  "quality": null
+ },
+ {
+  "sym": "WUSDT",
+  "ts": 1788536403.4545333,
+  "outcome": "EXPIRED",
+  "side": "LONG",
+  "gap_pct": null,
+  "owner_bet": true,
+  "hours_to_outcome": 24.075326672063934,
+  "quality": null
+ },
+ {
+  "sym": "TQQQUSDT",
+  "ts": 1788542721.374787,
+  "outcome": "FILLED",
+  "side": "LONG",
+  "gap_pct": -0.278,
+  "owner_bet": true,
+  "hours_to_outcome": 0.34119609991709393,
+  "quality": null
+ },
+ {
+  "sym": "LTCUSDT",
+  "ts": 1788559516.2811937,
+  "outcome": "FILLED",
+  "side": "LONG",
+  "gap_pct": -0.289,
+  "owner_bet": true,
+  "hours_to_outcome": 1.0094276503059598,
+  "quality": null
+ },
+ {
+  "sym": "AAVEUSDT",
+  "ts": 1788564902.417541,
+  "outcome": "EXPIRED",
+  "side": "LONG",
+  "gap_pct": -0.428,
+  "owner_bet": true,
+  "hours_to_outcome": 24.008847088482646,
+  "quality": null
+ },
+ {
+  "sym": "GALAUSDT",
+  "ts": 1788570617.8151352,
+  "outcome": "FILLED",
+  "side": "SHORT",
+  "gap_pct": 0.517,
+  "owner_bet": true,
+  "hours_to_outcome": 1.0971829441520904,
+  "quality": null
+ },
+ {
+  "sym": "ADAUSDT",
+  "ts": 1788573902.4064317,
+  "outcome": "EXPIRED",
+  "side": "LONG",
+  "gap_pct": -2.156,
+  "owner_bet": true,
+  "hours_to_outcome": 24.00271800385581,
+  "quality": null
+ },
+ {
+  "sym": "DOGEUSDT",
+  "ts": 1788575705.7380013,
+  "outcome": "EXPIRED",
+  "side": "LONG",
+  "gap_pct": -0.493,
+  "owner_bet": true,
+  "hours_to_outcome": 24.005292926364476,
+  "quality": null
+ },
+ {
+  "sym": "ENAUSDT",
+  "ts": 1788577501.390332,
+  "outcome": "EXPIRED",
+  "side": "LONG",
+  "gap_pct": -2.402,
+  "owner_bet": true,
+  "hours_to_outcome": 24.00287365688218,
+  "quality": null
+ },
+ {
+  "sym": "ENAUSDT",
+  "ts": 1788580219.777634,
+  "outcome": "FILLED",
+  "side": "LONG",
+  "gap_pct": -0.454,
+  "owner_bet": true,
+  "hours_to_outcome": 0.2629455612103144,
+  "quality": null
+ },
+ {
+  "sym": "WLDUSDT",
+  "ts": 1788582901.1173306,
+  "outcome": "EXPIRED",
+  "side": "LONG",
+  "gap_pct": -1.181,
+  "owner_bet": true,
+  "hours_to_outcome": 24.0068714580271,
+  "quality": null
+ },
+ {
+  "sym": "XRPUSDT",
+  "ts": 1788582901.1185265,
+  "outcome": "EXPIRED",
+  "side": "LONG",
+  "gap_pct": -1.557,
+  "owner_bet": true,
+  "hours_to_outcome": 24.006780503789585,
+  "quality": null
+ },
+ {
+  "sym": "MARAUSDT",
+  "ts": 1788584700.8010795,
+  "outcome": "EXPIRED",
+  "side": "LONG",
+  "gap_pct": -1.688,
+  "owner_bet": true,
+  "hours_to_outcome": 24.003617631925476,
+  "quality": null
+ },
+ {
+  "sym": "ALTUSDT",
+  "ts": 1788590703.4185197,
+  "outcome": "EXPIRED",
+  "side": "SHORT",
+  "gap_pct": null,
+  "owner_bet": true,
+  "hours_to_outcome": 24.041953786611558,
+  "quality": null
+ },
+ {
+  "sym": "NEARUSDT",
+  "ts": 1788591901.1677823,
+  "outcome": "EXPIRED",
+  "side": "LONG",
+  "gap_pct": -1.599,
+  "owner_bet": true,
+  "hours_to_outcome": 24.00500972158379,
+  "quality": null
+ },
+ {
+  "sym": "BNBUSDT",
+  "ts": 1788591901.1688473,
+  "outcome": "EXPIRED",
+  "side": "LONG",
+  "gap_pct": -0.305,
+  "owner_bet": true,
+  "hours_to_outcome": 24.004900540444584,
+  "quality": null
+ },
+ {
+  "sym": "LDOUSDT",
+  "ts": 1788594320.9109745,
+  "outcome": "FILLED",
+  "side": "LONG",
+  "gap_pct": -0.378,
+  "owner_bet": true,
+  "hours_to_outcome": 0.1789647791783015,
+  "quality": null
+ },
+ {
+  "sym": "XLMUSDT",
+  "ts": 1788595801.7277353,
+  "outcome": "EXPIRED",
+  "side": "LONG",
+  "gap_pct": -0.141,
+  "owner_bet": true,
+  "hours_to_outcome": 24.075536484850776,
+  "quality": null
+ },
+ {
+  "sym": "NVDAUSDT",
+  "ts": 1788595801.72906,
+  "outcome": "EXPIRED",
+  "side": "LONG",
+  "gap_pct": -0.712,
+  "owner_bet": true,
+  "hours_to_outcome": 24.07542936689324,
+  "quality": null
+ },
+ {
+  "sym": "BBXUSDT",
+  "ts": 1788596411.0779738,
+  "outcome": "FILLED",
+  "side": "SHORT",
+  "gap_pct": 0.25,
+  "owner_bet": true,
+  "hours_to_outcome": 6.7609204081694285,
+  "quality": null
+ },
+ {
+  "sym": "JTOUSDT",
+  "ts": 1788599113.9947436,
+  "outcome": "FILLED",
+  "side": "SHORT",
+  "gap_pct": 2.065,
+  "owner_bet": true,
+  "hours_to_outcome": 7.0073120798005,
+  "quality": null
+ },
+ {
+  "sym": "HBARUSDT",
+  "ts": 1788599402.674863,
+  "outcome": "EXPIRED",
+  "side": "LONG",
+  "gap_pct": -1.096,
+  "owner_bet": true,
+  "hours_to_outcome": 24.064420313570235,
+  "quality": null
+ },
+ {
+  "sym": "AVAXUSDT",
+  "ts": 1788601203.6552377,
+  "outcome": "EXPIRED",
+  "side": "LONG",
+  "gap_pct": -0.39,
+  "owner_bet": true,
+  "hours_to_outcome": 24.06874577244123,
+  "quality": null
+ },
+ {
+  "sym": "ETCUSDT",
+  "ts": 1788601203.6565533,
+  "outcome": "EXPIRED",
+  "side": "LONG",
+  "gap_pct": -1.3,
+  "owner_bet": true,
+  "hours_to_outcome": 24.06854828344451,
+  "quality": null
+ },
+ {
+  "sym": "JTOUSDT",
+  "ts": 1788601819.3057241,
+  "outcome": "FILLED",
+  "side": "SHORT",
+  "gap_pct": 0.165,
+  "owner_bet": true,
+  "hours_to_outcome": 0.26280906743473476,
+  "quality": null
+ }
+]

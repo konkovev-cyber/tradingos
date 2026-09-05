@@ -1,0 +1,18 @@
+{
+  "timestamp": "2026-07-31T04:58:09.264146+00:00",
+  "signals_loaded": 100,
+  "trades_simulated": 100,
+  "baseline": {
+    "total_r": 35.01,
+    "pf": 2.433,
+    "max_dd_r": -9.158,
+    "win_rate": 52.0
+  },
+  "trend_pyramid": {
+    "total_r": -6.626,
+    "pf": 0.425,
+    "max_dd_r": -8.03,
+    "win_rate": 44.0
+  },
+  "winner": "BASELINE"
+}

@@ -1,0 +1,16 @@
+{
+  "mode": "AUTO",
+  "exchange": "bingx",
+  "sell_disabled": false,
+  "risk_per_trade": 0.15,
+  "max_positions": 3,
+  "max_same_side_positions": 2,
+  "max_position_size_usd": 20.0,
+  "max_leverage": 3,
+  "throttle_seconds": 120,
+  "night_ban_start": 0,
+  "night_ban_end": 6,
+  "blacklist_min_trades": 3,
+  "blacklist_max_pf": 0.5,
+  "confidence_threshold": 0.48
+}

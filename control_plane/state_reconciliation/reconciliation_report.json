@@ -1,0 +1,176 @@
+{
+  "timestamp": "2026-07-21T10:20:04.726594+00:00",
+  "reconciliation": [
+    {
+      "symbol": "ARB-USDT",
+      "status": "CONFLICT",
+      "expected_side": "LONG",
+      "actual_side": "SHORT",
+      "changes": [
+        {
+          "field": "side",
+          "expected": "LONG",
+          "actual": "SHORT",
+          "type": "SIDE_REVERSED"
+        },
+        {
+          "field": "qty",
+          "expected": 36.7,
+          "actual": 36.3,
+          "type": "QTY_CHANGED"
+        },
+        {
+          "field": "entry_price",
+          "expected": 0.09001,
+          "actual": 0.09084,
+          "type": "ENTRY_CHANGED"
+        }
+      ],
+      "timestamp": "2026-07-21T10:20:04.726165+00:00"
+    },
+    {
+      "symbol": "ATOM-USDT",
+      "status": "POSITION_CLOSED",
+      "expected_side": "LONG",
+      "actual_side": null,
+      "changes": [
+        {
+          "field": "position",
+          "expected": "EXISTS_IN_TRADINGOS",
+          "actual": null,
+          "type": "POSITION_CLOSED"
+        }
+      ],
+      "timestamp": "2026-07-21T10:20:04.726165+00:00"
+    },
+    {
+      "symbol": "BCH-USDT",
+      "status": "SYNCED",
+      "expected_side": "SHORT",
+      "actual_side": "SHORT",
+      "changes": [],
+      "timestamp": "2026-07-21T10:20:04.726165+00:00"
+    },
+    {
+      "symbol": "FIL-USDT",
+      "status": "DRIFT",
+      "expected_side": "LONG",
+      "actual_side": "LONG",
+      "changes": [
+        {
+          "field": "entry_price",
+          "expected": 0.7441,
+          "actual": 0.7511,
+          "type": "ENTRY_CHANGED"
+        }
+      ],
+      "timestamp": "2026-07-21T10:20:04.726165+00:00"
+    },
+    {
+      "symbol": "LINK-USDT",
+      "status": "CONFLICT",
+      "expected_side": "SHORT",
+      "actual_side": "LONG",
+      "changes": [
+        {
+          "field": "side",
+          "expected": "SHORT",
+          "actual": "LONG",
+          "type": "SIDE_REVERSED"
+        }
+      ],
+      "timestamp": "2026-07-21T10:20:04.726165+00:00"
+    },
+    {
+      "symbol": "NEAR-USDT",
+      "status": "SYNCED",
+      "expected_side": "LONG",
+      "actual_side": "LONG",
+      "changes": [],
+      "timestamp": "2026-07-21T10:20:04.726165+00:00"
+    },
+    {
+      "symbol": "SOL-USDT",
+      "status": "SYNCED",
+      "expected_side": "SHORT",
+      "actual_side": "SHORT",
+      "changes": [],
+      "timestamp": "2026-07-21T10:20:04.726165+00:00"
+    },
+    {
+      "symbol": "SUI-USDT",
+      "status": "SYNCED",
+      "expected_side": "LONG",
+      "actual_side": "LONG",
+      "changes": [],
+      "timestamp": "2026-07-21T10:20:04.726165+00:00"
+    },
+    {
+      "symbol": "XRP-USDT",
+      "status": "DRIFT",
+      "expected_side": "LONG",
+      "actual_side": "LONG",
+      "changes": [
+        {
+          "field": "entry_price",
+          "expected": 1.131,
+          "actual": 1.1319,
+          "type": "ENTRY_CHANGED"
+        }
+      ],
+      "timestamp": "2026-07-21T10:20:04.726165+00:00"
+    }
+  ],
+  "safety": {
+    "verdict": "BLOCK",
+    "per_symbol": {
+      "ARB-USDT": {
+        "verdict": "BLOCK",
+        "reason": "CONFLICT"
+      },
+      "ATOM-USDT": {
+        "verdict": "BLOCK",
+        "reason": "POSITION_CLOSED"
+      },
+      "BCH-USDT": {
+        "verdict": "ALLOW",
+        "reason": "SYNCED"
+      },
+      "FIL-USDT": {
+        "verdict": "WARN",
+        "reason": "DRIFT detected"
+      },
+      "LINK-USDT": {
+        "verdict": "BLOCK",
+        "reason": "CONFLICT"
+      },
+      "NEAR-USDT": {
+        "verdict": "ALLOW",
+        "reason": "SYNCED"
+      },
+      "SOL-USDT": {
+        "verdict": "ALLOW",
+        "reason": "SYNCED"
+      },
+      "SUI-USDT": {
+        "verdict": "ALLOW",
+        "reason": "SYNCED"
+      },
+      "XRP-USDT": {
+        "verdict": "WARN",
+        "reason": "DRIFT detected"
+      }
+    },
+    "blockers": [
+      "ARB-USDT",
+      "ATOM-USDT",
+      "LINK-USDT"
+    ],
+    "warnings": [
+      "FIL-USDT",
+      "XRP-USDT"
+    ],
+    "timestamp": "2026-07-21T10:20:04.726365+00:00",
+    "rule": "BLOCK on CONFLICT/UNKNOWN/POSITION_CLOSED; WARN on DRIFT; ALLOW on SYNCED"
+  }
+}

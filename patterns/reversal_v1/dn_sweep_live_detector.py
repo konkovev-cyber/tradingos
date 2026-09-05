@@ -788,6 +788,27 @@ def _live_place(symbol: str, side: str, entry_zone: float, sl: float,
         qty = float(f"{qty:.8g}")
         if qty <= 0:
             return {"ok": False, "reason": "risk_cap_below_min_notional"}
+    # ГЛОБАЛЬНЫЕ РИСК-СТРАХОВКИ (2026-09-05, Class A): risk $50 / min SL 0.8%
+    # давал $6,250 ношнл (DOT/BBX −$92/−$42 в ночь 09-04). Жёсткий кап
+    # max_position_size_usd ($500) + night_ban из trading_mode.json.
+    try:
+        import sys as _sys
+        if "/root/tradingos" not in _sys.path:
+            _sys.path.insert(0, "/root/tradingos")
+        from operations.risk_guards import clamp_notional, night_ban_active
+        _cap_not = clamp_notional(qty * entry_zone)
+        if _cap_not < qty * entry_zone - 1e-9:
+            log.warning(f"🛑 NOTIONAL CAP {symbol}: qty {qty} → {_cap_not / entry_zone:.8g} "
+                        f"(${qty * entry_zone:.0f} > ${_cap_not:.0f})")
+            qty = int(_cap_not / entry_zone / qty_step) * qty_step
+            qty = float(f"{qty:.8g}")
+            if qty <= 0:
+                return {"ok": False, "reason": "notional_cap_below_min_qty"}
+        if night_ban_active():
+            log.warning(f"🌙 DN-SWEEP SKIP {symbol}: night_ban")
+            return {"ok": False, "reason": "night_ban"}
+    except Exception as _e:
+        log.debug(f"risk_guards check err (proceeding): {_e}")
     body = "&".join([
         "category=linear", f"symbol={symbol}", f"side={bybit_side}",
         "orderType=Limit", f"qty={qty}", f"price={entry_zone}",

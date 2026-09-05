@@ -1480,7 +1480,14 @@ async def callback_handler_manual(update: Update, context: ContextTypes.DEFAULT_
     if not data.startswith("ms_"):
         return False
 
-    await query.answer()
+    # 2026-09-04: query.answer() can 400 (QUERY_ID_INVALID — expired/already
+    # answered query). The exception aborts the handler BEFORE the ms_fund /
+    # ms_wait branches → press silently swallowed ("нажал 1% ничего не
+    # произошло"). Swallow answer errors; the branch logic itself still runs.
+    try:
+        await query.answer()
+    except Exception:
+        pass
 
     if data == "ms_risk_confirm":
         new_risk = context.user_data.pop("pending_risk", None)
@@ -3357,6 +3364,16 @@ async def background_position_monitor():
                 if rec and rec.get("status") == "PLACED":
                     planned_qty = float(rec.get("qty", 0) or 0)
                     filled_now = float(current[sym].get("size", 0) or 0)
+                    # 2026-09-04: позиция на этом символе может существовать
+                    # ИНDEPENDently от лимитки (вручной вход + WAIT на откат).
+                    # PostOnly филл исполняется у цены лимита — если avgPrice
+                    # позиции не у уровня лимита, это НЕ филл нашей лимитки,
+                    # а чужая позиция (entry-атtribution у avgPrice чужой).
+                    px_limit = float(rec.get("price", 0) or 0)
+                    px_avg = float(current[sym].get("avgPrice", 0) or 0)
+                    near_limit = px_limit > 0 and px_avg > 0 and abs(px_avg - px_limit) <= px_limit * 0.001
+                    if px_limit > 0 and not near_limit:
+                        continue
                     is_partial = planned_qty > 0 and filled_now < planned_qty - 1e-9
                     # P1.5a (2026-08-29): PARTIAL FILL — исполненная часть
                     # защищается НЕМЕДЛЕННО (SL/TP на позицию), остаток лимитки

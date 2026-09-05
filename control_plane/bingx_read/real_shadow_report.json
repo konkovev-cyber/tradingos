@@ -1,0 +1,18 @@
+{
+  "timestamp": "2026-09-05T06:07:04.074745+00:00",
+  "source": "BINGX_API_HMAC",
+  "execution": "BLOCKED",
+  "account": {
+    "equity": 0,
+    "unrealized_pnl": 0,
+    "position_count": 0,
+    "in_profit": 0,
+    "in_loss": 0
+  },
+  "concentration": {
+    "biggest_symbol": "",
+    "biggest_pct": 0,
+    "status": "OK"
+  },
+  "positions": []
+}

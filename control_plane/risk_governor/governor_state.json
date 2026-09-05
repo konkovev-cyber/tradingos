@@ -1,0 +1,8 @@
+{
+  "date": "2026-07-21",
+  "trades_today": 0,
+  "pnl_today": 0.0,
+  "max_loss_today": 0.0,
+  "consecutive_losses": 0,
+  "kill_switch_active": false
+}

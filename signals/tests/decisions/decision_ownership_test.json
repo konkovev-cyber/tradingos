@@ -1,0 +1,23 @@
+{
+  "trace_id": "42b58be3-c501-422b-92b0-06517ea63fd3",
+  "decision_id": "6032d4ff-1e34-429e-a01d-9e8316dc4b15",
+  "event_id": "a8bbcb45-6db1-4f4d-b017-f3bdeeab85bc",
+  "symbol": "DOGEUSDT",
+  "direction": "BUY",
+  "quantity": 10,
+  "entry_price": 0.0725,
+  "stop_loss": 0.0715,
+  "take_profit": 0.0745,
+  "action": "OPEN_POSITION",
+  "source": "tradingos_signal_engine",
+  "confidence": 0.75,
+  "reason": "PHASE4_test; ownership_verification",
+  "mode": "SHADOW",
+  "_meta": {
+    "strategy": "tradingos_test",
+    "score": 75,
+    "signal_timeframe": "1m",
+    "phase": "PHASE4_ownership_test",
+    "bridge": false
+  }
+}

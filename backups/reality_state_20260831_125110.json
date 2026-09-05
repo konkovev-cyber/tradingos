@@ -1,0 +1,26 @@
+{
+  "TREEUSDT": {
+    "be_fired": true,
+    "partial_fired": false,
+    "tight_fired": false,
+    "mfe_peak": 0.3211009174311921,
+    "entry_to_sl_risk": 0.0021800000000000014,
+    "side": "Buy",
+    "entry": 0.03959,
+    "size": 11643.0,
+    "sl_initial": 0.03974,
+    "tp_initial": 0.04247,
+    "entry_time": 1788168695.714,
+    "mae_trough": -0.12844036697247813,
+    "recovery_state": null,
+    "recovery_attempted": true,
+    "last_check": 1788169865.6653025,
+    "last_r": 0.2385321100917428,
+    "be_fired_at": 1788169494.8880317,
+    "be_sl": 0.039403902,
+    "trail_last_peak_r": 0.3211009174311921,
+    "trail_last_sl": 0.039745,
+    "trail_last_tp": 0.04247,
+    "recovery_outcome": "RECOVERED"
+  }
+}

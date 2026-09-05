@@ -1,0 +1,20 @@
+{
+  "timestamp": "2026-07-21T01:48:35.835323+00:00",
+  "symbol": "VELVET-USDT",
+  "action": "TAKE_PARTIAL",
+  "gross_result": 37.33,
+  "position_value": 251.34822,
+  "costs": {
+    "commission": 0.15080893199999998,
+    "spread": 0.012567411,
+    "slippage": 0.025134822,
+    "funding": 0.025134822,
+    "latency_penalty": 0.0025134822,
+    "total": 0.21615946919999998
+  },
+  "net_result": 37.1138405308,
+  "hold_result": 43.894865178,
+  "vs_hold": -6.781,
+  "recommendation": "HOLD_BETTER",
+  "notes": "Position value: 251.3482, costs: 0.2162"
+}

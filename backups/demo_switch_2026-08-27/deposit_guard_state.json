@@ -1,0 +1,28 @@
+{
+  "utc_day": "2026-08-27",
+  "day_start_equity": 80.91067683,
+  "realized_pnl_day": -1.29316977,
+  "fees_day": 0.0484695,
+  "funding_day": 0.0,
+  "last_equity": 80.46671708,
+  "last_unrealized_pnl": -0.44395975000000476,
+  "open_risk_total": 0.9222400000000042,
+  "missing_sl_count": 0,
+  "blocked_new_entries": false,
+  "block_reason": "",
+  "kill_switch": false,
+  "manual_kill": false,
+  "kill_reason": "",
+  "kill_switched_at": null,
+  "critical_since": null,
+  "critical_timeout_level": 0,
+  "requires_manual_review": false,
+  "updated_at": "2026-08-26T09:26:20.593122+00:00",
+  "_last_alert_repeat": {
+    "\ud83d\udeab <b>DAILY LOSS LIMIT \u0434\u043e\u0441\u0442\u0438\u0433\u043d\u0443\u0442</b>": 1787508422.3204994
+  },
+  "losing_streak": 1,
+  "auto_paused": false,
+  "auto_pause_reason": "",
+  "available_margin": 75.25853075
+}

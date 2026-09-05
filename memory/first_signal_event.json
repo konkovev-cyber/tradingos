@@ -1,0 +1,15 @@
+{
+  "event": "FIRST_ACCEPTED_SIGNAL",
+  "timestamp": "2026-09-03T13:54:13.047008+00:00",
+  "symbol": "ETHUSDT",
+  "direction": "SELL",
+  "confidence": 0.57,
+  "entry": 2425.83,
+  "stop_loss": 2462.304303,
+  "take_profit": 2389.355697,
+  "adx": 19.4,
+  "rsi": 61.4,
+  "atr": 18.2372,
+  "stage": "STAGE_1_SHADOW_AUDIT_REQUIRED",
+  "execution": "LOCKED"
+}

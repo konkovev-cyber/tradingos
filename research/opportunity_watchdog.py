@@ -136,6 +136,20 @@ def _auto_execute_funding(sym: str, side: str, px: float, tp_v: float,
             return {"ok": False, "reason": "kill_switch"}
     except Exception:
         return {"ok": False, "reason": "mode_unreadable_fail_closed"}
+    # ГЛОБАЛЬНЫЕ РИСК-СТРАХОВКИ (2026-09-05, Class A): night_ban 0-6Z
+    # применялся только в reality → funding-шорты ночью ловили SL
+    # (BBX 02:20 −$42). Блокируем ночные входы; выплата funding 00:00 UTC
+    # не страдает — входы 23:xx остаются разрешены.
+    try:
+        import sys as _sys
+        if "/root/tradingos" not in _sys.path:
+            _sys.path.insert(0, "/root/tradingos")
+        from operations.risk_guards import night_ban_active, night_ban_window
+        if night_ban_active():
+            logger.warning(f"🌙 AUTO-FUNDING SKIP {sym}: night_ban ({night_ban_window()})")
+            return {"ok": False, "reason": f"night_ban_{night_ban_window()}"}
+    except Exception as _e:
+        logger.debug(f"night_ban check err (proceeding): {_e}")
     # Пауза ручного контура (Grizzly) тоже стопит (общий fail-safe)
     try:
         st = json.loads(Path("/root/tradingos/operations/manual_state.json").read_text())
@@ -205,6 +219,17 @@ def _auto_execute_funding(sym: str, side: str, px: float, tp_v: float,
         sl_dist = abs(px - sl_v)
         notional = risk_usd / sl_dist * px if sl_dist > 0 else max_notional
         usd_amount = min(notional, max_notional)
+        # ГЛОБАЛЬНЫЙ НОШНЛ-КАП (2026-09-05, Class A): 1% от ДЕМО-equity $182k
+        # давал $1.8k+ позиции при риске $25. Жёсткий кап из конфига
+        # (max_position_size_usd=$500) — как в reality.
+        try:
+            import sys as _sys
+            if "/root/tradingos" not in _sys.path:
+                _sys.path.insert(0, "/root/tradingos")
+            from operations.risk_guards import clamp_notional
+            usd_amount = clamp_notional(usd_amount)
+        except Exception:
+            pass
         if usd_amount < 5.0:
             usd_amount = 5.0  # minNotional
     except Exception:

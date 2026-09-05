@@ -1,0 +1,25 @@
+{
+  "timestamp": "2026-07-21T01:26:15.824087+00:00",
+  "health": "WARNING",
+  "risk_score": 55.0,
+  "unrealized_pnl": 38.6501,
+  "realized_pnl": 0.0,
+  "open_positions": 12,
+  "closed_trades": 0,
+  "biggest_risk_symbol": "VELVET-USDT",
+  "biggest_risk_pct": 79.6,
+  "alerts": [
+    {
+      "type": "CONCENTRATION_RISK",
+      "symbol": "VELVET-USDT",
+      "severity": "CRITICAL",
+      "value": 79.6,
+      "description": "VELVET-USDT = 79.6% of total risk. Single position dependency."
+    }
+  ],
+  "recommendations": [
+    "IMMEDIATE: Address critical risk alerts before any new actions",
+    "REDUCE: Single position dependency > 70%",
+    "PROTECT: Consider profit protection on largest winner"
+  ]
+}

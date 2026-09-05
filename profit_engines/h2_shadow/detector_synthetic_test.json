@@ -1,0 +1,35 @@
+{
+  "must_fire": true,
+  "must_not_fire_volume_halved": true,
+  "must_not_fire_flat": true,
+  "must_not_fire_zero_event_symbol": true,
+  "event_used": {
+    "sym": "SHIB1000USDT",
+    "event_ts": 1774767600000,
+    "dir": -1,
+    "entry": 0.005806
+  },
+  "zero_symbols_detail": {
+    "AAVEUSDT": {
+      "events": 0,
+      "bars": 8640
+    },
+    "AVAXUSDT": {
+      "events": 0,
+      "bars": 8640
+    },
+    "BNBUSDT": {
+      "events": 0,
+      "bars": 8640
+    },
+    "BTCUSDT": {
+      "events": 0,
+      "bars": 8640
+    },
+    "BTWUSDT": {
+      "events": 0,
+      "bars": 588
+    }
+  },
+  "all_pass": true
+}

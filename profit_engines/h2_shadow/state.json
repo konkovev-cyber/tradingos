@@ -1,0 +1,6 @@
+{
+  "paused": false,
+  "reason": "USER ENABLE: micro execution pilot, cap $50 hard, equity ~$80, post-only only, no taker fallback",
+  "updated_at": "2026-08-12T05:25:00+00:00",
+  "updated_by": "main_agent"
+}

@@ -1,0 +1,48 @@
+{
+  "n": 4,
+  "wr": 0.5,
+  "gross": 1.182,
+  "fees": 0.1289,
+  "funding": 0,
+  "slippage": 0,
+  "net": 1.0531,
+  "avg_net": 0.2633,
+  "med_net": 0.2528,
+  "avg_net_r": 0.3566,
+  "med_net_r": 0.5232,
+  "expectancy": 0.2633,
+  "pf": 7.561,
+  "risk_total": 1.3134,
+  "top1": 0.6719,
+  "top1_pct": 63.8,
+  "top2_pct": 115.2,
+  "no_top1": 0.3813,
+  "no_top2": -0.1605,
+  "max_dd": -0.1242,
+  "cap_limited": 4,
+  "manual_contam": 0,
+  "tech_excl": 0,
+  "exit_split": {
+    "NONE": 2,
+    "BE": 2
+  },
+  "mfe_med": 0.662,
+  "mae_med": -0.417,
+  "capture": "N/A (ladder-relative MFE)",
+  "streaks": 1,
+  "class_split": {
+    "CRYPTO": {
+      "n": 4,
+      "net": 1.0531,
+      "avg_net_r": 0.3566,
+      "med_net_r": 0.5232,
+      "wr": 0.5,
+      "pf": 7.561,
+      "fees": 0.1289,
+      "mfe_med": 0.662,
+      "mae_med": -0.417,
+      "cap_limited": 4
+    },
+    "STOCK": null
+  }
+}

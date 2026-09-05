@@ -1,0 +1,26 @@
+{
+  "trace_id": "6487b6a2-9973-4938-80e2-9f5fed7f14ea",
+  "decision_id": "2afd7661-db2b-4db1-8c07-69471c8a5fa4",
+  "event_id": "f7666c48-3876-440e-9ffe-083b33118514",
+  "symbol": "DOGEUSDT",
+  "direction": "SELL",
+  "quantity": 728.0,
+  "entry_price": 0.06866,
+  "stop_loss": 0.07276,
+  "take_profit": 0.067248,
+  "action": "OPEN_POSITION",
+  "source": "ubot_bingx_bridge",
+  "confidence": 0.9878,
+  "reason": "strategy=breakout; regime=unknown; tradeability=28.5",
+  "mode": "SHADOW",
+  "_meta": {
+    "original_symbol": "DOGE-USDT",
+    "strategy": "breakout",
+    "score": 98.78430848747966,
+    "tradeability": 28.5,
+    "regime": "unknown",
+    "signal_timestamp": "2026-07-23 18:10",
+    "bridge_version": "1.0",
+    "bridge_timestamp": "2026-07-27T14:44:53.152886+00:00"
+  }
+}

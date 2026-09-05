@@ -1,0 +1,67 @@
+{
+  "timestamp": "2026-07-21T01:48:35.498142+00:00",
+  "capital_score": {
+    "total": 12.0,
+    "status": "NOT_READY",
+    "risk_score": 20.0,
+    "stability_score": 100.0,
+    "breakdown": {
+      "research_quality": {
+        "score": 8.0,
+        "max": 25
+      },
+      "reality_performance": {
+        "score": 0.0,
+        "max": 20
+      },
+      "walk_forward": {
+        "score": 0.0,
+        "max": 20
+      },
+      "transferability": {
+        "score": 0.0,
+        "max": 15
+      },
+      "risk": {
+        "score": 3.0,
+        "max": 10
+      },
+      "liquidity": {
+        "score": 1.0,
+        "max": 10
+      }
+    },
+    "lab_available": true
+  },
+  "portfolio": {
+    "unrealized_pnl": 38.6501,
+    "open_positions": 12,
+    "biggest_risk_symbol": "VELVET-USDT",
+    "biggest_risk_pct": 79.6,
+    "status": "PROFITABLE"
+  },
+  "alerts": [
+    {
+      "type": "LOW_RISK_SCORE",
+      "severity": "HIGH",
+      "value": 20.0,
+      "description": "CapitalEngine risk score 20.0/100 (below 30)"
+    },
+    {
+      "type": "CAPITAL_NOT_READY",
+      "severity": "MEDIUM",
+      "value": 12.0,
+      "description": "CapitalEngine status: NOT_READY (score 12.0)"
+    },
+    {
+      "type": "CONCENTRATION_RISK",
+      "severity": "CRITICAL",
+      "value": 79.6,
+      "description": "VELVET-USDT = 79.6% of risk"
+    }
+  ],
+  "recommendations": [
+    "IMPROVE_RISK_PROFILE",
+    "REDUCE_CONCENTRATION"
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "trace_id": "eb02e77f-ab2a-4b7a-a553-bb1727b6c3ba",
+  "decision_id": "4ec5702c-c8ce-4966-9121-1052ce49d8f6",
+  "event_id": "21ad9260-b00b-4499-ba2c-1502c598da81",
+  "symbol": "SUIUSDT",
+  "direction": "SELL",
+  "quantity": 60.0,
+  "entry_price": 0.75,
+  "stop_loss": 0.770529,
+  "take_profit": 0.735784,
+  "action": "OPEN_POSITION",
+  "source": "ubot_bingx_bridge",
+  "confidence": 0.9905,
+  "reason": "strategy=breakout; regime=unknown; tradeability=26.7",
+  "mode": "SHADOW",
+  "_meta": {
+    "original_symbol": "SUI-USDT",
+    "strategy": "breakout",
+    "score": 99.04652162160858,
+    "tradeability": 26.7,
+    "regime": "unknown",
+    "signal_timestamp": "2026-07-23 17:52",
+    "bridge_version": "1.0",
+    "bridge_timestamp": "2026-07-27T14:45:15.669862+00:00"
+  }
+}

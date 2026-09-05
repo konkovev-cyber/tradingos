@@ -1,0 +1,39 @@
+{
+  "CHILLGUYUSDT": {
+    "be_fired": false,
+    "partial_fired": false,
+    "tight_fired": false,
+    "mfe_peak": 0.0,
+    "entry_to_sl_risk": 0.002036999999999999,
+    "side": "Sell",
+    "entry": 0.010965,
+    "size": 9818.0,
+    "sl_initial": 0.013002,
+    "tp_initial": 0.005872,
+    "entry_time": 1788406738.848,
+    "mae_trough": -0.21944035346097188,
+    "last_check": 1788429073.6594691,
+    "last_r": -0.09180166912125663
+  },
+  "HEMIUSDT": {
+    "be_fired": true,
+    "partial_fired": false,
+    "tight_fired": false,
+    "mfe_peak": 0.18221447253705295,
+    "entry_to_sl_risk": 0.0034409999999999996,
+    "side": "Buy",
+    "entry": 0.015659,
+    "size": 5851.0,
+    "sl_initial": 0.015564,
+    "tp_initial": 0.020764,
+    "entry_time": 1788426425.677,
+    "mae_trough": -0.05899447834931708,
+    "recovery_state": null,
+    "recovery_attempted": true,
+    "last_check": 1788429073.3187842,
+    "last_r": 0.09270560883464106,
+    "recovery_outcome": "RECOVERED",
+    "be_fired_at": 1788426920.6739829,
+    "be_sl": 0.015564440999999998
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "timestamp": "2026-08-24T06:33:08.759785+00:00",
+  "purpose": "FORENSIC SNAPSHOT \u2014 post-incident",
+  "file": "/root/tradingos/operations/trading_mode.json",
+  "size": 2833,
+  "inode": 5944079,
+  "mode": "0o100664",
+  "uid": 0,
+  "gid": 0,
+  "atime": "2026-08-24T04:21:39.246130+00:00",
+  "mtime": "2026-08-24T04:21:39.230129+00:00",
+  "ctime": "2026-08-24T04:21:39.230129+00:00"
+}

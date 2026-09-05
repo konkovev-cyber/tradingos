@@ -1,0 +1,84 @@
+{
+  "generated_at": "2026-08-07T03:45:31.080915+00:00",
+  "method": "единая геометрия 2:1 (SL=2ATR, TP=4ATR), горизонт 168h; ranked = реплей (окно 60s, prob*score, ADX>=20, cooldown 1h)",
+  "stages": {
+    "raw": {
+      "all": {
+        "n": 1201,
+        "winrate_pct": 54.9,
+        "pf": 2.43,
+        "avg_r": 0.646,
+        "expired": 13,
+        "no_data": 0
+      },
+      "BUY": {
+        "n": 778,
+        "winrate_pct": 65.8,
+        "pf": 3.85,
+        "avg_r": 0.974,
+        "expired": 12,
+        "no_data": 0
+      },
+      "SELL": {
+        "n": 423,
+        "winrate_pct": 34.8,
+        "pf": 1.07,
+        "avg_r": 0.043,
+        "expired": 1,
+        "no_data": 0
+      }
+    },
+    "candidates": {
+      "all": {
+        "n": 202,
+        "winrate_pct": 42.6,
+        "pf": 1.48,
+        "avg_r": 0.277,
+        "expired": 9,
+        "no_data": 0
+      },
+      "BUY": {
+        "n": 88,
+        "winrate_pct": 47.7,
+        "pf": 1.83,
+        "avg_r": 0.432,
+        "expired": 9,
+        "no_data": 0
+      },
+      "SELL": {
+        "n": 114,
+        "winrate_pct": 38.6,
+        "pf": 1.26,
+        "avg_r": 0.158,
+        "expired": 0,
+        "no_data": 0
+      }
+    },
+    "ranked_top1": {
+      "all": {
+        "n": 89,
+        "winrate_pct": 40.4,
+        "pf": 1.36,
+        "avg_r": 0.213,
+        "expired": 6,
+        "no_data": 0
+      },
+      "BUY": {
+        "n": 44,
+        "winrate_pct": 45.5,
+        "pf": 1.67,
+        "avg_r": 0.364,
+        "expired": 6,
+        "no_data": 0
+      },
+      "SELL": {
+        "n": 45,
+        "winrate_pct": 35.6,
+        "pf": 1.1,
+        "avg_r": 0.067,
+        "expired": 0,
+        "no_data": 0
+      }
+    }
+  }
+}

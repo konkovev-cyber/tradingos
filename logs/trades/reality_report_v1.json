@@ -1,0 +1,116 @@
+{
+  "version": "Reality_Report_v1",
+  "source": "trade_results.jsonl (Bybit order history v2_rebuild)",
+  "records": 23,
+  "performance": {
+    "wins": 5,
+    "losses": 18,
+    "win_rate_pct": 21.7,
+    "gross_pnl": -1.1335,
+    "fees": 0.4764,
+    "net_pnl": -1.6099,
+    "profit_factor": 0.41,
+    "avg_win": 0.2233,
+    "avg_loss": 0.1515,
+    "expectancy": -0.07,
+    "avg_r": -0.166,
+    "avg_holding_hours": 4.9
+  },
+  "edge": {
+    "type_a_direction_wrong": 14,
+    "type_b_right_but_lost": 4,
+    "type_c_right_and_won": 5,
+    "type_a_pct": 60.9,
+    "type_b_pct": 17.4,
+    "type_c_pct": 21.7,
+    "direction_split": {
+      "BUY": {
+        "count": 4,
+        "net_pnl": 0.0507
+      },
+      "SELL": {
+        "count": 19,
+        "net_pnl": -1.6605
+      }
+    },
+    "symbol_breakdown": {
+      "WLFIUSDT": {
+        "count": 1,
+        "net_pnl": -0.3337
+      },
+      "SAHARAUSDT": {
+        "count": 2,
+        "net_pnl": -0.4403
+      },
+      "LAUSDT": {
+        "count": 1,
+        "net_pnl": -0.0467
+      },
+      "WUSDT": {
+        "count": 1,
+        "net_pnl": 0.4321
+      },
+      "DOGEUSDT": {
+        "count": 3,
+        "net_pnl": 0.1266
+      },
+      "ENAUSDT": {
+        "count": 1,
+        "net_pnl": -0.0438
+      },
+      "WLDUSDT": {
+        "count": 2,
+        "net_pnl": -0.0325
+      },
+      "XPLUSDT": {
+        "count": 1,
+        "net_pnl": 0.1609
+      },
+      "HOMEUSDT": {
+        "count": 2,
+        "net_pnl": -0.302
+      },
+      "SHIB1000USDT": {
+        "count": 2,
+        "net_pnl": -0.1467
+      },
+      "BIOUSDT": {
+        "count": 1,
+        "net_pnl": -0.1463
+      },
+      "FARTCOINUSDT": {
+        "count": 1,
+        "net_pnl": -0.0736
+      },
+      "FLOWUSDT": {
+        "count": 1,
+        "net_pnl": -0.0154
+      },
+      "VETUSDT": {
+        "count": 1,
+        "net_pnl": -0.3061
+      },
+      "INXUSDT": {
+        "count": 1,
+        "net_pnl": 0.1056
+      },
+      "CHILLGUYUSDT": {
+        "count": 1,
+        "net_pnl": -0.2704
+      },
+      "PEOPLEUSDT": {
+        "count": 1,
+        "net_pnl": -0.2775
+      }
+    }
+  },
+  "execution": {
+    "fees_pct_of_gross": 42.0,
+    "net_pct_of_gross": -142.0
+  },
+  "decision": {
+    "preliminary": "STOP candidate",
+    "warning": "INSUFFICIENT SAMPLE - 22 trades, need 30+ for validation",
+    "next_step": "Continue v3 shadow collection, re-evaluate at 30+ trades"
+  }
+}

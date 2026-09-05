@@ -1,0 +1,19 @@
+{
+  "ts": 1788419350.3995757,
+  "iso": "2026-09-03T07:09:10.399579+00:00",
+  "total_risk_usd": 20.0,
+  "side_counts": {
+    "LONG": 0,
+    "SHORT": 1
+  },
+  "day_pnl_usd": -117.4,
+  "positions": [
+    "CHILLGUYUSDT"
+  ],
+  "caps": {
+    "max_total_risk_usd": 75.0,
+    "max_same_side": 2,
+    "max_risk_per_trade": 25.0,
+    "day_loss_pause_usd": 150.0
+  }
+}

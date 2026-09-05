@@ -1,0 +1,26 @@
+{
+  "trace_id": "85302bb9-79f0-4fd7-9661-790ce142c7d6",
+  "decision_id": "3c7fa9a4-06dc-4629-a0ad-48e0c3176263",
+  "event_id": "b45eefae-067d-49d4-bd52-e428e58d8772",
+  "symbol": "TIAUSDT",
+  "direction": "BUY",
+  "quantity": 140.924,
+  "entry_price": 0.3548,
+  "stop_loss": 0.349281,
+  "take_profit": 0.361692,
+  "action": "OPEN_POSITION",
+  "source": "ubot_bingx_bridge",
+  "confidence": 0.6037,
+  "reason": "strategy=rsi; regime=unknown; tradeability=22.6",
+  "mode": "SHADOW",
+  "_meta": {
+    "original_symbol": "TIA-USDT",
+    "strategy": "rsi",
+    "score": 60.3725858938233,
+    "tradeability": 22.6,
+    "regime": "unknown",
+    "signal_timestamp": "2026-07-23 16:45",
+    "bridge_version": "1.0",
+    "bridge_timestamp": "2026-07-27T14:45:21.321255+00:00"
+  }
+}

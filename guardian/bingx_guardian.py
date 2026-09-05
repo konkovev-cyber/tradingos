@@ -951,6 +951,7 @@ async def _missed_profit_check_loop():
             with open(GUARDIAN_EFFECTIVENESS_LOG) as f:
                 lines = [json.loads(l.strip()) for l in f if l.strip()]
             
+            processed = []
             for record in lines:
                 if record.get("protection_cost_status") != "PENDING":
                     continue
@@ -970,10 +971,24 @@ async def _missed_profit_check_loop():
                 # For now, log to a separate file
                 with open(PROTECTION_COST_LOG, "a") as f:
                     f.write(json.dumps(record) + "\n")
-                # Mark as checked
-                with open(GUARDIAN_EFFECTIVENESS_LOG, "r") as f:
-                    content = f.read()
-                content = content.replace(json.dumps(record), json.dumps(record))
+                processed.append((record.get("symbol", ""), record.get("timestamp", "")))
+            # Mark processed records CHECKED in the effectiveness log — the
+            # no-op .replace below never updated them, so PENDING records were
+            # re-consumed and re-logged hourly forever.
+            if processed:
+                with open(GUARDIAN_EFFECTIVENESS_LOG) as f:
+                    content_lines = f.read().splitlines()
+                with open(GUARDIAN_EFFECTIVENESS_LOG, "w") as f:
+                    for l in content_lines:
+                        try:
+                            rec = json.loads(l)
+                            if (rec.get("symbol", ""), rec.get("timestamp", "")) in processed:
+                                rec["protection_cost_status"] = "CHECKED"
+                                f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+                            else:
+                                f.write(l + "\n")
+                        except Exception:
+                            f.write(l + "\n")
         except Exception as e:
             pass
         await asyncio.sleep(3600)  # check hourly
@@ -999,12 +1014,21 @@ async def run_guardian():
             positions = _get_live_positions()
             live_symbols = {p["symbol"] for p in positions}
 
-            # Detect trade closures: symbols in state but not in live positions
+            # Detect trade closures: symbols in state but not in live positions.
+            # FIX 2026-09-04: a transient API hic (empty positions list) makes
+            # EVERY state symbol vanish → false closures for all of them.
+            # Re-query before recording; BingX has no closed-pnl endpoint, so
+            # a fresh poll is the only source of truth.
             state = _load_guardian_state()
             if not isinstance(state, dict):
                 state = {}
             state_symbols = set(state.keys())
             closed_symbols = state_symbols - live_symbols
+            if closed_symbols:
+                fresh = _get_live_positions()
+                fresh_symbols = {p["symbol"] for p in fresh}
+                still_missing = closed_symbols - fresh_symbols
+                closed_symbols = still_missing
             for sym in closed_symbols:
                 if sym in state and state[sym] is not None:
                     _record_trade_closure(sym, state[sym])
