@@ -1,19 +1,19 @@
 {
-  "generated_at": "2026-09-06T07:39:00.647441+00:00",
+  "generated_at": "2026-09-06T08:09:10.781646+00:00",
   "window": {
     "last_24h": true,
     "all_time": true
   },
-  "proposals_total": 277,
+  "proposals_total": 278,
   "filled_total": 87,
-  "fill_rate_pct": 31.4,
-  "cancelled_rate_pct": 68.6,
-  "proposals_24h": 3,
+  "fill_rate_pct": 31.3,
+  "cancelled_rate_pct": 68.7,
+  "proposals_24h": 4,
   "filled_24h": 1,
   "timing": {
     "signal_to_proposal_s": {
-      "n": 246,
-      "avg": 21.9,
+      "n": 247,
+      "avg": 21.8,
       "median": 1.3,
       "p95": 107.3
     },
@@ -44,13 +44,14 @@
     "gate_LATE_MOMENTUM": 122,
     "gate_EXTENDED_ENTRY": 62,
     "no_pattern_confirmation": 20,
+    "exchange_min_size": 14,
     "MIN_ORDER_QTY": 14,
-    "exchange_min_size": 13,
     "pattern_contra": 2
   },
   "rejection_reasons_24h": {
     "pre_trade_filter": 39,
-    "max_positions": 5
+    "max_positions": 5,
+    "exchange_min_size": 1
   },
   "order_block_reason_all": {
     "MIN_NOTIONAL_BLOCK": 14

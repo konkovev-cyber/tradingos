@@ -69,7 +69,10 @@ def build_app() -> Application:
     app.add_handler(CommandHandler("pause", cmd_pause))
     app.add_handler(CommandHandler("resume", cmd_resume))
     app.add_handler(CommandHandler("limits", cmd_limits))
+    from telegram_control.pnl_commands import cmd_pnl, cmd_readiness
     app.add_handler(CommandHandler("waitreport", cmd_waitreport))
+    app.add_handler(CommandHandler("pnl", cmd_pnl))
+    app.add_handler(CommandHandler("readiness", cmd_readiness))
     app.add_handler(CommandHandler("bx", cmd_bx_start))
     # Настройки системы (2026-09-01)
     from telegram_control.settings import (
@@ -91,6 +94,21 @@ def build_app() -> Application:
     app.add_handler(CallbackQueryHandler(callback_handler_manual, pattern=r"^ms_"))
     app.add_handler(CallbackQueryHandler(_bx_handle_callback, pattern=r"^bx_[a-z]+_"))
     app.add_handler(CallbackQueryHandler(_bx_recommend_action, pattern=r"^BXACT:"))
+    # Каскад-сторож: кнопка массовой отмены owner-лимиток (2026-09-06)
+    async def _cascade_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+        q = update.callback_query
+        await q.answer()
+        data = q.data or ""
+        if data == "CASCADE:cancelall":
+            import importlib.util as _ilu
+            _spec = _ilu.spec_from_file_location("cascade_watchdog", "/root/tradingos/scripts/cascade_watchdog.py")
+            _cw = _ilu.module_from_spec(_spec); _spec.loader.exec_module(_cw)
+            cancel_all_owner_limits = _cw.cancel_all_owner_limits
+            n = cancel_all_owner_limits()
+            await q.edit_message_text(f"🛑 Отменено owner-лимиток: {n}")
+        else:
+            await q.edit_message_text("Оставлено как есть. Watchdog напомнит снова при усилении падения.")
+    app.add_handler(CallbackQueryHandler(_cascade_callback, pattern=r"^CASCADE:"))
 
     # Кнопки-переходы (positions/status/signals_menu) обрабатывает callback_handler
     # из bot.py — здесь нужен лёгкий аналог

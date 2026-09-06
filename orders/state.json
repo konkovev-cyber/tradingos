@@ -89,7 +89,7 @@
     "placed_price": 0.10782555,
     "placed_ts": 1788678923017,
     "placed_ts_iso": "2026-09-06T07:15:23.053045+00:00",
-    "state": "PLACED",
+    "state": "EXPIRED",
     "confidence": 0.91,
     "regime": 1,
     "regime_name": "TRENDING_UP",

@@ -865,6 +865,25 @@
         "quality": null
       },
       "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "UNIUSDT": {
+      "placed_at": 1788681871.152703,
+      "side": "LONG",
+      "sl": 6.8622,
+      "tp": 6.929399999999999,
+      "l1_price": 6.879,
+      "l2_price": 0.0,
+      "l1_order_id": "d992a104-7835-49ef-8fc6-d39cc05c837d",
+      "l2_order_id": null,
+      "qty": 145.3,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -0.822,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
     }
   },
   "filled": {
