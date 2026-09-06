@@ -1,18 +1,18 @@
 {
-  "generated_at": "2026-09-06T16:38:52.446797+00:00",
+  "generated_at": "2026-09-06T17:39:02.214455+00:00",
   "window": {
     "last_24h": true,
     "all_time": true
   },
-  "proposals_total": 290,
+  "proposals_total": 291,
   "filled_total": 88,
-  "fill_rate_pct": 30.3,
-  "cancelled_rate_pct": 69.7,
-  "proposals_24h": 16,
+  "fill_rate_pct": 30.2,
+  "cancelled_rate_pct": 69.8,
+  "proposals_24h": 17,
   "filled_24h": 2,
   "timing": {
     "signal_to_proposal_s": {
-      "n": 259,
+      "n": 260,
       "avg": 21.3,
       "median": 1.4,
       "p95": 102.3
@@ -40,7 +40,7 @@
     "max_positions": 6715,
     "adx_low": 2208,
     "gate_OPPOSITE_IMPULSE": 503,
-    "pre_trade_filter": 184,
+    "pre_trade_filter": 190,
     "gate_LATE_MOMENTUM": 122,
     "gate_EXTENDED_ENTRY": 62,
     "no_pattern_confirmation": 20,
@@ -49,7 +49,7 @@
     "pattern_contra": 2
   },
   "rejection_reasons_24h": {
-    "pre_trade_filter": 51,
+    "pre_trade_filter": 57,
     "max_positions": 5,
     "exchange_min_size": 1
   },

@@ -103,5 +103,11 @@
   },
   "note_risk_015_2026_09_06": "AUTO-risk halved (0.028→0.015%): авто-контур без подтверждённого edge (-$141/8д без 3 катастроф, +$8 после капов). Owner-ручной WR 70% остаётся полным. Откат: 0.028.",
   "reality_sell_shadow": true,
-  "note_sell_shadow_2026_09_06": "REALITY SELL → SHADOW (−$119/36 сделок, -$3.3/сд). Сигналы SELL логируются, НЕ исполняются. LONG жив. Откат: reality_sell_shadow=false. (Отличие от sell_disabled: сигналы продолжают копить статистику для возврата.)"
+  "note_sell_shadow_2026_09_06": "REALITY SELL → SHADOW (−$119/36 сделок, -$3.3/сд). Сигналы SELL логируются, НЕ исполняются. LONG жив. Откат: reality_sell_shadow=false. (Отличие от sell_disabled: сигналы продолжают копить статистику для возврата.)",
+  "owner_partial": {
+    "enabled": true,
+    "trigger_r": 0.5,
+    "close_frac": 0.3,
+    "note": "2026-09-06 (owner: 'сделай как лучше'). Owner-лимитки: медиана MFE 0.46R, 23% ножей. При пике +0.5R: закрыть 30% + SL→BE. Остаток 70% едет к TP без риска. Откат: enabled=false."
+  }
 }

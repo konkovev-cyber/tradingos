@@ -989,7 +989,7 @@ async def _place_bet(update: Update, uid: int):
             f"\n💰 {_quota_note}\n"
             f"<i>После филла SL/TP прикрепятся автоматически.\n"
             f"Ставка живёт 24ч (structural entry ждёт откат).\n"
-            f"+0.7R → частичное закрытие 30% + SL в безубыток.</i>",
+            f"+0.5R → автозакрытие 30% + SL в безубыток (остаток без риска).</i>",
             parse_mode="HTML")
         _FLOWS.pop(uid, None)
     except Exception as e:

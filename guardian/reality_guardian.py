@@ -932,6 +932,17 @@ def _process_position(pos, state):
 
     # Send OPEN notification on first sight
     if is_new_position:
+        # OWNER-BET lookup (2026-09-06): позиция от зафиленной owner-лимитки →
+        # EARLY PARTIAL: 30% при +0.5R (медиана MFE owner-филлов 0.46R —
+        # большинство разворачивается до TP 1.5-3R; фиксируем отдачу рано).
+        try:
+            _als = json.loads(Path("/root/tradingos/operations/auto_limit_state.json").read_text())
+            _finfo = _als.get("filled", {}).get(symbol)
+            if _finfo and abs(float(_finfo.get("filled_at", 0)) - open_time) < 24*3600:
+                sym_state["owner_bet"] = True
+                logger.info(f"🎯 OWNER-BET позиция: {symbol} — early partial 30% @ +0.5R включён")
+        except Exception:
+            pass
         # CONVICTION lookup (2026-09-05): позиция от conviction-сайзинга →
         # более пристальный guardian (BE при 0.5R вместо глобального порога).
         try:
@@ -1234,6 +1245,34 @@ def _process_position(pos, state):
             # Telegram notification (enqueue for guaranteed delivery)
             _enqueue_telegram_event("BE", symbol, side, entry, new_sl, r_multiple, sym_state.get("mfe_peak", 0),
                                      old_sl=sl, current_price=current, leverage=real_leverage, entry_time=open_time)
+
+    # ─── v1.7 (2026-09-06): EARLY PARTIAL для owner-лимиток ───
+    # Данные: медиана MFE owner-филлов 0.46R, 23% ножей, 6 из 21 дотянувших
+    # до +0.5R закрывались в минус. Для owner-позиций: при пике ≥0.5R закрываем
+    # 30% (фиксация отдачи) и ставим SL в безубыток — остаток без риска.
+    # НЕ применяется к обычным позициям (там partial_tp @1.0R работает).
+    if sym_state.get("owner_bet") and not sym_state.get("owner_partial_fired", False):
+        try:
+            _opc = json.loads(Path("/root/tradingos/operations/trading_mode.json").read_text()).get("owner_partial", {})
+            if _opc.get("enabled", True):
+                _op_trigger = float(_opc.get("trigger_r", 0.5))
+                _op_frac = float(_opc.get("close_frac", 0.3))
+                if sym_state["mfe_peak"] >= _op_trigger:
+                    _size = float(pos.get("size", 0))
+                    _close_q = _size * _op_frac
+                    if _close_q > 0 and _close_position(symbol, side, _close_q):
+                        sym_state["owner_partial_fired"] = True
+                        sym_state["owner_partial_qty"] = _close_q
+                        # SL → безубыток для остатка
+                        _set_trading_stop(symbol, stop_loss=entry)
+                        actions.append(f"OWNER EARLY PARTIAL: closed {_op_frac*100:.0f}% ({_close_q:.4g}) at +{r_multiple:.2f}R, SL→BE")
+                        logger.info(f"🎯 OWNER EARLY PARTIAL: {symbol} {side} +{r_multiple:.2f}R, closed {_close_q:.4g} (30%), SL→BE")
+                        _enqueue_telegram_event("OWNER_PARTIAL", symbol, side, entry, entry, r_multiple,
+                                                 sym_state.get("mfe_peak", 0),
+                                                 old_sl=sl, current_price=current,
+                                                 leverage=real_leverage, entry_time=open_time)
+        except Exception as _ope:
+            logger.debug(f"owner early partial err: {_ope}")
 
     # Rule 1.5: Partial TP — закрыть 50% позиции на +1.0R (T5)
     try:

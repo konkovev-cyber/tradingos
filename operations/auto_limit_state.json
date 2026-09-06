@@ -1,29 +1,5 @@
 {
   "active_limits": {
-    "ATOMUSDT": {
-      "placed_at": 1788627693.2418017,
-      "side": "LONG",
-      "sl": 1.5260928571428571,
-      "tp": 1.5670694576469708,
-      "l1_price": 1.5363370072688856,
-      "l2_price": 0.0,
-      "l1_order_id": "6df160cf-9183-4dad-a257-2ef52dfeb37b",
-      "l2_order_id": null,
-      "qty": 3254.4,
-      "owner_bet": true,
-      "owner_ladder": [
-        {
-          "level": 1,
-          "price": 1.5363370072688856,
-          "qty": 3254.4,
-          "order_id": "6df160cf-9183-4dad-a257-2ef52dfeb37b"
-        }
-      ],
-      "n_levels": 1,
-      "rr_l1": 3.0,
-      "rr_l2": 0.0,
-      "note": "OWNER BET via /bet wizard: $500 margin 10x, 1-leg ladder"
-    },
     "TQQQUSDT": {
       "placed_at": 1788637777.2720451,
       "side": "LONG",
@@ -95,25 +71,6 @@
       "rr_l1": 3.0,
       "rr_l2": 0.0,
       "note": "OWNER BET via /bet wizard: $9,128 margin 10x, 1-leg ladder"
-    },
-    "COINUSDT": {
-      "placed_at": 1788627951.8604262,
-      "side": "LONG",
-      "sl": 184.45925,
-      "tp": 188.3418025161011,
-      "l1_price": 185.42988812902527,
-      "l2_price": 0.0,
-      "l1_order_id": "39d77ebd-b0d9-4e9a-b6d1-eb54920a58dd",
-      "l2_order_id": null,
-      "qty": 5.39,
-      "rr_l1": 3.0,
-      "owner_bet": true,
-      "reversal": false,
-      "place_meta": {
-        "gap_pct": -0.403,
-        "quality": null
-      },
-      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
     },
     "ETHUSDT": {
       "placed_at": 1788631493.2473938,
@@ -225,25 +182,6 @@
       "reversal": false,
       "place_meta": {
         "gap_pct": -1.071,
-        "quality": null
-      },
-      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
-    },
-    "WUSDT": {
-      "placed_at": 1788638682.8914344,
-      "side": "LONG",
-      "sl": 0.009799896428571429,
-      "tp": 0.010061262987468447,
-      "l1_price": 0.009865238068295683,
-      "l2_price": 0.0,
-      "l1_order_id": "912c592f-e304-435d-ae3a-39f022106bf3",
-      "l2_order_id": null,
-      "qty": 101366.0,
-      "rr_l1": 3.0,
-      "owner_bet": true,
-      "reversal": false,
-      "place_meta": {
-        "gap_pct": -0.311,
         "quality": null
       },
       "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
@@ -401,25 +339,6 @@
       "reversal": false,
       "place_meta": {
         "gap_pct": -0.22,
-        "quality": null
-      },
-      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
-    },
-    "ZKUSDT": {
-      "placed_at": 1788669272.0733843,
-      "side": "LONG",
-      "sl": 0.009875903571428571,
-      "tp": 0.010307646428571427,
-      "l1_price": 0.009983839285714285,
-      "l2_price": 0.0,
-      "l1_order_id": "4a9ae63b-2542-459d-abe5-bca052b59bed",
-      "l2_order_id": null,
-      "qty": 100161.8,
-      "rr_l1": 3.0,
-      "owner_bet": true,
-      "reversal": false,
-      "place_meta": {
-        "gap_pct": -0.411,
         "quality": null
       },
       "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
@@ -762,6 +681,44 @@
       "reversal": false,
       "place_meta": {
         "gap_pct": 0.25,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "GRTUSDT": {
+      "placed_at": 1788714291.1575081,
+      "side": "LONG",
+      "sl": 0.019071107142857143,
+      "tp": 0.019887392857142857,
+      "l1_price": 0.01927517857142857,
+      "l2_price": 0.0,
+      "l1_order_id": "aa15690e-d501-4b82-b700-71fe72a153bd",
+      "l2_order_id": null,
+      "qty": 51880.1,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -0.643,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "MANAUSDT": {
+      "placed_at": 1788716084.602057,
+      "side": "LONG",
+      "sl": 0.07394682142857144,
+      "tp": 0.07721003571428568,
+      "l1_price": 0.074762625,
+      "l2_price": 0.0,
+      "l1_order_id": "6302adb9-0594-4a08-a29c-1021a813da3a",
+      "l2_order_id": null,
+      "qty": 13375.6,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -0.303,
         "quality": null
       },
       "note": "AUTO-PORTFOLIO: $1,000 margin 10x"

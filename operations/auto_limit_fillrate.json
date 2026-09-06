@@ -1108,5 +1108,25 @@
   "owner_bet": true,
   "hours_to_outcome": 24.072223871946335,
   "quality": null
+ },
+ {
+  "sym": "ATOMUSDT",
+  "ts": 1788714319.0854409,
+  "outcome": "EXPIRED",
+  "side": "LONG",
+  "gap_pct": null,
+  "owner_bet": true,
+  "hours_to_outcome": 24.06273434480031,
+  "quality": null
+ },
+ {
+  "sym": "COINUSDT",
+  "ts": 1788714616.5927992,
+  "outcome": "EXPIRED",
+  "side": "LONG",
+  "gap_pct": -0.403,
+  "owner_bet": true,
+  "hours_to_outcome": 24.07353677093983,
+  "quality": null
  }
 ]
