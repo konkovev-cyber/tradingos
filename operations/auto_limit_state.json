@@ -1,194 +1,52 @@
 {
   "active_limits": {
-    "GOOGLUSDT": {
-      "placed_at": 1788537879.9843924,
-      "side": "LONG",
-      "sl": 337.3143214285714,
-      "tp": 337.43513571428565,
-      "l1_price": 337.344525,
-      "l2_price": 0.0,
-      "l1_order_id": "8aa89d5b-6ef5-4e35-aa1d-51e59467124f",
-      "l2_order_id": null,
-      "qty": 2.96,
-      "rr_l1": 3.0,
-      "owner_bet": true,
-      "reversal": true,
-      "place_meta": {
-        "gap_pct": -0.241,
-        "quality": null
-      },
-      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
-    },
-    "BLURUSDT": {
-      "placed_at": 1788573887.0259259,
-      "side": "LONG",
-      "sl": 0.016104325,
-      "tp": 0.01696741500000001,
-      "l1_price": 0.016320097500000002,
-      "l2_price": 0.0,
-      "l1_order_id": "146f0fee-5082-4be7-b596-13cf975e5979",
-      "l2_order_id": null,
-      "qty": 61274.0,
-      "rr_l1": 3.0,
-      "owner_bet": true,
-      "reversal": false,
-      "place_meta": {
-        "gap_pct": -0.293,
-        "quality": null
-      },
-      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
-    },
-    "LQTYUSDT": {
-      "placed_at": 1788573887.356091,
-      "side": "LONG",
-      "sl": 0.2197707142857143,
-      "tp": 0.2296598571428571,
-      "l1_price": 0.222243,
-      "l2_price": 0.0,
-      "l1_order_id": "6ef1d430-4db3-4da1-985e-7ea0ae78c3de",
-      "l2_order_id": null,
-      "qty": 4499.5,
-      "rr_l1": 3.0,
-      "owner_bet": true,
-      "reversal": false,
-      "place_meta": {
-        "gap_pct": -0.25,
-        "quality": null
-      },
-      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
-    },
-    "LTCUSDT": {
-      "placed_at": 1788573888.032548,
-      "side": "LONG",
-      "sl": 49.843964285714286,
-      "tp": 53.7159064308538,
-      "l1_price": 50.811949821999164,
-      "l2_price": 0.0,
-      "l1_order_id": "66a093df-6c0f-42b0-b1f7-ac64154c37ed",
-      "l2_order_id": null,
-      "qty": 19.6,
-      "rr_l1": 3.0,
-      "owner_bet": true,
-      "reversal": false,
-      "place_meta": {
-        "gap_pct": -0.951,
-        "quality": null
-      },
-      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
-    },
-    "AXSUSDT": {
-      "placed_at": 1788577482.6309493,
-      "side": "LONG",
-      "sl": 0.9153764285714285,
-      "tp": 0.9812217702954837,
-      "l1_price": 0.9318377640024423,
-      "l2_price": 0.0,
-      "l1_order_id": "3b496039-19a2-4960-b7d0-a5aded01a58e",
-      "l2_order_id": null,
-      "qty": 1073.1,
-      "rr_l1": 3.0,
-      "owner_bet": true,
-      "reversal": false,
-      "place_meta": {
-        "gap_pct": -1.037,
-        "quality": null
-      },
-      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
-    },
-    "SUIUSDT": {
-      "placed_at": 1788581069.375342,
-      "side": "LONG",
-      "sl": 0.74678,
-      "tp": 0.8056101912324756,
-      "l1_price": 0.7614875478081189,
-      "l2_price": 0.0,
-      "l1_order_id": "b39c330f-0105-4bbc-8a01-ebeacdb6dc42",
-      "l2_order_id": null,
-      "qty": 1310.0,
-      "rr_l1": 3.0,
-      "owner_bet": true,
-      "reversal": false,
-      "place_meta": {
-        "gap_pct": -0.264,
-        "quality": null
-      },
-      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
-    },
-    "SPCXUSDT": {
-      "placed_at": 1788584677.1275964,
-      "side": "LONG",
-      "sl": 147.33078571428572,
-      "tp": 151.08124285714277,
-      "l1_price": 148.26839999999999,
-      "l2_price": 0.0,
-      "l1_order_id": "95582ab1-88eb-4f10-859a-1bc9248126d2",
-      "l2_order_id": null,
-      "qty": 6.74,
-      "rr_l1": 3.0,
-      "owner_bet": true,
-      "reversal": false,
-      "place_meta": {
-        "gap_pct": -0.25,
-        "quality": null
-      },
-      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
-    },
-    "MARAUSDT": {
-      "placed_at": 1788586466.6734943,
-      "side": "LONG",
-      "sl": 11.249607142857142,
-      "tp": 11.497778571428574,
-      "l1_price": 11.31165,
-      "l2_price": 0.0,
-      "l1_order_id": "0f8029a3-ad41-49e3-b8d6-42206b189cc4",
-      "l2_order_id": null,
-      "qty": 88.4,
-      "rr_l1": 3.0,
-      "owner_bet": true,
-      "reversal": false,
-      "place_meta": {
-        "gap_pct": -0.25,
-        "quality": null
-      },
-      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
-    },
     "ATOMUSDT": {
-      "placed_at": 1788588324.4764729,
+      "placed_at": 1788627693.2418017,
       "side": "LONG",
-      "sl": 1.483125,
-      "tp": 1.5975266594659556,
-      "l1_price": 1.511725414866489,
+      "sl": 1.5260928571428571,
+      "tp": 1.5670694576469708,
+      "l1_price": 1.5363370072688856,
       "l2_price": 0.0,
-      "l1_order_id": "becdd8a2-947c-494d-a7e6-531868bfa184",
+      "l1_order_id": "6df160cf-9183-4dad-a257-2ef52dfeb37b",
       "l2_order_id": null,
-      "qty": 661.4,
-      "rr_l1": 3.0,
+      "qty": 3254.4,
       "owner_bet": true,
-      "reversal": false,
-      "place_meta": {
-        "gap_pct": -1.9,
-        "quality": null
-      },
-      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+      "owner_ladder": [
+        {
+          "level": 1,
+          "price": 1.5363370072688856,
+          "qty": 3254.4,
+          "order_id": "6df160cf-9183-4dad-a257-2ef52dfeb37b"
+        }
+      ],
+      "n_levels": 1,
+      "rr_l1": 3.0,
+      "rr_l2": 0.0,
+      "note": "OWNER BET via /bet wizard: $500 margin 10x, 1-leg ladder"
     },
     "TQQQUSDT": {
-      "placed_at": 1788588330.2892294,
+      "placed_at": 1788637777.2720451,
       "side": "LONG",
-      "sl": 71.93764285714286,
-      "tp": 72.74387142857137,
-      "l1_price": 72.13919999999999,
+      "sl": 72.26671428571429,
+      "tp": 72.8103961737532,
+      "l1_price": 72.40263475772402,
       "l2_price": 0.0,
-      "l1_order_id": "bc1d548e-6dcb-451f-b7b9-2a4a062f69e7",
+      "l1_order_id": "f9ad44f0-73a1-46ef-85c0-d02b46210870",
       "l2_order_id": null,
-      "qty": 13.86,
-      "rr_l1": 3.0,
+      "qty": 69.05,
       "owner_bet": true,
-      "reversal": false,
-      "place_meta": {
-        "gap_pct": -0.25,
-        "quality": null
-      },
-      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+      "owner_ladder": [
+        {
+          "level": 1,
+          "price": 72.40263475772402,
+          "qty": 69.05,
+          "order_id": "f9ad44f0-73a1-46ef-85c0-d02b46210870"
+        }
+      ],
+      "n_levels": 1,
+      "rr_l1": 3.0,
+      "rr_l2": 0.0,
+      "note": "OWNER BET via /bet wizard: $500 margin 10x, 1-leg ladder"
     },
     "ALTUSDT": {
       "placed_at": 1788591891.9067109,
@@ -304,25 +162,6 @@
       },
       "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
     },
-    "HBARUSDT": {
-      "placed_at": 1788600872.8587463,
-      "side": "LONG",
-      "sl": 0.07752107142857143,
-      "tp": 0.08255600563934154,
-      "l1_price": 0.07877980498126395,
-      "l2_price": 0.0,
-      "l1_order_id": "531daf8e-d060-484a-bfe0-3944e4409777",
-      "l2_order_id": null,
-      "qty": 12693.0,
-      "rr_l1": 3.0,
-      "owner_bet": true,
-      "reversal": false,
-      "place_meta": {
-        "gap_pct": -1.954,
-        "quality": null
-      },
-      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
-    },
     "AVAXUSDT": {
       "placed_at": 1788602688.4487827,
       "side": "LONG",
@@ -343,23 +182,28 @@
       "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
     },
     "VETUSDT": {
-      "placed_at": 1788602688.7986567,
+      "placed_at": 1788619232.0312507,
       "side": "LONG",
-      "sl": 0.006735092857142857,
-      "tp": 0.0071757402898083395,
-      "l1_price": 0.006845254715309228,
+      "sl": 0.0068305499999999995,
+      "tp": 0.006951546448642732,
+      "l1_price": 0.0068607991121606825,
       "l2_price": 0.0,
-      "l1_order_id": "9945a06c-da74-41a7-a374-dbe704cffdfb",
+      "l1_order_id": "d78502bb-acdd-4b4c-9cc1-42c06f34d9fb",
       "l2_order_id": null,
-      "qty": 146086.0,
-      "rr_l1": 3.0,
+      "qty": 728778.0,
       "owner_bet": true,
-      "reversal": false,
-      "place_meta": {
-        "gap_pct": -0.707,
-        "quality": null
-      },
-      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+      "owner_ladder": [
+        {
+          "level": 1,
+          "price": 0.0068607991121606825,
+          "qty": 728778.0,
+          "order_id": "d78502bb-acdd-4b4c-9cc1-42c06f34d9fb"
+        }
+      ],
+      "n_levels": 1,
+      "rr_l1": 3.0,
+      "rr_l2": 0.0,
+      "note": "OWNER BET via /bet wizard: $3,646 margin 20x, 1-leg ladder"
     },
     "MANAUSDT": {
       "placed_at": 1788606294.183187,
@@ -419,23 +263,28 @@
       "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
     },
     "ONDOUSDT": {
-      "placed_at": 1788609874.2625885,
+      "placed_at": 1788672680.8024044,
       "side": "LONG",
-      "sl": 0.36169464285714287,
-      "tp": 0.37868553039159486,
-      "l1_price": 0.36594236474075587,
+      "sl": 0.3668310714285714,
+      "tp": 0.38504587280933844,
+      "l1_price": 0.37138477177376317,
       "l2_price": 0.0,
-      "l1_order_id": "4ad79dd1-f25b-4200-9180-45ecf32531a5",
+      "l1_order_id": "05e1f49a-1ae2-40a8-ba58-e51165e3ffca",
       "l2_order_id": null,
-      "qty": 2732.0,
-      "rr_l1": 3.0,
+      "qty": 13463.0,
       "owner_bet": true,
-      "reversal": false,
-      "place_meta": {
-        "gap_pct": -1.043,
-        "quality": null
-      },
-      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+      "owner_ladder": [
+        {
+          "level": 1,
+          "price": 0.37138477177376317,
+          "qty": 13463.0,
+          "order_id": "05e1f49a-1ae2-40a8-ba58-e51165e3ffca"
+        }
+      ],
+      "n_levels": 1,
+      "rr_l1": 3.0,
+      "rr_l2": 0.0,
+      "note": "OWNER BET via /bet wizard: $500 margin 10x, 1-leg ladder"
     },
     "OPUSDT": {
       "placed_at": 1788613502.391052,
@@ -493,6 +342,543 @@
         "quality": null
       },
       "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "GRTUSDT": {
+      "placed_at": 1788617138.0636585,
+      "side": "LONG",
+      "sl": 0.01693257142857143,
+      "tp": 0.01818437409852402,
+      "l1_price": 0.017245522096059576,
+      "l2_price": 0.0,
+      "l1_order_id": "a830a0de-f9b4-4f51-b35c-db1be367b458",
+      "l2_order_id": null,
+      "qty": 57986.0,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -1.002,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "ADAUSDT": {
+      "placed_at": 1788617138.476859,
+      "side": "LONG",
+      "sl": 0.20956107142857142,
+      "tp": 0.2256853156847041,
+      "l1_price": 0.21359213249260459,
+      "l2_price": 0.0,
+      "l1_order_id": "95349072-9d31-4743-b169-adf1af070290",
+      "l2_order_id": null,
+      "qty": 4681.0,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -0.793,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "ETCUSDT": {
+      "placed_at": 1788617138.8799675,
+      "side": "LONG",
+      "sl": 7.502257142857143,
+      "tp": 7.927556286729281,
+      "l1_price": 7.608581928825178,
+      "l2_price": 0.0,
+      "l1_order_id": "a9b844e8-24a1-4bca-89e4-4e2e17d74019",
+      "l2_order_id": null,
+      "qty": 131.4,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -1.097,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "BTCUSDT": {
+      "placed_at": 1788620742.0132396,
+      "side": "LONG",
+      "sl": 79373.73535714287,
+      "tp": 79863.43992857134,
+      "l1_price": 79496.16149999999,
+      "l2_price": 0.0,
+      "l1_order_id": "17e1a9eb-6ae9-42fa-b2c4-728edd655cd2",
+      "l2_order_id": null,
+      "qty": 0.012,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -0.253,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "FILUSDT": {
+      "placed_at": 1788620742.3843932,
+      "side": "LONG",
+      "sl": 0.76074,
+      "tp": 0.8008288412006415,
+      "l1_price": 0.7707622103001603,
+      "l2_price": 0.0,
+      "l1_order_id": "a54fb762-0cfb-4142-a64a-d346ed395b5e",
+      "l2_order_id": null,
+      "qty": 1297.4,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -1.864,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "COINUSDT": {
+      "placed_at": 1788627951.8604262,
+      "side": "LONG",
+      "sl": 184.45925,
+      "tp": 188.3418025161011,
+      "l1_price": 185.42988812902527,
+      "l2_price": 0.0,
+      "l1_order_id": "39d77ebd-b0d9-4e9a-b6d1-eb54920a58dd",
+      "l2_order_id": null,
+      "qty": 5.39,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -0.403,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "ETHUSDT": {
+      "placed_at": 1788631493.2473938,
+      "side": "LONG",
+      "sl": 2447.234214285714,
+      "tp": 2501.453493602339,
+      "l1_price": 2460.7890341148704,
+      "l2_price": 0.0,
+      "l1_order_id": "a331689d-69d6-4a89-9c01-b5fb67d90d44",
+      "l2_order_id": null,
+      "qty": 0.4,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -0.713,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "CRVUSDT": {
+      "placed_at": 1788631493.5864835,
+      "side": "LONG",
+      "sl": 0.35463464285714286,
+      "tp": 0.37841454080374326,
+      "l1_price": 0.36057961734379296,
+      "l2_price": 0.0,
+      "l1_order_id": "09b704cb-374f-4b22-82c2-f8b3030d6760",
+      "l2_order_id": null,
+      "qty": 2773.3,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -1.696,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "XRPUSDT": {
+      "placed_at": 1788633285.947453,
+      "side": "LONG",
+      "sl": 1.3981792857142856,
+      "tp": 1.4471303000051605,
+      "l1_price": 1.4104170392870043,
+      "l2_price": 0.0,
+      "l1_order_id": "90eaea99-9ada-4a16-a597-66c1b7eeb870",
+      "l2_order_id": null,
+      "qty": 709.0,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -0.682,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "AAVEUSDT": {
+      "placed_at": 1788635078.6414385,
+      "side": "LONG",
+      "sl": 128.7980357142857,
+      "tp": 138.65581090698097,
+      "l1_price": 131.26247951245952,
+      "l2_price": 0.0,
+      "l1_order_id": "b2991b5c-9ec1-4485-b0fe-a339dfdf181c",
+      "l2_order_id": null,
+      "qty": 7.61,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -1.977,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "ICPUSDT": {
+      "placed_at": 1788635078.9804113,
+      "side": "LONG",
+      "sl": 2.58305,
+      "tp": 2.64546637075377,
+      "l1_price": 2.5986540926884425,
+      "l2_price": 0.0,
+      "l1_order_id": "abffc960-b0da-425b-af2b-a2f654a7aded",
+      "l2_order_id": null,
+      "qty": 384.8,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -1.117,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "WIFUSDT": {
+      "placed_at": 1788638682.530277,
+      "side": "LONG",
+      "sl": 0.2093360714285714,
+      "tp": 0.2184266851521552,
+      "l1_price": 0.21160872485946736,
+      "l2_price": 0.0,
+      "l1_order_id": "06190bca-5280-4231-85a3-ffd97cc49eac",
+      "l2_order_id": null,
+      "qty": 4725.0,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -1.071,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "WUSDT": {
+      "placed_at": 1788638682.8914344,
+      "side": "LONG",
+      "sl": 0.009799896428571429,
+      "tp": 0.010061262987468447,
+      "l1_price": 0.009865238068295683,
+      "l2_price": 0.0,
+      "l1_order_id": "912c592f-e304-435d-ae3a-39f022106bf3",
+      "l2_order_id": null,
+      "qty": 101366.0,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -0.311,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "SEIUSDT": {
+      "placed_at": 1788653078.3331828,
+      "side": "LONG",
+      "sl": 0.04725635714285714,
+      "tp": 0.04855392857142857,
+      "l1_price": 0.04758075,
+      "l2_price": 0.0,
+      "l1_order_id": "51b5cc09-61fb-4951-9f61-554a355f208d",
+      "l2_order_id": null,
+      "qty": 21016.0,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -0.354,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "IMXUSDT": {
+      "placed_at": 1788653078.6626604,
+      "side": "LONG",
+      "sl": 0.12454678571428572,
+      "tp": 0.13038835182821684,
+      "l1_price": 0.1260071772427685,
+      "l2_price": 0.0,
+      "l1_order_id": "6e504d38-31dd-4561-be2d-ca1f742ee547",
+      "l2_order_id": null,
+      "qty": 7936.0,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -2.396,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "HBARUSDT": {
+      "placed_at": 1788672689.541885,
+      "side": "LONG",
+      "sl": 0.0798934642857143,
+      "tp": 0.08291124910994528,
+      "l1_price": 0.08064791049177204,
+      "l2_price": 0.0,
+      "l1_order_id": "ba1f40da-ffd3-46c5-b96e-f160ddc514da",
+      "l2_order_id": null,
+      "qty": 61997.0,
+      "owner_bet": true,
+      "owner_ladder": [
+        {
+          "level": 1,
+          "price": 0.08064791049177204,
+          "qty": 61997.0,
+          "order_id": "ba1f40da-ffd3-46c5-b96e-f160ddc514da"
+        }
+      ],
+      "n_levels": 1,
+      "rr_l1": 3.0,
+      "rr_l2": 0.0,
+      "note": "OWNER BET via /bet wizard: $500 margin 10x, 1-leg ladder"
+    },
+    "LQTYUSDT": {
+      "placed_at": 1788662084.7437787,
+      "side": "LONG",
+      "sl": 0.23287964285714285,
+      "tp": 0.23772710482397047,
+      "l1_price": 0.23409150834884976,
+      "l2_price": 0.0,
+      "l1_order_id": "191bb233-30d2-4d49-a46e-c592592ac7c3",
+      "l2_order_id": null,
+      "qty": 4271.8,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -1.102,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "BLURUSDT": {
+      "placed_at": 1788662085.145273,
+      "side": "LONG",
+      "sl": 0.016677796428571427,
+      "tp": 0.01715148209625664,
+      "l1_price": 0.01679621784549273,
+      "l2_price": 0.0,
+      "l1_order_id": "34c31ea9-6e86-4f73-8c5b-3ba3184384ec",
+      "l2_order_id": null,
+      "qty": 59537.0,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -0.995,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "PYTHUSDT": {
+      "placed_at": 1788667492.822691,
+      "side": "LONG",
+      "sl": 0.05405,
+      "tp": 0.05761323939569464,
+      "l1_price": 0.05494080984892366,
+      "l2_price": 0.0,
+      "l1_order_id": "4399f41a-61a7-4f44-8bca-ab18b2739e34",
+      "l2_order_id": null,
+      "qty": 18201.0,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -3.545,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "AXSUSDT": {
+      "placed_at": 1788667493.4885204,
+      "side": "LONG",
+      "sl": 0.9427728571428572,
+      "tp": 0.970589131569254,
+      "l1_price": 0.9497269257494564,
+      "l2_price": 0.0,
+      "l1_order_id": "fafb4026-89d4-47fa-9670-8bca66cd9892",
+      "l2_order_id": null,
+      "qty": 1052.9,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -0.521,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "ALGOUSDT": {
+      "placed_at": 1788669271.6944814,
+      "side": "LONG",
+      "sl": 0.09318160714285714,
+      "tp": 0.09606589285714287,
+      "l1_price": 0.09390267857142857,
+      "l2_price": 0.0,
+      "l1_order_id": "c50235c4-b17f-4c88-babb-3f64788299ed",
+      "l2_order_id": null,
+      "qty": 10649.3,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -0.22,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "ZKUSDT": {
+      "placed_at": 1788669272.0733843,
+      "side": "LONG",
+      "sl": 0.009875903571428571,
+      "tp": 0.010307646428571427,
+      "l1_price": 0.009983839285714285,
+      "l2_price": 0.0,
+      "l1_order_id": "4a9ae63b-2542-459d-abe5-bca052b59bed",
+      "l2_order_id": null,
+      "qty": 100161.8,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -0.411,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "SUIUSDT": {
+      "placed_at": 1788671076.3639033,
+      "side": "LONG",
+      "sl": 0.7905342857142857,
+      "tp": 0.807825714285714,
+      "l1_price": 0.7948571428571428,
+      "l2_price": 0.0,
+      "l1_order_id": "e4b97985-2f7b-4c40-8537-134f7cf6eb56",
+      "l2_order_id": null,
+      "qty": 1250.0,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -0.481,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "GOOGLUSDT": {
+      "placed_at": 1788671076.7625062,
+      "side": "SHORT",
+      "sl": 342.21169575,
+      "tp": 335.40151275000017,
+      "l1_price": 340.50915000000003,
+      "l2_price": 0.0,
+      "l1_order_id": "af018bf7-458a-44b3-8990-b166ef472e63",
+      "l2_order_id": null,
+      "qty": 2.93,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": 0.25,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "BNBUSDT": {
+      "placed_at": 1788671077.1676986,
+      "side": "LONG",
+      "sl": 760.0110714285714,
+      "tp": 761.1447857142861,
+      "l1_price": 760.2945000000001,
+      "l2_price": 0.0,
+      "l1_order_id": "705311a3-44b7-41a2-b3b6-a92c9cbc0155",
+      "l2_order_id": null,
+      "qty": 1.31,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -0.355,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "SPCXUSDT": {
+      "placed_at": 1788672886.4400375,
+      "side": "LONG",
+      "sl": 149.52257142857144,
+      "tp": 150.90334717801278,
+      "l1_price": 149.86776536593177,
+      "l2_price": 0.0,
+      "l1_order_id": "adca94fc-e4a0-4ba1-91b9-3d627e7fe7c4",
+      "l2_order_id": null,
+      "qty": 6.67,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -0.493,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "WLDUSDT": {
+      "placed_at": 1788674678.6544766,
+      "side": "LONG",
+      "sl": 0.3922775,
+      "tp": 0.413044863687316,
+      "l1_price": 0.397469340921829,
+      "l2_price": 0.0,
+      "l1_order_id": "3c12eb5b-26dd-47a8-af9c-2b65e6076a3b",
+      "l2_order_id": null,
+      "qty": 2515.9,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -0.633,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "MARAUSDT": {
+      "placed_at": 1788674679.0520086,
+      "side": "LONG",
+      "sl": 11.335178571428571,
+      "tp": 11.400664285714292,
+      "l1_price": 11.351550000000001,
+      "l2_price": 0.0,
+      "l1_order_id": "ac67d35a-3f4d-4f9f-b5b4-1767a81f1cf1",
+      "l2_order_id": null,
+      "qty": 88.09,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -0.25,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
     }
   },
   "filled": {
@@ -539,23 +925,23 @@
       "sltp_error": "not modified"
     },
     "ALGOUSDT": {
-      "entry": 0.09305089285714285,
+      "entry": 0.094213875,
       "side": "LONG",
-      "sl": 0.09134453571428572,
-      "tp": 0.09816996428571426,
-      "qty": 10746.8,
-      "filled_at": 1788495003.5446227,
+      "sl": 0.09372189285714286,
+      "tp": 0.09568982142857144,
+      "qty": 10614.1,
+      "filled_at": 1788668101.5787234,
       "level": "STEALTH_FILL",
       "sltp_ok": true,
       "sltp_error": ""
     },
     "PYTHUSDT": {
-      "entry": 0.056227320000000004,
+      "entry": 0.054672488464729094,
       "side": "LONG",
-      "sl": 0.05572546428571428,
-      "tp": 0.057732887142857174,
-      "qty": 88924.0,
-      "filled_at": 1788453600.7296038,
+      "sl": 0.054253857142857145,
+      "tp": 0.05592838243034494,
+      "qty": 18290.0,
+      "filled_at": 1788661502.4273062,
       "level": "STEALTH_FILL",
       "sltp_ok": true,
       "sltp_error": ""
@@ -572,15 +958,15 @@
       "sltp_error": ""
     },
     "HBARUSDT": {
-      "entry": 0.07960890000000001,
-      "side": "SHORT",
-      "sl": 0.08111564285714286,
-      "tp": 0.07508867142857147,
-      "qty": 12561.0,
-      "filled_at": 1788459000.7392287,
+      "entry": 0.08001980558329408,
+      "side": "LONG",
+      "sl": 0.07979721428571429,
+      "tp": 0.08068757947603344,
+      "qty": 2499.0,
+      "filled_at": 1788651605.395907,
       "level": "STEALTH_FILL",
-      "sltp_ok": false,
-      "sltp_error": "not modified"
+      "sltp_ok": true,
+      "sltp_error": ""
     },
     "GRTUSDT": {
       "entry": 0.01702209877777551,
@@ -638,23 +1024,23 @@
       "sltp_error": "not modified"
     },
     "BBXUSDT": {
-      "entry": 7.733285,
+      "entry": 7.738297500000001,
       "side": "SHORT",
-      "sl": 7.776103571428572,
-      "tp": 7.604829285714286,
-      "qty": 129.3,
-      "filled_at": 1788596404.2574067,
+      "sl": 7.774710714285715,
+      "tp": 7.6290578571428584,
+      "qty": 129.2,
+      "filled_at": 1788656402.570639,
       "level": "STEALTH_FILL",
       "sltp_ok": false,
       "sltp_error": "not modified"
     },
     "JUPUSDT": {
-      "entry": 0.2279392857142857,
+      "entry": 0.2206142857142857,
       "side": "LONG",
-      "sl": 0.22572357142857144,
-      "tp": 0.2345864285714285,
-      "qty": 4387.0,
-      "filled_at": 1788483302.454344,
+      "sl": 0.21698857142857145,
+      "tp": 0.2314914285714285,
+      "qty": 4532.0,
+      "filled_at": 1788633903.407709,
       "level": "STEALTH_FILL",
       "sltp_ok": false,
       "sltp_error": "not modified"
@@ -891,23 +1277,56 @@
       "sltp_error": "not modified"
     },
     "ENAUSDT": {
-      "entry": 0.16403232142857144,
+      "entry": 0.16412647948747078,
       "side": "LONG",
-      "sl": 0.16091539285714287,
-      "tp": 0.17338310714285712,
-      "qty": 6096.0,
-      "filled_at": 1788580201.4806015,
+      "sl": 0.16093110714285713,
+      "tp": 0.1737125965213117,
+      "qty": 6092.0,
+      "filled_at": 1788634504.418006,
       "level": "STEALTH_FILL",
       "sltp_ok": true,
       "sltp_error": ""
     },
     "JTOUSDT": {
-      "entry": 0.41408214285714284,
+      "entry": 0.41834642857142856,
       "side": "SHORT",
-      "sl": 0.4143692857142857,
-      "tp": 0.4132207142857142,
-      "qty": 2414.9,
-      "filled_at": 1788601802.5815117,
+      "sl": 0.42332785714285714,
+      "tp": 0.4034021428571428,
+      "qty": 2390.3,
+      "filled_at": 1788657003.0933156,
+      "level": "STEALTH_FILL",
+      "sltp_ok": false,
+      "sltp_error": "not modified"
+    },
+    "WUSDT": {
+      "entry": 0.00985565844799586,
+      "side": "LONG",
+      "sl": 0.009805989285714285,
+      "tp": 0.010004665934840588,
+      "qty": 101464.5,
+      "filled_at": 1788631805.4252973,
+      "level": "STEALTH_FILL",
+      "sltp_ok": true,
+      "sltp_error": ""
+    },
+    "SEIUSDT": {
+      "entry": 0.04777139719843707,
+      "side": "LONG",
+      "sl": 0.047463142857142857,
+      "tp": 0.04869616022231972,
+      "qty": 20933.0,
+      "filled_at": 1788631805.4252973,
+      "level": "STEALTH_FILL",
+      "sltp_ok": true,
+      "sltp_error": ""
+    },
+    "WLDUSDT": {
+      "entry": 0.395213242935914,
+      "side": "LONG",
+      "sl": 0.39241642857142855,
+      "tp": 0.40360368602937025,
+      "qty": 2530.2,
+      "filled_at": 1788668404.1203704,
       "level": "STEALTH_FILL",
       "sltp_ok": false,
       "sltp_error": "not modified"

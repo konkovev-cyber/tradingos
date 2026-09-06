@@ -1,43 +1,43 @@
 {
-  "mean_auc": 0.5902034067304541,
-  "std_auc": 0.05852685377785595,
-  "n_train": 6523,
-  "wr_pct": 26.01563697685114,
+  "mean_auc": 0.6338564550998782,
+  "std_auc": 0.0951374220555316,
+  "n_train": 5501,
+  "wr_pct": 19.34193782948555,
   "feature_importance": [
     {
       "f": "atr",
-      "imp": 13853
+      "imp": 13142
     },
     {
       "f": "rsi",
-      "imp": 9091
+      "imp": 9313
     },
     {
       "f": "adx",
-      "imp": 8439
+      "imp": 8788
     },
     {
       "f": "ema20",
-      "imp": 7749
+      "imp": 7727
     },
     {
       "f": "score",
-      "imp": 4348
+      "imp": 4075
     },
     {
       "f": "final_probability",
-      "imp": 1787
+      "imp": 1580
     },
     {
       "f": "rejected",
-      "imp": 17
+      "imp": 28
     },
     {
       "f": "confidence",
-      "imp": 10
+      "imp": 13
     }
   ],
   "n_folds": 5,
-  "generated_at": "2026-08-30T03:01:19.040422",
-  "elapsed_sec": 70.5
+  "generated_at": "2026-09-06T03:09:11.283926",
+  "elapsed_sec": 540.6
 }

@@ -1,13 +1,13 @@
 {
   "restart_counts": {
-    "run_observation": 223
+    "run_observation": 291
   },
   "alerts_sent": {
-    "run_observation": 1788611404.7892282
+    "run_observation": 1788671701.8451867
   },
   "last_fail": {
-    "run_observation": 1788613200.7998939
+    "run_observation": 1788674400.1667304
   },
-  "last_run": 1788613200.9360254,
-  "last_run_iso": "2026-09-05T13:00:00.936028+00:00"
+  "last_run": 1788674400.3111734,
+  "last_run_iso": "2026-09-06T06:00:00.311177+00:00"
 }

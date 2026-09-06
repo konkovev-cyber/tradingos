@@ -222,12 +222,17 @@ def _auto_execute_funding(sym: str, side: str, px: float, tp_v: float,
         # ГЛОБАЛЬНЫЙ НОШНЛ-КАП (2026-09-05, Class A): 1% от ДЕМО-equity $182k
         # давал $1.8k+ позиции при риске $25. Жёсткий кап из конфига
         # (max_position_size_usd=$500) — как в reality.
+        # FIX 2026-09-06 (конфликт фиксов 09-02 vs 09-05): _place_market_order
+        # трактует usd_amount как МАРЖУ (notional = usd × плечо 10x).
+        # Раньше clamp($500) ограничивал маржу → ношнл $5000. Теперь делим
+        # на плечо: notional ≤ $500 ⇔ маржа ≤ $500/lev.
         try:
             import sys as _sys
             if "/root/tradingos" not in _sys.path:
                 _sys.path.insert(0, "/root/tradingos")
-            from operations.risk_guards import clamp_notional
-            usd_amount = clamp_notional(usd_amount)
+            from operations.risk_guards import max_notional_usd
+            _lev = int(float(trading.get("max_leverage", 10) or 10))
+            usd_amount = min(usd_amount, max_notional_usd() / _lev)
         except Exception:
             pass
         if usd_amount < 5.0:

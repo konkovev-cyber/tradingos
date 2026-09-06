@@ -320,11 +320,14 @@ async def _verify_position_opened(adapter, proposal) -> tuple:
             pos = await adapter.get_positions()
             for p in pos:
                 if p.symbol == proposal.symbol and p.side == target_side and p.size > 0:
-                    return True, f"position {p.symbol} {p.side} size={p.size}"
+                    # FIX 2026-09-06: достаём avgPrice — для slippage-телеметрии
+                    # (create_order для Market возвращает avgPrice=0 до филла)
+                    avg = getattr(p, "price", None) or getattr(p, "entry_price", None) or 0
+                    return True, f"position {p.symbol} {p.side} size={p.size} avg={avg}", float(avg or 0)
         except Exception as e:
             logger.warning(f"verify poll failed: {e}")
         await asyncio.sleep(2)
-    return False, f"no open position found for {proposal.symbol} {target_side} after order send"
+    return False, f"no open position found for {proposal.symbol} {target_side} after order send", 0.0
 
 
 async def _execute_reality(proposal: TradeProposal) -> dict:
@@ -820,7 +823,7 @@ async def _execute_reality(proposal: TradeProposal) -> dict:
         # isdigit() check would reject valid fills. Verify the fill is REAL by
         # polling open positions on the exchange instead of trusting the response.
         try:
-            verify_ok, verify_msg = await _verify_position_opened(adapter, proposal)
+            verify_ok, verify_msg, verified_avg = await _verify_position_opened(adapter, proposal)
             if not verify_ok:
                 logger.error(f"❌ REALITY ORDER VERIFY FAILED (order_id={order.order_id} жив — дедуп уже записан): "
                              f"{proposal.symbol} {proposal.side} — {verify_msg}")
@@ -850,7 +853,7 @@ async def _execute_reality(proposal: TradeProposal) -> dict:
                     # Телеметрия проскальзывания ВХОДА (2026-09-05, review):
                     # fill_price (реальная) vs proposal.entry (ожидаемая сигналом)
                     "expected_entry": proposal.entry,
-                    "fill_price": order.fill_price,
+                    "fill_price": verified_avg or order.fill_price or proposal.entry,
                 }) + "\n")
         except Exception as _e:
             logger.debug(f"contour journal write failed: {_e}")

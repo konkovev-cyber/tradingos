@@ -1,0 +1,39 @@
+{
+  "WLDUSDT": {
+    "be_fired": false,
+    "partial_fired": false,
+    "tight_fired": false,
+    "mfe_peak": 0.6567164179104515,
+    "source": "MANUAL",
+    "entry_to_sl_risk": 0.006699999999999984,
+    "side": "Buy",
+    "entry": 0.3938,
+    "size": 2539.0,
+    "sl_initial": 0.3871,
+    "tp_initial": 0.4138,
+    "entry_time": 1788633584.546,
+    "peak_last_r": 0.6567164179104515,
+    "recovery_state": null,
+    "recovery_attempted": true,
+    "last_check": 1788645098.5858388,
+    "last_r": 0.5074626865671675,
+    "recovery_outcome": "RECOVERED"
+  },
+  "JUPUSDT": {
+    "be_fired": false,
+    "partial_fired": false,
+    "tight_fired": false,
+    "mfe_peak": 0.4594594594594637,
+    "entry_to_sl_risk": 0.003699999999999981,
+    "side": "Buy",
+    "entry": 0.2206,
+    "size": 4532.0,
+    "sl_initial": 0.2169,
+    "tp_initial": 0.2314,
+    "entry_time": 1788633801.243,
+    "mae_trough": -0.4864864864864879,
+    "last_check": 1788645098.264961,
+    "last_r": 0.3243243243243278,
+    "peak_last_r": 0.4594594594594637
+  }
+}

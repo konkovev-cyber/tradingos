@@ -1,12 +1,12 @@
 {
-  "utc_day": "2026-09-05",
-  "day_start_equity": 182222.84088965,
-  "realized_pnl_day": 59.744742054749686,
-  "fees_day": 0.07441494524999973,
+  "utc_day": "2026-09-06",
+  "day_start_equity": 182543.08327655,
+  "realized_pnl_day": 0.34867139099973166,
+  "fees_day": 0.039996609000000155,
   "funding_day": 0.0,
-  "last_equity": 182284.1395881,
-  "last_unrealized_pnl": 61.29869845000212,
-  "open_risk_total": 8.538681999999985,
+  "last_equity": 182718.03962717,
+  "last_unrealized_pnl": 174.956350619992,
+  "open_risk_total": 48.18639999999992,
   "missing_sl_count": 0,
   "blocked_new_entries": false,
   "block_reason": "",
@@ -17,13 +17,13 @@
   "critical_since": null,
   "critical_timeout_level": 0,
   "requires_manual_review": false,
-  "updated_at": "2026-09-04T22:32:44.847363+00:00",
+  "updated_at": "2026-09-05T23:33:47.649472+00:00",
   "_last_alert_repeat": {
     "\ud83d\udeab <b>DAILY LOSS LIMIT \u0434\u043e\u0441\u0442\u0438\u0433\u043d\u0443\u0442</b>": 1788533314.9684482
   },
   "losing_streak": 0,
   "auto_paused": false,
   "auto_pause_reason": "",
-  "available_margin": 99575.06268898,
+  "available_margin": 96184.25963173,
   "pending_limits_reserved_risk": 0.0
 }

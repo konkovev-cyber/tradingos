@@ -1,33 +1,33 @@
 {
-  "generated_at": "2026-09-05T12:38:52.303784+00:00",
+  "generated_at": "2026-09-06T05:39:00.202353+00:00",
   "window": {
     "last_24h": true,
     "all_time": true
   },
-  "proposals_total": 274,
-  "filled_total": 86,
+  "proposals_total": 277,
+  "filled_total": 87,
   "fill_rate_pct": 31.4,
   "cancelled_rate_pct": 68.6,
-  "proposals_24h": 9,
+  "proposals_24h": 3,
   "filled_24h": 1,
   "timing": {
     "signal_to_proposal_s": {
-      "n": 243,
-      "avg": 22.1,
+      "n": 246,
+      "avg": 21.9,
       "median": 1.3,
       "p95": 107.3
     },
     "proposal_to_fill_s": {
-      "n": 86,
+      "n": 87,
       "avg": 6.4,
-      "median": 5.7,
+      "median": 5.8,
       "p95": 8.0
     },
     "proposal_to_fill_s_24h": {
       "n": 1,
-      "avg": 6.6,
-      "median": 6.6,
-      "p95": 6.6
+      "avg": 7.3,
+      "median": 7.3,
+      "p95": 7.3
     },
     "fill_to_exit_hours": {
       "n": 81,
@@ -37,10 +37,10 @@
     }
   },
   "rejection_reasons_all": {
-    "max_positions": 6710,
+    "max_positions": 6715,
     "adx_low": 2208,
     "gate_OPPOSITE_IMPULSE": 503,
-    "pre_trade_filter": 133,
+    "pre_trade_filter": 172,
     "gate_LATE_MOMENTUM": 122,
     "gate_EXTENDED_ENTRY": 62,
     "no_pattern_confirmation": 20,
@@ -49,9 +49,8 @@
     "pattern_contra": 2
   },
   "rejection_reasons_24h": {
-    "pre_trade_filter": 27,
-    "exchange_min_size": 9,
-    "max_positions": 7
+    "pre_trade_filter": 42,
+    "max_positions": 5
   },
   "order_block_reason_all": {
     "MIN_NOTIONAL_BLOCK": 14
