@@ -1,0 +1,27 @@
+{
+  "ADAUSDT": {
+    "be_fired": true,
+    "partial_fired": false,
+    "tight_fired": false,
+    "mfe_peak": 0.8333333333333377,
+    "entry_to_sl_risk": 0.0041999999999999815,
+    "side": "Buy",
+    "entry": 0.2188,
+    "size": 4569.0,
+    "sl_initial": 0.22,
+    "tp_initial": 0.2262,
+    "entry_time": 1788722351.217,
+    "peak_last_r": 0.8333333333333377,
+    "recovery_state": null,
+    "recovery_attempted": true,
+    "last_check": 1788731526.7224452,
+    "last_r": 0.5952380952380983,
+    "recovery_outcome": "RECOVERED",
+    "mae_trough": -0.11904761904761968,
+    "be_fired_at": 1788729391.911899,
+    "be_sl": 0.21732864000000002,
+    "trail_last_peak_r": 0.7857142857142886,
+    "trail_last_sl": 0.22,
+    "trail_last_tp": 0.22629999999999997
+  }
+}

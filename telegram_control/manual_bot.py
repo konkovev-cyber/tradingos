@@ -73,6 +73,113 @@ def build_app() -> Application:
     app.add_handler(CommandHandler("waitreport", cmd_waitreport))
     app.add_handler(CommandHandler("pnl", cmd_pnl))
     app.add_handler(CommandHandler("readiness", cmd_readiness))
+    # ═══ ЕДИНОЕ МЕНЮ (2026-09-06): все ключевые действия кнопками ═══
+    from telegram_control.bet_wizard import _owner_quota
+    async def cmd_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
+        used, cap, free = _owner_quota()
+        kb = InlineKeyboardMarkup([
+            [InlineKeyboardButton("🎯 Новая ставка", callback_data="MENU:bet"),
+             InlineKeyboardButton("📈 Сигналы", callback_data="MENU:signals")],
+            [InlineKeyboardButton("📊 PnL", callback_data="MENU:pnl"),
+             InlineKeyboardButton("🚦 Readiness", callback_data="MENU:readiness")],
+            [InlineKeyboardButton("⏳ Лимитки/ожидание", callback_data="MENU:limits"),
+             InlineKeyboardButton("💰 Позиции", callback_data="MENU:positions")],
+            [InlineKeyboardButton("⚙️ Настройки", callback_data="MENU:settings"),
+             InlineKeyboardButton("🛑 ПАНИКА (закрыть всё)", callback_data="MENU:panic")],
+        ])
+        await update.effective_message.reply_text(
+            f"🧭 <b>МЕНЮ TradingOS</b>\n"
+            f"🎯 Квота ручных: ${used:,.0f} / ${cap:,.0f} (свободно ${free:,.0f})\n\n"
+            f"Выбери действие:",
+            parse_mode="HTML", reply_markup=kb)
+
+    async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+        q = update.callback_query
+        await q.answer()
+        data = (q.data or "").replace("MENU:", "")
+        route = {
+            "bet": cmd_bet, "signals": cmd_signals, "pnl": cmd_pnl,
+            "readiness": cmd_readiness, "limits": cmd_limits, "settings": cmd_settings,
+        }
+        if data in ("positions", "panic"):
+            # cmd_status/cmd_panic пишут в update.message — из callback его нет,
+            # подменяем контекст: сначала отвечаем на кнопку, потом дергаем логику
+            q_msg = q.message
+            class _U:  # лёгкая обёртка: update.message = чат сообщения кнопки
+                pass
+            _u = _U()
+            _u.effective_message = q_msg
+            _u.effective_user = update.effective_user
+            _u.effective_chat = update.effective_chat
+            try:
+                if data == "positions":
+                    from telegram_control.bot import cmd_status
+                    await cmd_status(_u, context)
+                else:
+                    from telegram_control.bot import cmd_panic
+                    await cmd_panic(_u, context)
+            except AttributeError:
+                await q_msg.reply_text("❌ Недоступно из меню — используй команду в чате.")
+            return
+        fn = route.get(data)
+        if fn:
+            await fn(update, context)
+
+    app.add_handler(CommandHandler("menu", cmd_menu))
+    app.add_handler(CommandHandler("start", cmd_menu))
+    app.add_handler(CallbackQueryHandler(menu_callback, pattern=r"^MENU:"))
+    # Отмена owner-лимиток из /limits (2026-09-06)
+    async def _ownc_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+        import json as _j
+        from pathlib import Path as _P
+        import httpx as _hx
+        q = update.callback_query
+        await q.answer()
+        parts = (q.data or "").split(":")
+        action = parts[1] if len(parts) > 1 else ""
+        STATE_O = _P("/root/tradingos/operations/auto_limit_state.json")
+        st = _j.loads(STATE_O.read_text()) if STATE_O.exists() else {"active_limits": {}}
+        env = {}
+        for line in open("/root/mt5_trading_bot/manual_bot.env"):
+            if "=" in line and not line.strip().startswith("#"):
+                k, v = line.strip().split("=", 1); env[k] = v
+        ak, as_ = env.get("BYBIT_API_KEY",""), env.get("BYBIT_API_SECRET","")
+        # Bybit creds может лежать в execution/.env
+        if not ak:
+            for line in open("/root/tradingos/execution/.env"):
+                if "=" in line and not line.strip().startswith("#"):
+                    k, v = line.strip().split("=", 1); env.setdefault(k, v)
+            ak, as_ = env.get("BYBIT_API_KEY",""), env.get("BYBIT_API_SECRET","")
+        def _cancel(sym, oid):
+            import hashlib, hmac, urllib.parse
+            body = urllib.parse.urlencode({"category":"linear","symbol":sym,"orderId":str(oid)})
+            ts = str(int(time.time()*1000))
+            sign = hmac.new(as_.encode(), f"{ts}{ak}5000{body}".encode(), hashlib.sha256).hexdigest()
+            r = _hx.post("https://api.bybit.com/v5/order/cancel", content=body,
+                         headers={"X-BAPI-API-KEY": ak, "X-BAPI-TIMESTAMP": ts,
+                                  "X-BAPI-RECV-WINDOW": "5000", "X-BAPI-SIGN": sign,
+                                  "Content-Type": "application/x-www-form-urlencoded"}, timeout=10)
+            return r.json().get("retCode") == 0 or "not exists" in str(r.json().get("retMsg",""))
+        if action == "cancel" and len(parts) > 2:
+            sym = parts[2]
+            lim = st.get("active_limits", {}).get(sym, {})
+            ok_n = 0
+            for k in ("l1_order_id","l2_order_id"):
+                if lim.get(k):
+                    ok_n += 1 if _cancel(sym, lim[k]) else 0
+            st.get("active_limits", {}).pop(sym, None)
+            STATE_O.write_text(_j.dumps(st, indent=1, ensure_ascii=False))
+            await q.edit_message_text(f"🗑 {sym}: отменено ордеров {ok_n}")
+        elif action == "cancel_all":
+            n = 0
+            for sym, lim in list(st.get("active_limits", {}).items()):
+                if not lim.get("owner_bet"): continue
+                for k in ("l1_order_id","l2_order_id"):
+                    if lim.get(k): n += 1 if _cancel(sym, lim[k]) else 0
+                st.get("active_limits", {}).pop(sym, None)
+            STATE_O.write_text(_j.dumps(st, indent=1, ensure_ascii=False))
+            await q.edit_message_text(f"🛑 Отменено ВСЕ owner-лимиток ({n} ордеров)")
+    app.add_handler(CallbackQueryHandler(_ownc_callback, pattern=r"^OWNC:"))
     app.add_handler(CommandHandler("bx", cmd_bx_start))
     # Настройки системы (2026-09-01)
     from telegram_control.settings import (

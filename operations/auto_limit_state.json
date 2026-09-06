@@ -1,29 +1,5 @@
 {
   "active_limits": {
-    "TQQQUSDT": {
-      "placed_at": 1788637777.2720451,
-      "side": "LONG",
-      "sl": 72.26671428571429,
-      "tp": 72.8103961737532,
-      "l1_price": 72.40263475772402,
-      "l2_price": 0.0,
-      "l1_order_id": "f9ad44f0-73a1-46ef-85c0-d02b46210870",
-      "l2_order_id": null,
-      "qty": 69.05,
-      "owner_bet": true,
-      "owner_ladder": [
-        {
-          "level": 1,
-          "price": 72.40263475772402,
-          "qty": 69.05,
-          "order_id": "f9ad44f0-73a1-46ef-85c0-d02b46210870"
-        }
-      ],
-      "n_levels": 1,
-      "rr_l1": 3.0,
-      "rr_l2": 0.0,
-      "note": "OWNER BET via /bet wizard: $500 margin 10x, 1-leg ladder"
-    },
     "ONDOUSDT": {
       "placed_at": 1788672680.8024044,
       "side": "LONG",
@@ -71,25 +47,6 @@
       "rr_l1": 3.0,
       "rr_l2": 0.0,
       "note": "OWNER BET via /bet wizard: $9,128 margin 10x, 1-leg ladder"
-    },
-    "WIFUSDT": {
-      "placed_at": 1788638682.530277,
-      "side": "LONG",
-      "sl": 0.2093360714285714,
-      "tp": 0.2184266851521552,
-      "l1_price": 0.21160872485946736,
-      "l2_price": 0.0,
-      "l1_order_id": "06190bca-5280-4231-85a3-ffd97cc49eac",
-      "l2_order_id": null,
-      "qty": 4725.0,
-      "rr_l1": 3.0,
-      "owner_bet": true,
-      "reversal": false,
-      "place_meta": {
-        "gap_pct": -1.071,
-        "quality": null
-      },
-      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
     },
     "SEIUSDT": {
       "placed_at": 1788653078.3331828,
@@ -438,43 +395,29 @@
       },
       "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
     },
-    "LINKUSDT": {
-      "placed_at": 1788696277.2989533,
-      "side": "LONG",
-      "sl": 12.091421428571428,
-      "tp": 12.336448741052413,
-      "l1_price": 12.152678256691674,
-      "l2_price": 0.0,
-      "l1_order_id": "725c6a0a-6544-4b06-9773-c73f750d9b88",
-      "l2_order_id": null,
-      "qty": 82.2,
-      "rr_l1": 3.0,
-      "owner_bet": true,
-      "reversal": false,
-      "place_meta": {
-        "gap_pct": -0.859,
-        "quality": null
-      },
-      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
-    },
     "VETUSDT": {
-      "placed_at": 1788699862.9499192,
+      "placed_at": 1788724927.0732627,
       "side": "LONG",
-      "sl": 0.006898925,
-      "tp": 0.007176038373985158,
-      "l1_price": 0.00696820334349629,
+      "sl": 0.006899289285714286,
+      "tp": 0.0073227134158526256,
+      "l1_price": 0.007005145318248871,
       "l2_price": 0.0,
-      "l1_order_id": "715f93f4-aa11-4e0e-9670-9369e7e7566a",
+      "l1_order_id": "9516920e-13f3-4b5a-8fed-fd889e965e74",
       "l2_order_id": null,
-      "qty": 143509.0,
-      "rr_l1": 3.0,
+      "qty": 713761.0,
       "owner_bet": true,
-      "reversal": false,
-      "place_meta": {
-        "gap_pct": -0.935,
-        "quality": null
-      },
-      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+      "owner_ladder": [
+        {
+          "level": 1,
+          "price": 0.007005145318248871,
+          "qty": 713761.0,
+          "order_id": "9516920e-13f3-4b5a-8fed-fd889e965e74"
+        }
+      ],
+      "n_levels": 1,
+      "rr_l1": 3.0,
+      "rr_l2": 0.0,
+      "note": "OWNER BET via /bet wizard: $7,299 margin 20x, 1-leg ladder"
     },
     "ARBUSDT": {
       "placed_at": 1788703482.2050319,
@@ -662,6 +605,49 @@
       "reversal": false,
       "place_meta": {
         "gap_pct": -0.224,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "ZKUSDT": {
+      "placed_at": 1788728611.56194,
+      "side": "LONG",
+      "sl": 0.010649796428571428,
+      "tp": 0.011112428167511543,
+      "l1_price": 0.010765454363306457,
+      "l2_price": 0.0,
+      "l1_order_id": "73e56981-e0fc-4be3-b5ea-eafe43f36fa5",
+      "l2_order_id": null,
+      "qty": 464448.5,
+      "owner_bet": true,
+      "owner_ladder": [
+        {
+          "level": 1,
+          "price": 0.010765454363306457,
+          "qty": 464448.5,
+          "order_id": "73e56981-e0fc-4be3-b5ea-eafe43f36fa5"
+        }
+      ],
+      "n_levels": 1,
+      "rr_l1": 3.0,
+      "rr_l2": 0.0,
+      "note": "OWNER BET via /bet wizard: $500 margin 10x, 1-leg ladder"
+    },
+    "XRPUSDT": {
+      "placed_at": 1788728673.677442,
+      "side": "LONG",
+      "sl": 1.394115357142857,
+      "tp": 1.4793303513894236,
+      "l1_price": 1.4154191057044987,
+      "l2_price": 0.0,
+      "l1_order_id": "23c7acab-2430-4bd5-ad27-63fbab0163b2",
+      "l2_order_id": null,
+      "qty": 706.5,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -0.463,
         "quality": null
       },
       "note": "AUTO-PORTFOLIO: $1,000 margin 10x"

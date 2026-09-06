@@ -1188,5 +1188,25 @@
   "owner_bet": true,
   "hours_to_outcome": 0.26776864568392433,
   "quality": null
+ },
+ {
+  "sym": "TQQQUSDT",
+  "ts": 1788724215.1642745,
+  "outcome": "EXPIRED",
+  "side": "LONG",
+  "gap_pct": null,
+  "owner_bet": true,
+  "hours_to_outcome": 24.010525619784993,
+  "quality": null
+ },
+ {
+  "sym": "WIFUSDT",
+  "ts": 1788725115.1957552,
+  "outcome": "EXPIRED",
+  "side": "LONG",
+  "gap_pct": -1.071,
+  "owner_bet": true,
+  "hours_to_outcome": 24.00907374461492,
+  "quality": null
  }
 ]

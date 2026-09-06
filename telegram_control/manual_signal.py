@@ -475,13 +475,44 @@ async def cmd_waitreport(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def cmd_limits(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Список активных WAIT-лимиток + кнопки Изменить/Удалить."""
+    """Список активных WAIT-лимиток + owner-лимиток /bet + кнопки отмены."""
+    # ─── Owner-лимитки (/bet) — управляемая часть (2026-09-06) ───
+    from pathlib import Path as _P
+    import json as _json_mod
+    try:
+        _als = _json_mod.loads(_P("/root/tradingos/operations/auto_limit_state.json").read_text())
+    except Exception:
+        _als = {}
+    owner = {s: l for s, l in _als.get("active_limits", {}).items() if l.get("owner_bet")}
+    if owner:
+        from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+        used, cap, free = 0.0, 500.0, 0.0
+        import math as _m
+        lines_o = ["🎯 <b>Owner-лимитки /bet</b> (экспирация 24ч)\n"]
+        kb_o = []
+        for s, l in sorted(owner.items(), key=lambda x: x[1].get("placed_at", 0)):
+            age_h = (time.time() - l.get("placed_at", time.time())) / 3600
+            risk = abs(l.get("l1_price", 0) - l.get("sl", 0)) * float(l.get("qty", 0) or 0)
+            used += risk
+            lines_o.append(
+                f"  • {s} {l.get('side')} @ {l.get('l1_price'):.5g} × {l.get('qty'):.4g} "
+                f"| риск ${risk:,.0f} | {age_h:.1f}ч")
+            kb_o.append([InlineKeyboardButton(
+                f"🗑 Отменить {s}", callback_data=f"OWNC:cancel:{s}")])
+        kb_o.append([InlineKeyboardButton("🛑 Отменить ВСЕ owner-лимитки",
+                                          callback_data="OWNC:cancel_all")])
+        used, cap = min(used, 500.0), 500.0
+        lines_o.append(f"\nКвота: ${used:,.0f} / ${cap:,.0f} (свободно ${max(0, cap-used):,.0f})")
+        await update.effective_message.reply_text(
+            "\n".join(lines_o), parse_mode="HTML",
+            reply_markup=InlineKeyboardMarkup(kb_o))
     st = _load_wait_limit_state()
     active = [s for s, r in st.items() if r.get("status") == "PLACED"]
     if not active:
-        await update.effective_message.reply_text(
-            "📭 Активных WAIT-лимиток нет.\n"
-            "Ставятся через кнопку «📌 Поставить LIMIT» на WAIT-карточке.")
+        if not owner:
+            await update.effective_message.reply_text(
+                "📭 Активных WAIT-лимиток нет.\n"
+                "Ставятся через кнопку «📌 Поставить LIMIT» на WAIT-карточке.")
         return
     kb_rows = []
     lines = ["📌 <b>Активные WAIT-лимитки</b>\n"]
