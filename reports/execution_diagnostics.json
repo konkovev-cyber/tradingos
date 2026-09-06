@@ -1,19 +1,19 @@
 {
-  "generated_at": "2026-09-06T17:39:02.214455+00:00",
+  "generated_at": "2026-09-06T19:08:57.794759+00:00",
   "window": {
     "last_24h": true,
     "all_time": true
   },
-  "proposals_total": 291,
+  "proposals_total": 292,
   "filled_total": 88,
-  "fill_rate_pct": 30.2,
-  "cancelled_rate_pct": 69.8,
-  "proposals_24h": 17,
+  "fill_rate_pct": 30.1,
+  "cancelled_rate_pct": 69.9,
+  "proposals_24h": 18,
   "filled_24h": 2,
   "timing": {
     "signal_to_proposal_s": {
-      "n": 260,
-      "avg": 21.3,
+      "n": 261,
+      "avg": 21.2,
       "median": 1.4,
       "p95": 102.3
     },

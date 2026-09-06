@@ -1128,5 +1128,65 @@
   "owner_bet": true,
   "hours_to_outcome": 24.07353677093983,
   "quality": null
+ },
+ {
+  "sym": "ETHUSDT",
+  "ts": 1788717915.1489887,
+  "outcome": "EXPIRED",
+  "side": "LONG",
+  "gap_pct": -0.713,
+  "owner_bet": true,
+  "hours_to_outcome": 24.006083777215746,
+  "quality": null
+ },
+ {
+  "sym": "CRVUSDT",
+  "ts": 1788717915.1506596,
+  "outcome": "EXPIRED",
+  "side": "LONG",
+  "gap_pct": -1.696,
+  "owner_bet": true,
+  "hours_to_outcome": 24.005990049441657,
+  "quality": null
+ },
+ {
+  "sym": "XRPUSDT",
+  "ts": 1788719714.9581354,
+  "outcome": "EXPIRED",
+  "side": "LONG",
+  "gap_pct": -0.682,
+  "owner_bet": true,
+  "hours_to_outcome": 24.008058523535727,
+  "quality": null
+ },
+ {
+  "sym": "AAVEUSDT",
+  "ts": 1788721516.1773705,
+  "outcome": "EXPIRED",
+  "side": "LONG",
+  "gap_pct": -1.977,
+  "owner_bet": true,
+  "hours_to_outcome": 24.01042664839162,
+  "quality": null
+ },
+ {
+  "sym": "ICPUSDT",
+  "ts": 1788721516.1789746,
+  "outcome": "EXPIRED",
+  "side": "LONG",
+  "gap_pct": -1.117,
+  "owner_bet": true,
+  "hours_to_outcome": 24.010332934856415,
+  "quality": null
+ },
+ {
+  "sym": "ADAUSDT",
+  "ts": 1788722439.865927,
+  "outcome": "FILLED",
+  "side": "LONG",
+  "gap_pct": -0.433,
+  "owner_bet": true,
+  "hours_to_outcome": 0.26776864568392433,
+  "quality": null
  }
 ]

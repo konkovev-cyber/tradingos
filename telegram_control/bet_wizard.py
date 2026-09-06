@@ -32,7 +32,21 @@ DEF_RR = 3.0
 MAX_NOTIONAL_USD = 5000.0  # hard cap: позиция не больше $5k независимо от плеча
 MAX_EQUITY_PCT = 0.05    # 5% equity — soft warning
 MAX_BET_USD = 2000.0      # маржа не больше $2k
-OWNER_RISK_CAP = 300.0    # суммарный риск всех активных owner-ставок (2026-09-06)
+
+def _owner_quota() -> tuple[float, float, float]:
+    """(использовано, кап, свободно) — суммарный риск активных owner-лимиток."""
+    try:
+        st = json.loads(STATE.read_text()) if STATE.exists() else {"active_limits": {}}
+        used = 0.0
+        for _s, _l in st.get("active_limits", {}).items():
+            if _l.get("owner_bet") and _l.get("sl") and _l.get("l1_price"):
+                used += abs(_l["l1_price"] - _l["sl"]) * float(_l.get("qty", 0) or 0)
+        return used, OWNER_RISK_CAP, max(0.0, OWNER_RISK_CAP - used)
+    except Exception:
+        return 0.0, OWNER_RISK_CAP, OWNER_RISK_CAP
+
+
+OWNER_RISK_CAP = 500.0    # суммарный риск всех активных owner-ставок (2026-09-06, поднято с 300 по решению владельца)
 
 
 def _esc(s) -> str:
@@ -348,10 +362,20 @@ async def _ask_bet_usd(update: Update, uid: int):
          InlineKeyboardButton("20% депо", callback_data="BWS:bet:pct20")],
         [InlineKeyboardButton("❌ Отмена", callback_data="BWS:cancel")],
     ])
+    # Квота ручных ставок (2026-09-06): показываем свободный остаток и рекомендуем
+    _used, _cap, _free = _owner_quota()
+    _suggest = min(_free, DEF_BET_USD) if _free < DEF_BET_USD else DEF_BET_USD
+    _quota_warn = ""
+    if _free < 50:
+        _quota_warn = ("\n🛑 <b>Квота почти исчерпана:</b> свободно ${:,.0f}.\n"
+                       "<i>Освободи лимитки (/betcancel) или жди экспирации.</i>\n").format(_free)
     await update.effective_message.reply_text(
         f"🎲 Шаг 3/5 — Сумма МАРЖИ?\n\n"
         f"Equity: <code>${_get_equity():,.0f}</code>\n"
         f"Текущая: <code>${f.get('bet_usd', DEF_BET_USD):,.0f}</code> (~{bet_pct:.1f}% депо)\n"
+        f"🎯 Квота ручных: <code>${_used:,.0f} / ${_cap:,.0f}</code> — <b>свободно ${_free:,.0f}</b>\n"
+        f"💡 <b>Рекомендую поставить: ${_suggest:,.0f}</b>\n"
+        f"{_quota_warn}"
         f"<i>Ноушнл = маржа × плечо</i>",
         parse_mode="HTML", reply_markup=kb)
 
@@ -879,7 +903,7 @@ async def _place_bet(update: Update, uid: int):
     # OWNER-КВОТА (2026-09-06): суммарный риск всех активных owner-ставок ≤ $300.
     try:
         import json as _json
-        _st = _json.loads(STATE.read_text()) if STATE.exists() else {"active_limits": {}}
+        _st = json.loads(STATE.read_text()) if STATE.exists() else {"active_limits": {}}
         _owner_risk = 0.0
         for _s, _l in _st.get("active_limits", {}).items():
             if _l.get("owner_bet") and _l.get("sl") and _l.get("l1_price"):

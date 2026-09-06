@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-09-06T17:29:14.278065+00:00",
+  "generated_at": "2026-09-06T18:53:03.375406+00:00",
   "universe_class": "crypto_perp",
   "risk_per_trade_usd": 50.0,
-  "equity_usd": 182357.44698092,
+  "equity_usd": 182396.05265253,
   "atr_proxy_pct": 2.0,
   "notional_cap_pct": 20.0,
   "counters": {
@@ -16,42 +16,42 @@
     "skipped_blocked_type": 5
   },
   "funnel_1h": {
-    "checks": 2077,
-    "signals": 16,
-    "prob_ge_0.55": 16,
-    "quality_ok": 16,
-    "passed_adx": 10,
-    "tradeable_qty": 10,
+    "checks": 2063,
+    "signals": 6,
+    "prob_ge_0.55": 6,
+    "quality_ok": 6,
+    "passed_adx": 6,
+    "tradeable_qty": 6,
     "proposal": 1,
     "opened": 0
   },
   "funnel_24h": {
-    "checks": 49162,
-    "signals": 229,
-    "prob_ge_0.55": 229,
-    "quality_ok": 229,
-    "passed_adx": 184,
-    "tradeable_qty": 184,
-    "proposal": 19,
+    "checks": 49161,
+    "signals": 235,
+    "prob_ge_0.55": 235,
+    "quality_ok": 235,
+    "passed_adx": 190,
+    "tradeable_qty": 190,
+    "proposal": 20,
     "opened": 2
   },
   "top_tradable": [
     {
       "symbol": "PUMPFUNUSDT",
-      "price": 0.003803,
+      "price": 0.003866,
       "atr_source": "proxy_price_2pct",
       "raw_qty": 250000.0,
       "tradeable_qty": 250000.0,
-      "required_qty": 1400.0,
+      "required_qty": 1300.0,
       "min_order_qty": 100.0,
       "qty_step": 100.0,
       "min_notional": 5.0,
-      "risk_required_usd": 0.21,
-      "volume_24h": 22080719600.0
+      "risk_required_usd": 0.2,
+      "volume_24h": 21009766900.0
     },
     {
       "symbol": "1000PEPEUSDT",
-      "price": 0.003585,
+      "price": 0.003597,
       "atr_source": "proxy_price_2pct",
       "raw_qty": 250000.0,
       "tradeable_qty": 250000.0,
@@ -60,11 +60,11 @@
       "qty_step": 100.0,
       "min_notional": 5.0,
       "risk_required_usd": 0.2,
-      "volume_24h": 16559057000.0
+      "volume_24h": 14143400000.0
     },
     {
       "symbol": "BOMEUSDT",
-      "price": 0.0009039,
+      "price": 0.0009032,
       "atr_source": "proxy_price_2pct",
       "raw_qty": 250000.0,
       "tradeable_qty": 250000.0,
@@ -73,24 +73,24 @@
       "qty_step": 100.0,
       "min_notional": 5.0,
       "risk_required_usd": 0.2,
-      "volume_24h": 10531649300.0
+      "volume_24h": 10471376000.0
     },
     {
       "symbol": "IOSTUSDT",
-      "price": 0.0007235,
+      "price": 0.0007243,
       "atr_source": "proxy_price_2pct",
       "raw_qty": 250000.0,
       "tradeable_qty": 250000.0,
-      "required_qty": 6911.0,
+      "required_qty": 6904.0,
       "min_order_qty": 1.0,
       "qty_step": 1.0,
       "min_notional": 5.0,
       "risk_required_usd": 0.2,
-      "volume_24h": 6331133383.0
+      "volume_24h": 6276822038.0
     },
     {
       "symbol": "1000BONKUSDT",
-      "price": 0.003469,
+      "price": 0.003488,
       "atr_source": "proxy_price_2pct",
       "raw_qty": 250000.0,
       "tradeable_qty": 250000.0,
@@ -99,76 +99,24 @@
       "qty_step": 100.0,
       "min_notional": 5.0,
       "risk_required_usd": 0.21,
-      "volume_24h": 4806199600.0
+      "volume_24h": 4866885400.0
     },
     {
       "symbol": "AKEUSDT",
-      "price": 0.014024,
+      "price": 0.015049,
       "atr_source": "store_atr14",
-      "raw_qty": 23544.2863,
-      "tradeable_qty": 23500.0,
+      "raw_qty": 23038.5244,
+      "tradeable_qty": 23000.0,
       "required_qty": 400.0,
       "min_order_qty": 100.0,
       "qty_step": 100.0,
       "min_notional": 5.0,
-      "risk_required_usd": 0.85,
-      "volume_24h": 3240149200.0
-    },
-    {
-      "symbol": "DOGEUSDT",
-      "price": 0.08903,
-      "atr_source": "store_atr14",
-      "raw_qty": 22730.4301,
-      "tradeable_qty": 22730.0,
-      "required_qty": 57.0,
-      "min_order_qty": 1.0,
-      "qty_step": 1.0,
-      "min_notional": 5.0,
-      "risk_required_usd": 0.13,
-      "volume_24h": 2471557873.0
+      "risk_required_usd": 0.87,
+      "volume_24h": 2899625000.0
     },
     {
       "symbol": "NOMUSDT",
-      "price": 0.001822,
-      "atr_source": "proxy_price_2pct",
-      "raw_qty": 250000.0,
-      "tradeable_qty": 250000.0,
-      "required_qty": 2750.0,
-      "min_order_qty": 10.0,
-      "qty_step": 10.0,
-      "min_notional": 5.0,
-      "risk_required_usd": 0.2,
-      "volume_24h": 2272005320.0
-    },
-    {
-      "symbol": "MEWUSDT",
-      "price": 0.0004398,
-      "atr_source": "proxy_price_2pct",
-      "raw_qty": 250000.0,
-      "tradeable_qty": 250000.0,
-      "required_qty": 11400.0,
-      "min_order_qty": 100.0,
-      "qty_step": 100.0,
-      "min_notional": 5.0,
-      "risk_required_usd": 0.2,
-      "volume_24h": 2192823700.0
-    },
-    {
-      "symbol": "PENGUUSDT",
-      "price": 0.008635,
-      "atr_source": "store_atr14",
-      "raw_qty": 177574.9011,
-      "tradeable_qty": 177570.0,
-      "required_qty": 580.0,
-      "min_order_qty": 10.0,
-      "qty_step": 10.0,
-      "min_notional": 5.0,
-      "risk_required_usd": 0.16,
-      "volume_24h": 1875279200.0
-    },
-    {
-      "symbol": "DOODUSDT",
-      "price": 0.001797,
+      "price": 0.001798,
       "atr_source": "proxy_price_2pct",
       "raw_qty": 250000.0,
       "tradeable_qty": 250000.0,
@@ -177,11 +125,50 @@
       "qty_step": 10.0,
       "min_notional": 5.0,
       "risk_required_usd": 0.2,
-      "volume_24h": 1846202750.0
+      "volume_24h": 2237981230.0
+    },
+    {
+      "symbol": "DOODUSDT",
+      "price": 0.001882,
+      "atr_source": "proxy_price_2pct",
+      "raw_qty": 250000.0,
+      "tradeable_qty": 250000.0,
+      "required_qty": 2660.0,
+      "min_order_qty": 10.0,
+      "qty_step": 10.0,
+      "min_notional": 5.0,
+      "risk_required_usd": 0.2,
+      "volume_24h": 2135215140.0
+    },
+    {
+      "symbol": "MEWUSDT",
+      "price": 0.0004389,
+      "atr_source": "proxy_price_2pct",
+      "raw_qty": 250000.0,
+      "tradeable_qty": 250000.0,
+      "required_qty": 11400.0,
+      "min_order_qty": 100.0,
+      "qty_step": 100.0,
+      "min_notional": 5.0,
+      "risk_required_usd": 0.2,
+      "volume_24h": 2015286400.0
+    },
+    {
+      "symbol": "PENGUUSDT",
+      "price": 0.008692,
+      "atr_source": "store_atr14",
+      "raw_qty": 183180.5424,
+      "tradeable_qty": 183180.0,
+      "required_qty": 580.0,
+      "min_order_qty": 10.0,
+      "qty_step": 10.0,
+      "min_notional": 5.0,
+      "risk_required_usd": 0.16,
+      "volume_24h": 1839221620.0
     },
     {
       "symbol": "TUSDT",
-      "price": 0.004534,
+      "price": 0.004513,
       "atr_source": "store_atr14",
       "raw_qty": 250000.0,
       "tradeable_qty": 250000.0,
@@ -190,49 +177,62 @@
       "qty_step": 10.0,
       "min_notional": 5.0,
       "risk_required_usd": 0.17,
-      "volume_24h": 1772509230.0
+      "volume_24h": 1788863290.0
     },
     {
-      "symbol": "ARBUSDT",
-      "price": 0.18481,
+      "symbol": "DOGEUSDT",
+      "price": 0.08939,
       "atr_source": "store_atr14",
-      "raw_qty": 3077.5648,
-      "tradeable_qty": 3077.5,
-      "required_qty": 27.1,
-      "min_order_qty": 0.1,
-      "qty_step": 0.1,
+      "raw_qty": 23573.1978,
+      "tradeable_qty": 23573.0,
+      "required_qty": 56.0,
+      "min_order_qty": 1.0,
+      "qty_step": 1.0,
       "min_notional": 5.0,
-      "risk_required_usd": 0.44,
-      "volume_24h": 1723748021.0
+      "risk_required_usd": 0.12,
+      "volume_24h": 1769101204.0
     },
     {
       "symbol": "GALAUSDT",
-      "price": 0.001875,
+      "price": 0.00189,
       "atr_source": "proxy_price_2pct",
       "raw_qty": 250000.0,
       "tradeable_qty": 250000.0,
-      "required_qty": 2667.0,
+      "required_qty": 2646.0,
       "min_order_qty": 1.0,
       "qty_step": 1.0,
       "min_notional": 5.0,
       "risk_required_usd": 0.2,
-      "volume_24h": 1712765277.0
+      "volume_24h": 1734772700.0
     },
     {
-      "symbol": "HMSTRUSDT",
-      "price": 0.0001764,
+      "symbol": "ARBUSDT",
+      "price": 0.18549,
+      "atr_source": "store_atr14",
+      "raw_qty": 3123.9576,
+      "tradeable_qty": 3123.9,
+      "required_qty": 27.0,
+      "min_order_qty": 0.1,
+      "qty_step": 0.1,
+      "min_notional": 5.0,
+      "risk_required_usd": 0.43,
+      "volume_24h": 1708341586.0
+    },
+    {
+      "symbol": "BLASTUSDT",
+      "price": 0.0002948,
       "atr_source": "proxy_price_2pct",
       "raw_qty": 250000.0,
       "tradeable_qty": 250000.0,
-      "required_qty": 28350.0,
+      "required_qty": 16970.0,
       "min_order_qty": 10.0,
       "qty_step": 10.0,
       "min_notional": 5.0,
       "risk_required_usd": 0.2,
-      "volume_24h": 1693604140.0
+      "volume_24h": 1631636140.0
     }
   ],
   "top_blocked_by_min_qty": [],
   "top_blocked_by_notional_cap": [],
-  "scan_seconds": 33.82
+  "scan_seconds": 34.89
 }

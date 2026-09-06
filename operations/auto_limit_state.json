@@ -72,101 +72,6 @@
       "rr_l2": 0.0,
       "note": "OWNER BET via /bet wizard: $9,128 margin 10x, 1-leg ladder"
     },
-    "ETHUSDT": {
-      "placed_at": 1788631493.2473938,
-      "side": "LONG",
-      "sl": 2447.234214285714,
-      "tp": 2501.453493602339,
-      "l1_price": 2460.7890341148704,
-      "l2_price": 0.0,
-      "l1_order_id": "a331689d-69d6-4a89-9c01-b5fb67d90d44",
-      "l2_order_id": null,
-      "qty": 0.4,
-      "rr_l1": 3.0,
-      "owner_bet": true,
-      "reversal": false,
-      "place_meta": {
-        "gap_pct": -0.713,
-        "quality": null
-      },
-      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
-    },
-    "CRVUSDT": {
-      "placed_at": 1788631493.5864835,
-      "side": "LONG",
-      "sl": 0.35463464285714286,
-      "tp": 0.37841454080374326,
-      "l1_price": 0.36057961734379296,
-      "l2_price": 0.0,
-      "l1_order_id": "09b704cb-374f-4b22-82c2-f8b3030d6760",
-      "l2_order_id": null,
-      "qty": 2773.3,
-      "rr_l1": 3.0,
-      "owner_bet": true,
-      "reversal": false,
-      "place_meta": {
-        "gap_pct": -1.696,
-        "quality": null
-      },
-      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
-    },
-    "XRPUSDT": {
-      "placed_at": 1788633285.947453,
-      "side": "LONG",
-      "sl": 1.3981792857142856,
-      "tp": 1.4471303000051605,
-      "l1_price": 1.4104170392870043,
-      "l2_price": 0.0,
-      "l1_order_id": "90eaea99-9ada-4a16-a597-66c1b7eeb870",
-      "l2_order_id": null,
-      "qty": 709.0,
-      "rr_l1": 3.0,
-      "owner_bet": true,
-      "reversal": false,
-      "place_meta": {
-        "gap_pct": -0.682,
-        "quality": null
-      },
-      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
-    },
-    "AAVEUSDT": {
-      "placed_at": 1788635078.6414385,
-      "side": "LONG",
-      "sl": 128.7980357142857,
-      "tp": 138.65581090698097,
-      "l1_price": 131.26247951245952,
-      "l2_price": 0.0,
-      "l1_order_id": "b2991b5c-9ec1-4485-b0fe-a339dfdf181c",
-      "l2_order_id": null,
-      "qty": 7.61,
-      "rr_l1": 3.0,
-      "owner_bet": true,
-      "reversal": false,
-      "place_meta": {
-        "gap_pct": -1.977,
-        "quality": null
-      },
-      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
-    },
-    "ICPUSDT": {
-      "placed_at": 1788635078.9804113,
-      "side": "LONG",
-      "sl": 2.58305,
-      "tp": 2.64546637075377,
-      "l1_price": 2.5986540926884425,
-      "l2_price": 0.0,
-      "l1_order_id": "abffc960-b0da-425b-af2b-a2f654a7aded",
-      "l2_order_id": null,
-      "qty": 384.8,
-      "rr_l1": 3.0,
-      "owner_bet": true,
-      "reversal": false,
-      "place_meta": {
-        "gap_pct": -1.117,
-        "quality": null
-      },
-      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
-    },
     "WIFUSDT": {
       "placed_at": 1788638682.530277,
       "side": "LONG",
@@ -722,6 +627,44 @@
         "quality": null
       },
       "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "COINUSDT": {
+      "placed_at": 1788721476.2201858,
+      "side": "LONG",
+      "sl": 184.57817857142857,
+      "tp": 188.64486428571433,
+      "l1_price": 185.59485,
+      "l2_price": 0.0,
+      "l1_order_id": "b29f1023-8231-44fb-94b3-b13cb8e4364f",
+      "l2_order_id": null,
+      "qty": 5.38,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -0.25,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "BTCUSDT": {
+      "placed_at": 1788721476.6054513,
+      "side": "LONG",
+      "sl": 79096.1732142857,
+      "tp": 81447.04435714289,
+      "l1_price": 79683.891,
+      "l2_price": 0.0,
+      "l1_order_id": "12c72271-bfbf-415b-82e6-6feb9aa0708d",
+      "l2_order_id": null,
+      "qty": 0.012,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -0.224,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
     }
   },
   "filled": {
@@ -834,15 +777,15 @@
       "sltp_error": "not modified"
     },
     "ADAUSDT": {
-      "entry": 0.22284479999999998,
-      "side": "SHORT",
-      "sl": 0.22538,
-      "tp": 0.21523919999999994,
-      "qty": 4487.0,
-      "filled_at": 1788462302.7174919,
+      "entry": 0.2188482142857143,
+      "side": "LONG",
+      "sl": 0.21466892857142858,
+      "tp": 0.23138607142857145,
+      "qty": 4569.0,
+      "filled_at": 1788722415.620022,
       "level": "STEALTH_FILL",
-      "sltp_ok": false,
-      "sltp_error": "not modified"
+      "sltp_ok": true,
+      "sltp_error": ""
     },
     "ETCUSDT": {
       "entry": 7.535234978827359,

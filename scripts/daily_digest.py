@@ -86,9 +86,16 @@ def build_digest() -> str:
             for l in st.get("active_limits", {}).values()
             if l.get("owner_bet") and l.get("sl") and l.get("l1_price"))
         n_owner = sum(1 for l in st.get("active_limits", {}).values() if l.get("owner_bet"))
-        lines.append(f"\n🎯 Owner-ставки: {n_owner} шт | риск ${owner_risk:,.0f} / $300")
-        if owner_risk > 240:
-            lines.append("  ⚠️ близко к квоте $300")
+        cap = 500.0
+        try:
+            sys.path.insert(0, str(ROOT))
+            from telegram_control.bet_wizard import OWNER_RISK_CAP
+            cap = OWNER_RISK_CAP
+        except Exception:
+            pass
+        lines.append(f"\n🎯 Owner-ставки: {n_owner} шт | риск ${owner_risk:,.0f} / ${cap:,.0f}")
+        if owner_risk > cap * 0.8:
+            lines.append("  ⚠️ близко к квоте")
     except Exception:
         pass
     # night_ban / blocked

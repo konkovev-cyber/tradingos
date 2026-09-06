@@ -1,38 +1,81 @@
 {
-  "generated_at": "2026-09-05T18:00:31.814496+00:00",
+  "generated_at": "2026-09-06T18:00:29.314767+00:00",
   "summary": {
-    "n_scored_rejections_24h": 15,
-    "mean_meta_v1_prob": 0.33692,
-    "median_meta_v1_prob": 0.2753,
+    "n_scored_rejections_24h": 63,
+    "mean_meta_v1_prob": 0.08345714285714285,
+    "median_meta_v1_prob": 0.0793,
     "above_0.7_pct": 0.0,
     "distribution_buckets": {
-      "<0.3": 9,
-      "0.3-0.5": 2,
-      "0.5-0.7": 4,
+      "<0.3": 62,
+      "0.3-0.5": 1,
+      "0.5-0.7": 0,
       "0.7-0.9": 0,
       ">0.9": 0
     },
     "by_reason": {
+      "max_positions": {
+        "n": 5,
+        "avg_p": 0.01086
+      },
       "pre_trade_filter": {
-        "n": 15,
-        "avg_p": 0.33692000000000016
+        "n": 57,
+        "avg_p": 0.09011929824561397
+      },
+      "exchange_min_size": {
+        "n": 1,
+        "avg_p": 0.0667
       }
     },
     "top_symbols_by_avg_prob": [
       {
+        "symbol": "4USDT",
+        "avg_prob": 0.253,
+        "n": 5
+      },
+      {
         "symbol": "SKRUSDT",
-        "avg_prob": 0.48,
-        "n": 6
+        "avg_prob": 0.218,
+        "n": 7
       },
       {
-        "symbol": "ENAUSDT",
-        "avg_prob": 0.268,
-        "n": 8
+        "symbol": "TUTUSDT",
+        "avg_prob": 0.097,
+        "n": 20
       },
       {
-        "symbol": "AKEUSDT",
-        "avg_prob": 0.026,
+        "symbol": "ETHUSDT",
+        "avg_prob": 0.067,
         "n": 1
+      },
+      {
+        "symbol": "ZORAUSDT",
+        "avg_prob": 0.046,
+        "n": 1
+      },
+      {
+        "symbol": "TRIAUSDT",
+        "avg_prob": 0.032,
+        "n": 1
+      },
+      {
+        "symbol": "ADAUSDT",
+        "avg_prob": 0.028,
+        "n": 3
+      },
+      {
+        "symbol": "TUSDT",
+        "avg_prob": 0.014,
+        "n": 9
+      },
+      {
+        "symbol": "MARSCOINUSDT",
+        "avg_prob": 0.013,
+        "n": 5
+      },
+      {
+        "symbol": "XRPUSDT",
+        "avg_prob": 0.011,
+        "n": 5
       }
     ]
   },
