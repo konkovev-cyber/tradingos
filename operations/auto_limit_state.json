@@ -48,182 +48,6 @@
       "rr_l2": 0.0,
       "note": "OWNER BET via /bet wizard: $500 margin 10x, 1-leg ladder"
     },
-    "DOGEUSDT": {
-      "placed_at": 1788597382.397951,
-      "side": "LONG",
-      "sl": 0.08409410714285714,
-      "tp": 0.08833008499331474,
-      "l1_price": 0.08515310160547154,
-      "l2_price": 0.0,
-      "l1_order_id": "85aed0bd-a3b6-4942-bec0-b3b0b2d76cd6",
-      "l2_order_id": null,
-      "qty": 11743.0,
-      "rr_l1": 3.0,
-      "owner_bet": true,
-      "reversal": false,
-      "place_meta": {
-        "gap_pct": -0.406,
-        "quality": null
-      },
-      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
-    },
-    "XLMUSDT": {
-      "placed_at": 1788597382.8271434,
-      "side": "LONG",
-      "sl": 0.17801785714285714,
-      "tp": 0.18890063126059167,
-      "l1_price": 0.18073855067229078,
-      "l2_price": 0.0,
-      "l1_order_id": "4b863ac1-fcb2-484d-afee-6d56ea11366b",
-      "l2_order_id": null,
-      "qty": 5532.0,
-      "rr_l1": 3.0,
-      "owner_bet": true,
-      "reversal": false,
-      "place_meta": {
-        "gap_pct": -0.584,
-        "quality": null
-      },
-      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
-    },
-    "MSTRUSDT": {
-      "placed_at": 1788597383.2380967,
-      "side": "LONG",
-      "sl": 141.5244285714286,
-      "tp": 141.84711428571433,
-      "l1_price": 141.60510000000002,
-      "l2_price": 0.0,
-      "l1_order_id": "d09fb4c0-9c7f-4626-ad3e-f05eb4e522ee",
-      "l2_order_id": null,
-      "qty": 7.06,
-      "rr_l1": 3.0,
-      "owner_bet": true,
-      "reversal": false,
-      "place_meta": {
-        "gap_pct": -0.25,
-        "quality": null
-      },
-      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
-    },
-    "NVDAUSDT": {
-      "placed_at": 1788599086.308236,
-      "side": "LONG",
-      "sl": 229.69357142857143,
-      "tp": 231.33248571428578,
-      "l1_price": 230.10330000000002,
-      "l2_price": 0.0,
-      "l1_order_id": "ce2c54af-44b4-4a04-851e-3d62f9d273be",
-      "l2_order_id": null,
-      "qty": 4.34,
-      "rr_l1": 3.0,
-      "owner_bet": true,
-      "reversal": false,
-      "place_meta": {
-        "gap_pct": -0.25,
-        "quality": null
-      },
-      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
-    },
-    "AVAXUSDT": {
-      "placed_at": 1788602688.4487827,
-      "side": "LONG",
-      "sl": 7.328964285714285,
-      "tp": 7.722401293072259,
-      "l1_price": 7.427323537553779,
-      "l2_price": 0.0,
-      "l1_order_id": "54745afb-d984-4cde-9433-bd955c96606b",
-      "l2_order_id": null,
-      "qty": 134.6,
-      "rr_l1": 3.0,
-      "owner_bet": true,
-      "reversal": false,
-      "place_meta": {
-        "gap_pct": -0.969,
-        "quality": null
-      },
-      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
-    },
-    "VETUSDT": {
-      "placed_at": 1788619232.0312507,
-      "side": "LONG",
-      "sl": 0.0068305499999999995,
-      "tp": 0.006951546448642732,
-      "l1_price": 0.0068607991121606825,
-      "l2_price": 0.0,
-      "l1_order_id": "d78502bb-acdd-4b4c-9cc1-42c06f34d9fb",
-      "l2_order_id": null,
-      "qty": 728778.0,
-      "owner_bet": true,
-      "owner_ladder": [
-        {
-          "level": 1,
-          "price": 0.0068607991121606825,
-          "qty": 728778.0,
-          "order_id": "d78502bb-acdd-4b4c-9cc1-42c06f34d9fb"
-        }
-      ],
-      "n_levels": 1,
-      "rr_l1": 3.0,
-      "rr_l2": 0.0,
-      "note": "OWNER BET via /bet wizard: $3,646 margin 20x, 1-leg ladder"
-    },
-    "MANAUSDT": {
-      "placed_at": 1788606294.183187,
-      "side": "LONG",
-      "sl": 0.07290907142857143,
-      "tp": 0.07808649567392816,
-      "l1_price": 0.07420342748991061,
-      "l2_price": 0.0,
-      "l1_order_id": "115ab81b-0476-486f-ac7c-2cd4f8cfb82d",
-      "l2_order_id": null,
-      "qty": 13476.4,
-      "rr_l1": 3.0,
-      "owner_bet": true,
-      "reversal": false,
-      "place_meta": {
-        "gap_pct": -0.358,
-        "quality": null
-      },
-      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
-    },
-    "NEARUSDT": {
-      "placed_at": 1788606294.5500085,
-      "side": "LONG",
-      "sl": 2.161585714285714,
-      "tp": 2.2039735084670995,
-      "l1_price": 2.1721826628310605,
-      "l2_price": 0.0,
-      "l1_order_id": "0771f480-a798-4f9c-8200-93a129c07b2f",
-      "l2_order_id": null,
-      "qty": 460.3,
-      "rr_l1": 3.0,
-      "owner_bet": true,
-      "reversal": false,
-      "place_meta": {
-        "gap_pct": -3.673,
-        "quality": null
-      },
-      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
-    },
-    "DOTUSDT": {
-      "placed_at": 1788606294.8861728,
-      "side": "LONG",
-      "sl": 0.8815964285714286,
-      "tp": 0.9297226841328308,
-      "l1_price": 0.8936279924617792,
-      "l2_price": 0.0,
-      "l1_order_id": "5acc8ebf-4605-4173-b68b-eb59a97c6534",
-      "l2_order_id": null,
-      "qty": 1119.0,
-      "rr_l1": 3.0,
-      "owner_bet": true,
-      "reversal": false,
-      "place_meta": {
-        "gap_pct": -1.561,
-        "quality": null
-      },
-      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
-    },
     "ONDOUSDT": {
       "placed_at": 1788672680.8024044,
       "side": "LONG",
@@ -247,101 +71,6 @@
       "rr_l1": 3.0,
       "rr_l2": 0.0,
       "note": "OWNER BET via /bet wizard: $500 margin 10x, 1-leg ladder"
-    },
-    "OPUSDT": {
-      "placed_at": 1788613502.391052,
-      "side": "LONG",
-      "sl": 0.09825114285714286,
-      "tp": 0.10548183210923338,
-      "l1_price": 0.10005881517016549,
-      "l2_price": 0.0,
-      "l1_order_id": "055390cc-c534-44bb-a5f8-cdbbcf027e99",
-      "l2_order_id": null,
-      "qty": 9994.1,
-      "rr_l1": 3.0,
-      "owner_bet": true,
-      "reversal": false,
-      "place_meta": {
-        "gap_pct": -1.176,
-        "quality": null
-      },
-      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
-    },
-    "SOLUSDT": {
-      "placed_at": 1788613502.7922873,
-      "side": "LONG",
-      "sl": 101.45914285714285,
-      "tp": 104.83953476415284,
-      "l1_price": 102.30424083389535,
-      "l2_price": 0.0,
-      "l1_order_id": "35363edc-751b-4151-8eb3-94d3966807f3",
-      "l2_order_id": null,
-      "qty": 9.7,
-      "rr_l1": 3.0,
-      "owner_bet": true,
-      "reversal": false,
-      "place_meta": {
-        "gap_pct": -0.916,
-        "quality": null
-      },
-      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
-    },
-    "ORDIUSDT": {
-      "placed_at": 1788613503.1346138,
-      "side": "LONG",
-      "sl": 3.992546428571429,
-      "tp": 4.309511567923802,
-      "l1_price": 4.071787713409522,
-      "l2_price": 0.0,
-      "l1_order_id": "267fcff5-e7cd-43cf-9ec1-98a00901a48c",
-      "l2_order_id": null,
-      "qty": 245.59,
-      "rr_l1": 3.0,
-      "owner_bet": true,
-      "reversal": false,
-      "place_meta": {
-        "gap_pct": -1.362,
-        "quality": null
-      },
-      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
-    },
-    "GRTUSDT": {
-      "placed_at": 1788617138.0636585,
-      "side": "LONG",
-      "sl": 0.01693257142857143,
-      "tp": 0.01818437409852402,
-      "l1_price": 0.017245522096059576,
-      "l2_price": 0.0,
-      "l1_order_id": "a830a0de-f9b4-4f51-b35c-db1be367b458",
-      "l2_order_id": null,
-      "qty": 57986.0,
-      "rr_l1": 3.0,
-      "owner_bet": true,
-      "reversal": false,
-      "place_meta": {
-        "gap_pct": -1.002,
-        "quality": null
-      },
-      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
-    },
-    "ADAUSDT": {
-      "placed_at": 1788617138.476859,
-      "side": "LONG",
-      "sl": 0.20956107142857142,
-      "tp": 0.2256853156847041,
-      "l1_price": 0.21359213249260459,
-      "l2_price": 0.0,
-      "l1_order_id": "95349072-9d31-4743-b169-adf1af070290",
-      "l2_order_id": null,
-      "qty": 4681.0,
-      "rr_l1": 3.0,
-      "owner_bet": true,
-      "reversal": false,
-      "place_meta": {
-        "gap_pct": -0.793,
-        "quality": null
-      },
-      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
     },
     "ETCUSDT": {
       "placed_at": 1788678192.4536672,
@@ -884,6 +613,139 @@
         "quality": null
       },
       "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "TRXUSDT": {
+      "placed_at": 1788694469.9913623,
+      "side": "SHORT",
+      "sl": 0.33751668749999997,
+      "tp": 0.33079993750000014,
+      "l1_price": 0.3358375,
+      "l2_price": 0.0,
+      "l1_order_id": "e5d3541a-7138-45b8-b91f-5e6a0ef1e71c",
+      "l2_order_id": null,
+      "qty": 2977.0,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": true,
+      "place_meta": {
+        "gap_pct": 0.28,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "LINKUSDT": {
+      "placed_at": 1788696277.2989533,
+      "side": "LONG",
+      "sl": 12.091421428571428,
+      "tp": 12.336448741052413,
+      "l1_price": 12.152678256691674,
+      "l2_price": 0.0,
+      "l1_order_id": "725c6a0a-6544-4b06-9773-c73f750d9b88",
+      "l2_order_id": null,
+      "qty": 82.2,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -0.859,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "VETUSDT": {
+      "placed_at": 1788699862.9499192,
+      "side": "LONG",
+      "sl": 0.006898925,
+      "tp": 0.007176038373985158,
+      "l1_price": 0.00696820334349629,
+      "l2_price": 0.0,
+      "l1_order_id": "715f93f4-aa11-4e0e-9670-9369e7e7566a",
+      "l2_order_id": null,
+      "qty": 143509.0,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -0.935,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "ARBUSDT": {
+      "placed_at": 1788703482.2050319,
+      "side": "LONG",
+      "sl": 0.18288082142857143,
+      "tp": 0.18586842434327422,
+      "l1_price": 0.18362772215724713,
+      "l2_price": 0.0,
+      "l1_order_id": "563be4f4-552d-43af-90bd-1841f9d5a118",
+      "l2_order_id": null,
+      "qty": 5445.8,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -4.356,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "OPUSDT": {
+      "placed_at": 1788705283.5725346,
+      "side": "LONG",
+      "sl": 0.10541232142857142,
+      "tp": 0.10816517857142864,
+      "l1_price": 0.10610053571428572,
+      "l2_price": 0.0,
+      "l1_order_id": "9ef3f3cb-7b76-4796-959b-cb503c3e7c04",
+      "l2_order_id": null,
+      "qty": 9425.0,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -1.145,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "XLMUSDT": {
+      "placed_at": 1788705283.9127355,
+      "side": "LONG",
+      "sl": 0.18234714285714287,
+      "tp": 0.18432557142857137,
+      "l1_price": 0.18284175,
+      "l2_price": 0.0,
+      "l1_order_id": "8d2facf2-77a7-4ffb-8bcc-9d0e1c57ac85",
+      "l2_order_id": null,
+      "qty": 5469.0,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -0.413,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "AVAXUSDT": {
+      "placed_at": 1788705284.2308328,
+      "side": "LONG",
+      "sl": 7.512542857142857,
+      "tp": 7.614801428571432,
+      "l1_price": 7.538107500000001,
+      "l2_price": 0.0,
+      "l1_order_id": "14ecd031-a011-4113-8cd7-782dda68209e",
+      "l2_order_id": null,
+      "qty": 132.6,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -0.553,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
     }
   },
   "filled": {
@@ -919,15 +781,15 @@
       "sltp_error": "not modified"
     },
     "DOGEUSDT": {
-      "entry": 0.08921142857142858,
-      "side": "SHORT",
-      "sl": 0.09014085714285715,
-      "tp": 0.08642314285714288,
-      "qty": 11209.0,
-      "filled_at": 1788471301.478273,
+      "entry": 0.0900091845611354,
+      "side": "LONG",
+      "sl": 0.08902092857142857,
+      "tp": 0.09297395253025587,
+      "qty": 11109.0,
+      "filled_at": 1788688204.0699604,
       "level": "STEALTH_FILL",
-      "sltp_ok": false,
-      "sltp_error": "not modified"
+      "sltp_ok": true,
+      "sltp_error": ""
     },
     "ALGOUSDT": {
       "entry": 0.094213875,
@@ -985,12 +847,12 @@
       "sltp_error": ""
     },
     "ZROUSDT": {
-      "entry": 1.104324487393171,
+      "entry": 1.0726697421100082,
       "side": "LONG",
-      "sl": 1.0844142857142858,
-      "tp": 1.1640550924298267,
-      "qty": 905.5,
-      "filled_at": 1788501629.9490554,
+      "sl": 1.0524624999999999,
+      "tp": 1.1332914684400333,
+      "qty": 932.2,
+      "filled_at": 1788705303.451586,
       "level": "STEALTH_FILL",
       "sltp_ok": false,
       "sltp_error": "not modified"
@@ -1128,12 +990,12 @@
       "sltp_error": "not modified"
     },
     "AVAXUSDT": {
-      "entry": 7.443214136068028,
+      "entry": 7.625544748829288,
       "side": "LONG",
-      "sl": 7.405998065387688,
-      "tp": 7.55486234810905,
-      "qty": 134.3,
-      "filled_at": 1788500703.4484437,
+      "sl": 7.565139285714285,
+      "tp": 7.806761138174296,
+      "qty": 131.1,
+      "filled_at": 1788704402.4073515,
       "level": "STEALTH_FILL",
       "sltp_ok": true,
       "sltp_error": ""
@@ -1216,12 +1078,12 @@
       "sltp_error": ""
     },
     "MANAUSDT": {
-      "entry": 0.0740376840293681,
+      "entry": 0.075081825,
       "side": "LONG",
-      "sl": 0.0732967142857143,
-      "tp": 0.0762605932603295,
-      "qty": 13506.6,
-      "filled_at": 1788525303.8780274,
+      "sl": 0.07396685714285715,
+      "tp": 0.07842672857142856,
+      "qty": 13318.8,
+      "filled_at": 1788704704.40723,
       "level": "STEALTH_FILL",
       "sltp_ok": false,
       "sltp_error": "not modified"
@@ -1238,15 +1100,15 @@
       "sltp_error": ""
     },
     "VETUSDT": {
-      "entry": 0.006639979413669859,
+      "entry": 0.006951340313432625,
       "side": "LONG",
-      "sl": 0.0065123285714285715,
-      "tp": 0.00702293194039372,
-      "qty": 150602.0,
-      "filled_at": 1788525303.8780274,
+      "sl": 0.006898514285714285,
+      "tp": 0.007109818396587643,
+      "qty": 143857.0,
+      "filled_at": 1788693304.3428812,
       "level": "STEALTH_FILL",
-      "sltp_ok": false,
-      "sltp_error": "not modified"
+      "sltp_ok": true,
+      "sltp_error": ""
     },
     "NFLXUSDT": {
       "entry": 81.59648,
@@ -1282,12 +1144,12 @@
       "sltp_error": "not modified"
     },
     "ENAUSDT": {
-      "entry": 0.16412647948747078,
+      "entry": 0.17364612858680817,
       "side": "LONG",
-      "sl": 0.16093110714285713,
-      "tp": 0.1737125965213117,
-      "qty": 6092.0,
-      "filled_at": 1788634504.418006,
+      "sl": 0.17095767857142857,
+      "tp": 0.18171147863294695,
+      "qty": 5758.0,
+      "filled_at": 1788694801.39702,
       "level": "STEALTH_FILL",
       "sltp_ok": true,
       "sltp_error": ""
@@ -1337,12 +1199,34 @@
       "sltp_error": "not modified"
     },
     "BTCUSDT": {
-      "entry": 79553.817,
+      "entry": 79688.28,
       "side": "LONG",
-      "sl": 79156.04791499999,
-      "tp": 80747.12425500002,
-      "qty": 0.062,
-      "filled_at": 1788678905.483333,
+      "sl": 79452.56714285715,
+      "tp": 80395.41857142854,
+      "qty": 0.012,
+      "filled_at": 1788704402.4073515,
+      "level": "STEALTH_FILL",
+      "sltp_ok": true,
+      "sltp_error": ""
+    },
+    "XLMUSDT": {
+      "entry": 0.18483675,
+      "side": "LONG",
+      "sl": 0.18318571428571429,
+      "tp": 0.18978985714285712,
+      "qty": 5410.0,
+      "filled_at": 1788704402.4073515,
+      "level": "STEALTH_FILL",
+      "sltp_ok": true,
+      "sltp_error": ""
+    },
+    "OPUSDT": {
+      "entry": 0.10798821428571428,
+      "side": "LONG",
+      "sl": 0.10720892857142857,
+      "tp": 0.11032607142857144,
+      "qty": 9260.2,
+      "filled_at": 1788704704.40723,
       "level": "STEALTH_FILL",
       "sltp_ok": true,
       "sltp_error": ""

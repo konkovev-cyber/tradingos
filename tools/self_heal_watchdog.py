@@ -28,8 +28,11 @@ LOG = ROOT / "memory/self_heal_events.jsonl"
 
 # (название, тип проверки, значение, unit для рестарта)
 CONTOURS = [
+    # FIX 2026-09-06: паттерн trading.data.* не совпадал с tradingos.data.* →
+    # сторож 4 дня считал ЖИВОЙ контур мёртвым (322 ложных алерта).
+
     # AUTO/reality главный движок
-    ("run_observation", "process", "trading.data.run_observation", "tradingos-reality.service"),
+    ("run_observation", "process", "tradingos.data.run_observation", "tradingos-reality.service"),
     # Reality guardian (SL/TP защита позиций)
     ("reality_guardian", "process", "guardian/reality_guardian.py", "tradingos-guardian.service"),
     # Ручной Telegram-бот

@@ -1,0 +1,23 @@
+{
+  "DOGEUSDT": {
+    "be_fired": false,
+    "partial_fired": false,
+    "tight_fired": false,
+    "mfe_peak": 0.007389162561576919,
+    "source": "MANUAL",
+    "entry_to_sl_risk": 0.004059999999999994,
+    "side": "Buy",
+    "entry": 0.09015,
+    "size": 3619.0,
+    "sl_initial": 0.08902,
+    "tp_initial": 0.09297,
+    "entry_time": 1788688050.905,
+    "peak_last_r": 0.007389162561576919,
+    "recovery_state": null,
+    "recovery_attempted": true,
+    "last_check": 1788688321.9780943,
+    "last_r": 0.007389162561576919,
+    "mae_trough": -0.02709359605911309,
+    "recovery_outcome": "RECOVERED"
+  }
+}
