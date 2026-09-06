@@ -1,10 +1,10 @@
 {
-  "timestamp": "2026-09-05T06:00:03.885127+00:00",
+  "timestamp": "2026-09-06T06:00:00.239678+00:00",
   "system_status": "OPERATIONAL",
   "research": {
     "status": "COLLECTING",
     "active_experiments": 2,
-    "evidence_score": -46.2,
+    "evidence_score": -46.3,
     "experiments": [
       "PG-v1.1-SHADOW-001",
       "Action-Shadow-v0.1"

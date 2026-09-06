@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-06T05:39:00.202353+00:00",
+  "generated_at": "2026-09-06T07:39:00.647441+00:00",
   "window": {
     "last_24h": true,
     "all_time": true
@@ -49,7 +49,7 @@
     "pattern_contra": 2
   },
   "rejection_reasons_24h": {
-    "pre_trade_filter": 42,
+    "pre_trade_filter": 39,
     "max_positions": 5
   },
   "order_block_reason_all": {

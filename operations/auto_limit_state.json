@@ -48,44 +48,6 @@
       "rr_l2": 0.0,
       "note": "OWNER BET via /bet wizard: $500 margin 10x, 1-leg ladder"
     },
-    "ALTUSDT": {
-      "placed_at": 1788591891.9067109,
-      "side": "LONG",
-      "sl": 0.006325585714285715,
-      "tp": 0.0065480417636799735,
-      "l1_price": 0.006381199726634279,
-      "l2_price": 0.0,
-      "l1_order_id": "9efe0b24-06e5-4dec-937a-beb1228c538f",
-      "l2_order_id": null,
-      "qty": 156710.0,
-      "rr_l1": 3.0,
-      "owner_bet": true,
-      "reversal": false,
-      "place_meta": {
-        "gap_pct": -0.666,
-        "quality": null
-      },
-      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
-    },
-    "LINKUSDT": {
-      "placed_at": 1788591892.2635987,
-      "side": "LONG",
-      "sl": 11.575,
-      "tp": 11.977950000000003,
-      "l1_price": 11.6757375,
-      "l2_price": 0.0,
-      "l1_order_id": "c5065436-01a6-4ada-a458-8065769ea93f",
-      "l2_order_id": null,
-      "qty": 85.6,
-      "rr_l1": 3.0,
-      "owner_bet": true,
-      "reversal": false,
-      "place_meta": {
-        "gap_pct": -0.301,
-        "quality": null
-      },
-      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
-    },
     "DOGEUSDT": {
       "placed_at": 1788597382.397951,
       "side": "LONG",
@@ -382,42 +344,28 @@
       "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
     },
     "ETCUSDT": {
-      "placed_at": 1788617138.8799675,
+      "placed_at": 1788678192.4536672,
       "side": "LONG",
-      "sl": 7.502257142857143,
-      "tp": 7.927556286729281,
-      "l1_price": 7.608581928825178,
+      "sl": 7.694617857142857,
+      "tp": 7.895342057828577,
+      "l1_price": 7.744798907314287,
       "l2_price": 0.0,
-      "l1_order_id": "a9b844e8-24a1-4bca-89e4-4e2e17d74019",
+      "l1_order_id": "3d5938ec-0074-4893-b985-72756c2ac43e",
       "l2_order_id": null,
-      "qty": 131.4,
-      "rr_l1": 3.0,
+      "qty": 645.5,
       "owner_bet": true,
-      "reversal": false,
-      "place_meta": {
-        "gap_pct": -1.097,
-        "quality": null
-      },
-      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
-    },
-    "BTCUSDT": {
-      "placed_at": 1788620742.0132396,
-      "side": "LONG",
-      "sl": 79373.73535714287,
-      "tp": 79863.43992857134,
-      "l1_price": 79496.16149999999,
-      "l2_price": 0.0,
-      "l1_order_id": "17e1a9eb-6ae9-42fa-b2c4-728edd655cd2",
-      "l2_order_id": null,
-      "qty": 0.012,
+      "owner_ladder": [
+        {
+          "level": 1,
+          "price": 7.744798907314287,
+          "qty": 645.5,
+          "order_id": "3d5938ec-0074-4893-b985-72756c2ac43e"
+        }
+      ],
+      "n_levels": 1,
       "rr_l1": 3.0,
-      "owner_bet": true,
-      "reversal": false,
-      "place_meta": {
-        "gap_pct": -0.253,
-        "quality": null
-      },
-      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+      "rr_l2": 0.0,
+      "note": "OWNER BET via /bet wizard: $9,128 margin 10x, 1-leg ladder"
     },
     "FILUSDT": {
       "placed_at": 1788620742.3843932,
@@ -879,6 +827,44 @@
         "quality": null
       },
       "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "ETHFIUSDT": {
+      "placed_at": 1788680095.1405637,
+      "side": "LONG",
+      "sl": 0.5630803571428571,
+      "tp": 0.6024946428571429,
+      "l1_price": 0.5729339285714286,
+      "l2_price": 0.0,
+      "l1_order_id": "befa887f-70d7-40eb-9a9f-4b934b3abde0",
+      "l2_order_id": null,
+      "qty": 1745.4,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -0.498,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "ALTUSDT": {
+      "placed_at": 1788680095.506104,
+      "side": "LONG",
+      "sl": 0.006421346428571428,
+      "tp": 0.0065353007142857165,
+      "l1_price": 0.006449835,
+      "l2_price": 0.0,
+      "l1_order_id": "f828cc64-66eb-4784-8c10-6992ea3760df",
+      "l2_order_id": null,
+      "qty": 155042.0,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -0.25,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
     }
   },
   "filled": {
@@ -1330,6 +1316,17 @@
       "level": "STEALTH_FILL",
       "sltp_ok": false,
       "sltp_error": "not modified"
+    },
+    "BTCUSDT": {
+      "entry": 79553.817,
+      "side": "LONG",
+      "sl": 79156.04791499999,
+      "tp": 80747.12425500002,
+      "qty": 0.062,
+      "filled_at": 1788678905.483333,
+      "level": "STEALTH_FILL",
+      "sltp_ok": true,
+      "sltp_error": ""
     }
   }
 }

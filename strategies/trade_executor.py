@@ -396,6 +396,13 @@ async def _execute_reality(proposal: TradeProposal) -> dict:
             if cfg.get("sell_disabled", False) and proposal.side == "SELL":
                 logger.warning(f"🛑 BLOCKED SELL: {proposal.symbol} (shadow enforcement)")
                 return {"status": "BLOCKED", "error": "SELL disabled by shadow enforcement"}
+            # v2026-09-06: reality SELL → SHADOW (сигнал логируется, НЕ исполняется).
+            # Отличие от sell_disabled: D1-trend SHORT копит статистику для возврата.
+            if cfg.get("reality_sell_shadow", False) and proposal.side == "SELL" \
+                    and getattr(proposal, "session", "") != "FUNDING":
+                logger.info(f"🚪 SELL SHADOW: {proposal.symbol} — сигнал логирован, не исполнен "
+                            f"(reality_sell_shadow=true)")
+                return {"status": "SHADOW", "error": "SELL in shadow mode (reality_sell_shadow)"}
     except:
         pass
 

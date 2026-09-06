@@ -838,5 +838,35 @@
   "owner_bet": true,
   "hours_to_outcome": 24.010034128493732,
   "quality": null
+ },
+ {
+  "sym": "ALTUSDT",
+  "ts": 1788678305.7569592,
+  "outcome": "EXPIRED",
+  "side": "LONG",
+  "gap_pct": -0.666,
+  "owner_bet": true,
+  "hours_to_outcome": 24.003847291668254,
+  "quality": null
+ },
+ {
+  "sym": "LINKUSDT",
+  "ts": 1788678305.7584262,
+  "outcome": "EXPIRED",
+  "side": "LONG",
+  "gap_pct": -0.301,
+  "owner_bet": true,
+  "hours_to_outcome": 24.00374856379297,
+  "quality": null
+ },
+ {
+  "sym": "BTCUSDT",
+  "ts": 1788678919.5495205,
+  "outcome": "FILLED",
+  "side": "LONG",
+  "gap_pct": null,
+  "owner_bet": true,
+  "hours_to_outcome": 0.5445222681760788,
+  "quality": null
  }
 ]

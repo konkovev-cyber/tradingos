@@ -1,16 +1,16 @@
 {
-  "timestamp": "2026-09-05T06:07:10.595625+00:00",
+  "timestamp": "2026-09-06T06:07:16.578462+00:00",
   "experiment": "ACTION_SHADOW_v1",
   "verdict": {
     "decision": "NOT_READY",
     "confidence": 0.8,
     "reasons": [
-      "DQ=-46.2 critical (need \u226580)"
+      "DQ=-46.3 critical (need \u226580)"
     ],
     "next_action": "WAIT_FOR_DATA_QUALITY"
   },
   "data_quality": {
-    "score": -46.2,
+    "score": -46.3,
     "experiments": 2
   },
   "action_stats": {
@@ -22,9 +22,9 @@
     "action_unique": 25
   },
   "kpi_samples": {
-    "te": 140766,
-    "esr": 140766,
-    "erg": 140766
+    "te": 144366,
+    "esr": 144366,
+    "erg": 144366
   },
   "local_signals": {
     "current": {

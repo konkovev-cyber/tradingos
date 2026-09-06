@@ -7,7 +7,7 @@
   "live_trading_enabled": true,
   "note_live_trading_enabled_2026_08_30": "OWNER-APPROVED 2-DAY AUTO TEST on $100k Bybit DEMO: live_trading_enabled=true для авто-контуров (reality, long-limit, funding-capture). Риск минимальный ($25/сделку, 1% позиция). Демо-счёт, не реальный. Откат: live_trading_enabled=false.",
   "risk_per_trade": 50.0,
-  "risk_per_trade_pct": 0.028,
+  "risk_per_trade_pct": 0.015,
   "note_min_risk_2day_test_2026_08_30": "OWNER-APPROVED 2-DAY AUTO TEST on Bybit DEMO (equity ~$180k): риск ~$25/сделку (risk_per_trade_pct=0.014), max_position 1%, leverage 5x, max_positions 4, throttle 60s. Funding-capture авто (>=11bps). Пост-сделочный аудит. Откат: risk 500/0.5%.",
   "note_pct_sizing_2026_08_27": "OWNER: сайзинг от любого депо. Приоритет: risk_per_trade_pct (% equity, 0.5 = $500 на $100k и $0.40 на $80) над risk_per_trade ($). Абс. страховки: min_risk_usd=0.5 (биржевой minNotional), max_risk_usd=1000. max_position_size_pct=10% equity вместо max_position_size_usd.",
   "min_risk_usd": 0.5,
@@ -100,5 +100,8 @@
     "mult": 1.5,
     "max_per_day": 3,
     "note": "2026-09-05 (owner: 'если сделка 100% сработает — жирнее'). Данные n=86: prob>=0.58 WR 62% avg +$7.95 vs 0.55-0.58 WR 45% avg +$3.91; GOOD avg +$13.53. Потолок x1.5 жёсткий. Плечо НЕ меняется (риск = размер/SL, не плечо). Пристальный guardian: BE @ 0.5R для conviction-позиций. Откат: enabled=false."
-  }
+  },
+  "note_risk_015_2026_09_06": "AUTO-risk halved (0.028→0.015%): авто-контур без подтверждённого edge (-$141/8д без 3 катастроф, +$8 после капов). Owner-ручной WR 70% остаётся полным. Откат: 0.028.",
+  "reality_sell_shadow": true,
+  "note_sell_shadow_2026_09_06": "REALITY SELL → SHADOW (−$119/36 сделок, -$3.3/сд). Сигналы SELL логируются, НЕ исполняются. LONG жив. Откат: reality_sell_shadow=false. (Отличие от sell_disabled: сигналы продолжают копить статистику для возврата.)"
 }

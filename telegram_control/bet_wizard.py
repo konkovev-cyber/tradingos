@@ -32,6 +32,7 @@ DEF_RR = 3.0
 MAX_NOTIONAL_USD = 5000.0  # hard cap: позиция не больше $5k независимо от плеча
 MAX_EQUITY_PCT = 0.05    # 5% equity — soft warning
 MAX_BET_USD = 2000.0      # маржа не больше $2k
+OWNER_RISK_CAP = 300.0    # суммарный риск всех активных owner-ставок (2026-09-06)
 
 
 def _esc(s) -> str:
@@ -486,14 +487,26 @@ async def _show_plan(update: Update, uid: int):
         InlineKeyboardButton("📊 Новая рекомендация", callback_data="BWS:recommend"),
         InlineKeyboardButton("❌ Отмена", callback_data="BWS:cancel")])
     kb = InlineKeyboardMarkup(kb_rows)
+    # Квота ручных ставок в плане (заранее видно остаток)
+    try:
+        _st3 = _json.loads(STATE.read_text()) if STATE.exists() else {"active_limits": {}}
+        _risk_now = 0.0
+        for _s, _l in _st3.get("active_limits", {}).items():
+            if _l.get("owner_bet") and _l.get("sl") and _l.get("l1_price"):
+                _risk_now += abs(_l["l1_price"] - _l["sl"]) * float(_l.get("qty", 0) or 0)
+        _quota_line = (f"💳 Квота ручных: ${_risk_now:,.0f} / ${OWNER_RISK_CAP:,.0f} "
+                       f"(свободно ${max(0, OWNER_RISK_CAP - _risk_now):,.0f})\n")
+    except Exception:
+        _quota_line = ""
     text = (
-        f"📋 <b>ПЛАН СТАВКИ</b>\n\n"
+        f"🎯 <b>РУЧНОЙ СЕТАП — ПЛАН СТАВКИ</b>\n\n"
         f"<b>{sym} {side}</b>\n"
         f"🛑 SL: <code>{_fmt_price(sl)}</code> ({(sl-entry)/entry*100:+.2f}%)\n"
         f"🎯 TP: <code>{_fmt_price(tp)}</code> ({(tp-entry)/entry*100:+.2f}%)\n\n"
         f"💰 Маржа: <code>${bet:,.0f}</code> × {lev}x = <code>${notional:,.0f}</code>\n"
         f"📦 Лимиток: <b>{n_levels}</b> (лестница к SL)\n"
         f"<code>{ladder_txt}</code>\n\n"
+        f"{_quota_line}"
         f"⚠️ Риск по SL (если все филлятся): <code>${risk_usd:,.0f}</code>\n"
         f"🏆 Профит по TP: <code>${reward_usd:,.0f}</code>\n"
         f"⚖️ R:R: <code>{rr:.2f}</code>\n"
@@ -827,6 +840,25 @@ async def _place_bet(update: Update, uid: int):
                 qty = min_q
         except Exception:
             qty = round((bet * lev) / entry, 4)
+    risk_est = abs(entry - sl) * qty if qty else 0
+    # OWNER-КВОТА (2026-09-06): суммарный риск всех активных owner-ставок ≤ $300.
+    try:
+        import json as _json
+        _st = _json.loads(STATE.read_text()) if STATE.exists() else {"active_limits": {}}
+        _owner_risk = 0.0
+        for _s, _l in _st.get("active_limits", {}).items():
+            if _l.get("owner_bet") and _l.get("sl") and _l.get("l1_price"):
+                _owner_risk += abs(_l["l1_price"] - _l["sl"]) * float(_l.get("qty", 0) or 0)
+        if _owner_risk + risk_est > OWNER_RISK_CAP:
+            await update.effective_message.reply_text(
+                f"🛑 <b>КВОТА РУЧНЫХ СТАВОК</b>\n\n"
+                f"Активно: ${_owner_risk:,.0f} из ${OWNER_RISK_CAP:,.0f}\n"
+                f"Новая ставка добавит ${risk_est:,.0f} → превышение.\n\n"
+                f"<i>Закрой/отмени часть лимиток (/betcancel) или жди экспирации.</i>",
+                parse_mode="HTML")
+            return
+    except Exception:
+        pass  # квота не должна блокировать при сбое чтения state
     try:
         sys = __import__("sys")
         sys.path.insert(0, "/root")
@@ -898,14 +930,28 @@ async def _place_bet(update: Update, uid: int):
             fail_note = "\n⚠️ <b>Не приняты:</b>\n" + "\n".join(
                 f"  L{f_['level']} @ {_fmt_price(f_['price'])}: {_esc(f_['error'][:80])}"
                 for f_ in failed)
+        # Суммарный owner-риск после размещения (для карточки)
+        try:
+            _st2 = _json.loads(STATE.read_text()) if STATE.exists() else {"active_limits": {}}
+            _risk_after = 0.0
+            for _s, _l in _st2.get("active_limits", {}).items():
+                if _l.get("owner_bet") and _l.get("sl") and _l.get("l1_price"):
+                    _risk_after += abs(_l["l1_price"] - _l["sl"]) * float(_l.get("qty", 0) or 0)
+            _quota_note = f"Квота ручных ставок: ${_risk_after:,.0f} / ${OWNER_RISK_CAP:,.0f}"
+        except Exception:
+            _quota_note = ""
         await update.effective_message.reply_text(
-            f"✅ <b>СТАВКА ПОСТАВЛЕНА: {len(placed)} лимиток</b>\n\n"
+            f"🎯 <b>РУЧНОЙ СЕТАП — СТАВКА ПОСТАВЛЕНА ({len(placed)} лимиток)</b>\n" +
+            (f"═══════════════════════\n"
+             f"{sym} {side}  →  НОШНЛ ${notional:,.0f}\n"
+             f"═══════════════════════\n\n" if notional > 1000 else "") +
             f"{sym} {side}\n"
             f"<code>{ladder_report}</code>\n\n"
             f"Ноушнл (если все филлятся): ${notional:,.0f} (маржа ${bet:,.0f} × {lev}x)\n"
             f"SL {_fmt_price(sl)} → риск ${risk:,.0f}\n"
             f"TP {_fmt_price(tp)} → профит ${reward:,.0f}"
             f"{fail_note}\n\n"
+            f"\n💰 {_quota_note}\n"
             f"<i>После филла SL/TP прикрепятся автоматически.\n"
             f"Ставка живёт 24ч (structural entry ждёт откат).\n"
             f"+0.7R → частичное закрытие 30% + SL в безубыток.</i>",
