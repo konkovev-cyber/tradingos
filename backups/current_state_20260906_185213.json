@@ -1,24 +1,24 @@
 {
-  "timestamp": "2026-08-31T06:00:00.847496+00:00",
+  "timestamp": "2026-09-06T06:00:00.239678+00:00",
   "system_status": "OPERATIONAL",
   "research": {
     "status": "COLLECTING",
     "active_experiments": 2,
-    "evidence_score": -45.9,
+    "evidence_score": -46.3,
     "experiments": [
       "PG-v1.1-SHADOW-001",
       "Action-Shadow-v0.1"
     ]
   },
   "positions": {
-    "open_count": 35,
+    "open_count": 37,
     "unrealized_pnl": 0.0,
     "in_profit": 0,
     "in_loss": 0,
     "guard_mode": "SHADOW",
-    "guard_valid_signals": 1761,
-    "action_shadow_unique": 23,
-    "pending_actions": 23,
+    "guard_valid_signals": 2146,
+    "action_shadow_unique": 25,
+    "pending_actions": 25,
     "risk_concentration": {}
   },
   "capital": {

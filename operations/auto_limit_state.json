@@ -746,6 +746,25 @@
         "quality": null
       },
       "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "BBXUSDT": {
+      "placed_at": 1788710667.2108116,
+      "side": "SHORT",
+      "sl": 7.711892857142857,
+      "tp": 7.64508142857143,
+      "l1_price": 7.69519,
+      "l2_price": 0.0,
+      "l1_order_id": "12d287c6-4260-4b69-81af-f7ad901e0b39",
+      "l2_order_id": null,
+      "qty": 129.9,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": 0.25,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
     }
   },
   "filled": {

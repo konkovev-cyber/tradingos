@@ -442,6 +442,11 @@ def set_trading_stop(symbol: str, side: str, sl: float, tp: float) -> dict:
     res = _signed_post("/v5/position/trading-stop", body)
     if res.get("retCode") == 0:
         return {"ok": True}
+    # FIX 2026-09-06: retMsg 'not modified' = SL/TP на позиции УЖЕ равны запрошенным
+    # (повторный attach от параллельного пути). Это УСПЕХ, не ошибка — раньше
+    # такие филлы помечались sltp_ok=False и выглядели как позиции без стопов.
+    if "not modified" in str(res.get("retMsg", "")).lower() or res.get("retCode") == 110043:
+        return {"ok": True, "already_set": True}
     # Retry with positionIdx=0 (fallback for some account types)
     if res.get("retCode") == 10001:
         body = urllib.parse.urlencode({
@@ -507,6 +512,31 @@ def scan_and_place():
     expired = []
     for sym, lim in list(state.get("active_limits", {}).items()):
         expiry_min = OWNER_BET_EXPIRY_H * 60 if lim.get("owner_bet") else EXPIRY_MIN
+        # v1.7.1 (2026-09-06): ДОСРОЧНАЯ отмена owner-лимитки, если цена ушла
+        # от неё дальше 8% — сетап мёртв, маржа и квота зря резервированы
+        # (кейс UNI: +22% от лимита при 24ч экспирации).
+        try:
+            _cur_px = get_current_price(sym)
+            _l1 = float(lim.get("l1_price", 0) or 0)
+            if _cur_px > 0 and _l1 > 0:
+                _away = abs(_cur_px / _l1 - 1) * 100
+                _away_cap = 8.0
+            try:
+                _away_cap = float(json.loads(Path("/root/tradingos/operations/trading_mode.json").read_text()).get("owner_away_cancel_pct", 8.0))
+            except Exception:
+                pass
+            if _away > _away_cap:
+                    cres = cancel_limit(sym, lim.get("l1_order_id", ""))
+                    if lim.get("l2_order_id"):
+                        cancel_limit(sym, lim.get("l2_order_id"))
+                    if cres.get("ok") or "not exists" in str(cres.get("error", "")):
+                        del state["active_limits"][sym]
+                        save_state(state)
+                        log_event("AWAY_CANCELLED", {"symbol": sym, "away_pct": round(_away, 1)})
+                        print(f"  🗑 {sym}: лимитка отменена — цена ушла на {_away:.1f}% (сетап мёртв)")
+                        continue
+        except Exception:
+            pass
         if now - lim.get("placed_at", 0) > expiry_min * 60:
             expired.append(sym)
             for lvl in ("l1", "l2"):

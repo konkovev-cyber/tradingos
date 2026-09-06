@@ -445,6 +445,41 @@ async def _show_plan(update: Update, uid: int):
                           f"Лимитка SHORT ниже цены отклонится (PostOnly). Нажми «📊 Новая рекомендация».")
 
     _esc2 = _esc
+
+    # 🚨 GUARD: предупреждение «не лови нож» (2026-09-06).
+    # 23% зафиленных owner-лимиток — ножи (MAE≤-0.5R сразу после входа).
+    # Проверяем свежий импульс через entry_quality_gate и показываем вердикт
+    # ДО кнопки ПОСТАВИТЬ. Решение остаётся за владельцем.
+    knife_note = ""
+    try:
+        import httpx as _hxc
+        with _hxc.Client() as _c:
+            _kr = _c.get("https://api.bybit.com/v5/market/kline",
+                         params={"category": "linear", "symbol": sym,
+                                 "interval": "60", "limit": 60}).json()
+        _kl = _kr.get("result", {}).get("list", [])
+        if len(_kl) >= 30:
+            import pandas as _pd
+            _df = _pd.DataFrame({
+                "ts": [int(x[0]) for x in reversed(_kl)],
+                "o": [float(x[1]) for x in reversed(_kl)],
+                "h": [float(x[2]) for x in reversed(_kl)],
+                "l": [float(x[3]) for x in reversed(_kl)],
+                "c": [float(x[4]) for x in reversed(_kl)],
+            })
+            from tradingos.trade.entry_quality_gate import gate as _gate
+            _g = _gate(sym, "BUY" if side == "LONG" else "SELL",
+                       __import__("time").time(), _df,
+                       log=True, meta={"source": "bet_wizard_shadow"})
+            if _g.get("decision") == "SKIP":
+                knife_note = (f"\n🚨 <b>ВНИМАНИЕ — ПЛОХОЙ ВХОД:</b> {_esc(_g.get('reason',''))}. "
+                              f"Свежий импульс против направления — 23% таких лимиток ловят нож "
+                              f"(сразу в −0.5R).<br>")
+            elif _g.get("reason") == "REVERSAL_CONFIRMED":
+                knife_note = f"\n✅ Откат подтверждён реверсалом — профиль входа хороший.<br>"
+    except Exception:
+        pass
+
     # FIX 2026-09-03: LADDER — 1-15 лимитных ордеров на сетап (лестница входа).
     # n_levels задаёт владелец (кнопки), маржа делится поровну, уровни
     # распределяются от entry в сторону SL (DCA-лестница).
@@ -510,7 +545,7 @@ async def _show_plan(update: Update, uid: int):
         f"⚠️ Риск по SL (если все филлятся): <code>${risk_usd:,.0f}</code>\n"
         f"🏆 Профит по TP: <code>${reward_usd:,.0f}</code>\n"
         f"⚖️ R:R: <code>{rr:.2f}</code>\n"
-        f"{stale_note}\n"
+        f"{knife_note}{stale_note}\n"
         f"<i>Лестница = усреднение входа: чем глубже цена, тем больше филлов.\n"
         f"Подтверди или выбери число ордеров.</i>"
     )
