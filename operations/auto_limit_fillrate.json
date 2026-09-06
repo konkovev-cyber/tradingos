@@ -1098,5 +1098,15 @@
   "owner_bet": true,
   "hours_to_outcome": 2.5142384505934183,
   "quality": null
+ },
+ {
+  "sym": "FILUSDT",
+  "ts": 1788707402.3903303,
+  "outcome": "EXPIRED",
+  "side": "LONG",
+  "gap_pct": -1.864,
+  "owner_bet": true,
+  "hours_to_outcome": 24.072223871946335,
+  "quality": null
  }
 ]

@@ -96,25 +96,6 @@
       "rr_l2": 0.0,
       "note": "OWNER BET via /bet wizard: $9,128 margin 10x, 1-leg ladder"
     },
-    "FILUSDT": {
-      "placed_at": 1788620742.3843932,
-      "side": "LONG",
-      "sl": 0.76074,
-      "tp": 0.8008288412006415,
-      "l1_price": 0.7707622103001603,
-      "l2_price": 0.0,
-      "l1_order_id": "a54fb762-0cfb-4142-a64a-d346ed395b5e",
-      "l2_order_id": null,
-      "qty": 1297.4,
-      "rr_l1": 3.0,
-      "owner_bet": true,
-      "reversal": false,
-      "place_meta": {
-        "gap_pct": -1.864,
-        "quality": null
-      },
-      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
-    },
     "COINUSDT": {
       "placed_at": 1788627951.8604262,
       "side": "LONG",
@@ -743,6 +724,25 @@
       "reversal": false,
       "place_meta": {
         "gap_pct": -0.553,
+        "quality": null
+      },
+      "note": "AUTO-PORTFOLIO: $1,000 margin 10x"
+    },
+    "SOLUSDT": {
+      "placed_at": 1788707066.0204673,
+      "side": "LONG",
+      "sl": 104.45,
+      "tp": 106.05000000000003,
+      "l1_price": 104.85000000000001,
+      "l2_price": 0.0,
+      "l1_order_id": "6d71f3b6-4743-489e-bbd7-e805c05a4c58",
+      "l2_order_id": null,
+      "qty": 9.5,
+      "rr_l1": 3.0,
+      "owner_bet": true,
+      "reversal": false,
+      "place_meta": {
+        "gap_pct": -0.314,
         "quality": null
       },
       "note": "AUTO-PORTFOLIO: $1,000 margin 10x"

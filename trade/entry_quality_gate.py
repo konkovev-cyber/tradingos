@@ -201,8 +201,10 @@ def gate(symbol: str, side: str, ts: float, df: pd.DataFrame | None,
 
     imp = analyze_impulse(df, ts)
     if imp is None:
+        # FIX 2026-09-06: no-impulse тоже логируется (раньше return rec шёл мимо
+        # _finish → reality_shadow решения ALLOW/NORMAL не попадали в журнал)
         rec["decision"] = "ALLOW"; rec["reason"] = "NORMAL"
-        return rec
+        return _finish(rec, log)
 
     rec.update({
         "impulse_direction": imp["direction"],
