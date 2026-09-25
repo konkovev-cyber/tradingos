@@ -3,32 +3,36 @@
   "mode": "AUTO",
   "note_auto_stop_2026_08_19": "AUTO остановлен: все 6 forensic levers NO-GO (exit/entry-filter/timing/EMA-confirmation/direction-rebuild/external-context). WRONG_DIRECTION 29%, P3 n=9 Δ-$0.556. Нет подтверждённого systematic edge. P3 shadow продолжает read-only. R148/exit/guardian/risk без изменений.",
   "note_demo_switch_2026_08_27": "OWNER-APPROVED: все торговые контуры переключены на Bybit DEMO $100k (api-demo.bybit.com, ключи в execution/.env, BYBIT_DEMO=true). mode=AUTO разрешён владельцем ('запускаем торговлю по полной'). Риск 0.5% ($500/сделка, было $0.50), max_position $10k (было $80), плечо 5x, LONG-only (sell_disabled без изменений). Реальный счёт $80 не торгуется до отката (бэкап: backups/demo_switch_2026-08-27/).",
-  "sell_disabled": false,
+  "sell_disabled": true,
   "live_trading_enabled": true,
   "note_live_trading_enabled_2026_08_30": "OWNER-APPROVED 2-DAY AUTO TEST on $100k Bybit DEMO: live_trading_enabled=true для авто-контуров (reality, long-limit, funding-capture). Риск минимальный ($25/сделку, 1% позиция). Демо-счёт, не реальный. Откат: live_trading_enabled=false.",
-  "risk_per_trade": 50.0,
-  "risk_per_trade_pct": 0.015,
+  "risk_per_trade": 5.0,
+  "risk_per_trade_pct": 0.5,
   "note_min_risk_2day_test_2026_08_30": "OWNER-APPROVED 2-DAY AUTO TEST on Bybit DEMO (equity ~$180k): риск ~$25/сделку (risk_per_trade_pct=0.014), max_position 1%, leverage 5x, max_positions 4, throttle 60s. Funding-capture авто (>=11bps). Пост-сделочный аудит. Откат: risk 500/0.5%.",
   "note_pct_sizing_2026_08_27": "OWNER: сайзинг от любого депо. Приоритет: risk_per_trade_pct (% equity, 0.5 = $500 на $100k и $0.40 на $80) над risk_per_trade ($). Абс. страховки: min_risk_usd=0.5 (биржевой minNotional), max_risk_usd=1000. max_position_size_pct=10% equity вместо max_position_size_usd.",
   "min_risk_usd": 0.5,
-  "max_risk_usd": 1000.0,
-  "max_positions": 4,
+  "max_risk_usd": 12.0,
+  "max_positions": 3,
   "max_same_side_positions": 2,
-  "max_position_size_usd": 500.0,
-  "max_position_size_pct": 1.0,
+  "max_position_size_usd": 700.0,
+  "max_position_size_pct": 70.0,
   "max_leverage": 10,
   "throttle_seconds": 60,
   "night_ban_start": 0,
   "night_ban_end": 6,
   "blacklist_min_trades": 3,
   "blacklist_max_pf": 0.5,
-  "min_confidence": 0.48,
+  "min_confidence": 0.52,
   "deposit_guard_enabled": true,
-  "max_daily_loss_pct": 1.5,
-  "max_total_loss_pct": 2.0,
-  "max_open_risk_pct": 3.0,
+  "max_daily_loss_pct": 3.0,
+  "max_total_loss_pct": 6.0,
+  "max_open_risk_pct": 6.0,
   "min_limit_usd": 0.5,
   "min_available_margin_usd": 5.0,
+  "manual_positions": [
+    "BTCUSDT"
+  ],
+  "manual_positions_note": "2026-09-11 OWNER-APPROVED: BTCUSDT исключён из open-risk deposit guard (ручная позиция 22.8 BTC открыта из UI Bybit 2026-09-10 08:08Z, вне контуров). Раньше fallback-риск $35k > hard kill $60 → CRITICAL → MANUAL KILL 42ч, все контуры заблокированы. Ручные позиции не считаются в лимитах AUTO (см. note_manual_positions). Откат: manual_positions=[].",
   "kill_switch": false,
   "critical_alert_interval_sec": 900,
   "risk_reduction": {
@@ -56,7 +60,7 @@
     "max_risk_usd": 20.0
   },
   "partial_tp": {
-    "enabled": true,
+    "enabled": false,
     "close_fraction": 0.5,
     "trigger_r": 1.0
   },
@@ -75,7 +79,7 @@
   "note_sell_disabled_2026_08_25": "SHORT отключен по owner-решению: ручные шорты WR ~30% против 80% LONG, корень ложный h1_down на растущем рынке. sell_disabled=true блокирует SHORT-сигналы и SHORT-исполнение в ручном контуре. Отменить: sell_disabled=false.",
   "note_sell_disabled_off_2026_08_29": "OWNER-APPROVED: sell_disabled снят для funding-capture (кнопки 📌 SHORT на карточках funding-аномалий). Контекст 25.08 (ручные шорты WR ~30%) относился к сигнальным шортам сканера; funding-шорт — механическая выплата при |funding|>=3bps/8ч, риск <=1% депо/сделку, стоп в карточке.",
   "note_max_same_side_2026_08_30": "2-day demo test: max_same_side_positions 1->2 — funding-позиция (TUTUSDT LONG, стоп -6% из-за funding -100bps) блокировала reality AUTO (correlation max 1). Риск $25/сделку x2 = безопасно на демо.",
-  "dn_sweep_live_enabled": true,
+  "dn_sweep_live_enabled": false,
   "note_dn_sweep_live_2026_08_30": "OWNER-APPROVED 2-DAY TEST: DN-sweep LIVE включён (пост-онли лимитка + структурный SL + TIME exit 4h, риск $25, валидация n=325 WR62%). kill_switch fail-closed. Откат: dn_sweep_live_enabled=false.",
   "funding_min_funding_bps": 20.0,
   "funding_max_funding_bps": 50.0,
@@ -98,16 +102,50 @@
     "min_rr": 2.0,
     "require_quality": "GOOD",
     "mult": 1.5,
-    "max_per_day": 3,
+    "max_per_day": 2,
     "note": "2026-09-05 (owner: 'если сделка 100% сработает — жирнее'). Данные n=86: prob>=0.58 WR 62% avg +$7.95 vs 0.55-0.58 WR 45% avg +$3.91; GOOD avg +$13.53. Потолок x1.5 жёсткий. Плечо НЕ меняется (риск = размер/SL, не плечо). Пристальный guardian: BE @ 0.5R для conviction-позиций. Откат: enabled=false."
   },
   "note_risk_015_2026_09_06": "AUTO-risk halved (0.028→0.015%): авто-контур без подтверждённого edge (-$141/8д без 3 катастроф, +$8 после капов). Owner-ручной WR 70% остаётся полным. Откат: 0.028.",
   "reality_sell_shadow": true,
   "note_sell_shadow_2026_09_06": "REALITY SELL → SHADOW (−$119/36 сделок, -$3.3/сд). Сигналы SELL логируются, НЕ исполняются. LONG жив. Откат: reality_sell_shadow=false. (Отличие от sell_disabled: сигналы продолжают копить статистику для возврата.)",
   "owner_partial": {
-    "enabled": true,
-    "trigger_r": 0.5,
+    "enabled": false,
+    "trigger_r": 0.3,
     "close_frac": 0.3,
-    "note": "2026-09-06 (owner: 'сделай как лучше'). Owner-лимитки: медиана MFE 0.46R, 23% ножей. При пике +0.5R: закрыть 30% + SL→BE. Остаток 70% едет к TP без риска. Откат: enabled=false."
-  }
+    "note": "2026-09-15 OFF — candle-level replay (146 trades × M1): partial во ВСЕХ 7 вариантах ухудшает NET (-9.4R → -10..-12.7R). Каждый % partial отнимает от winners больше, чем спасает на losers. CONFIRMED."
+  },
+  "exit_ladder": {
+    "enabled": false,
+    "steps": [
+      {
+        "trigger_r": 0.7,
+        "close_frac": 0.4
+      },
+      {
+        "trigger_r": 1.5,
+        "close_frac": 0.3
+      }
+    ],
+    "tail_note": "хвост 30% едет к TP (3R) с трейлингом guardian'а",
+    "note": "2026-09-07 owner ('собирать по маленьку но часто'): ступени из MFE-анализа 60 сделок — 87% касаются 0.7R, 65% доходят 1.5R. При enabled=true owner_partial и partial_tp пропускаются. Откат: enabled=false.",
+    "rollback": "exit_ladder.enabled=false",
+    "rollback_note": "2026-09-15 DISABLED — candle replay: partial @any level ухудшает NET. Консистентно с owner_partial OFF."
+  },
+  "simulated_equity_usd": 1000,
+  "simulated_equity_note": "2026-09-07 owner: отладка на бюджете $1000 перед реальными деньгами. Все %-лимиты и сайзинг считают от $1000. Вернуть реальный equity: удалить ключ или 0.",
+  "dn_sweep_note": "2026-09-07: контур dn-sweep остановлен (paper 4 выхода/0R, live-тест от 30.08 не дал verdict). Вернуть: dn_sweep_live_enabled=true + systemctl enable --now dn-sweep-paper",
+  "risk_per_trade_pct_note": "2026-09-08: 0.5% = $5 на $1000-симуляции. ВНИМАНИЕ: единица — ПРОЦЕНТ (manual/long-limit: eq×pct/100). bet_push тоже переведён на /100. Смена обратно на долю = баг рассинхрона.",
+  "funding_risk_usd": 8.0,
+  "funding_risk_note": "2026-09-08: funding — лучший атрибутированный контур (+$69/8 сделок), риск усилен до $8 (0.8% депо). Откат: 5.0",
+  "btc_atr_pause_pct": 1.2,
+  "btc_atr_note": "2026-09-08: BTC ATR(1h)/цена ≥ 1.2% → авто-портфель пауза (рынок в хаосе). Порог: BTC обычно 0.4-0.8% в покое, 1.2+ =.news-волна.",
+  "funding_night_ban_start": 2,
+  "funding_night_ban_end": 5,
+  "funding_night_note": "2026-09-08: funding своё окно 2-5Z (глобальный night_ban 0-6Z на funding не действует). Выплаты 00/08/16 UTC — входы вокруг них открыты.",
+  "walls_multiple": 4.0,
+  "walls_min_usd": 500.0,
+  "walls_max_blocking_ratio": 0.35,
+  "walls_note": "2026-09-08: детектор стенок. Стенка = уровень ≥4× медианы объёма и ≥$500. BLOCKED (≥35% пути) → сигнал тихо; WEAK → предупреждение в визарде.",
+  "note_min_confidence_2026_09_15": "Audit: WR 40% при min_confidence 0.48 → подъём до 0.52 для более качественных сигналов. Данные: prob>=0.55 WR 62% vs prob 0.48-0.55 WR 35%.",
+  "note_sell_disabled_2026_09_24": "OWNER-APPROVED: SHORT отключён пока BTC растёт (+0.07%). Рынок восходящий, шорты ловят ножи (WR 7%). Вернуть: sell_disabled=false."
 }

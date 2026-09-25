@@ -79,7 +79,7 @@
   "funding_min_funding_bps": 20.0,
   "funding_max_funding_bps": 50.0,
   "note_funding_min_funding_bps_2026_08_30": "Жёсткий порог авто-funding: min 20 bps (комиссия 0.22% покрыта), max 50 bps (экстремум = сквиз-ловушка, ZKP −108bps → −$21). Единый гейт для авто/кнопок/карточек через _funding_tp_ok.",
-  "funding_auto_execute": true,
+  "funding_auto_execute": false,
   "note_funding_auto_2026_08_30": "OWNER-APPROVED 2-DAY TEST: funding-аномалии исполняются АВТОМАТИЧЕСКИ (без кнопки) через opportunity_watchdog, ТОЛЬКО при прохождении экономического гейта (funding>=11bps: цель покрывает комиссию 0.22% x1.5). Размер: не более max_position_size_pct=1% equity, риск до risk_per_trade=$25. kill_switch fail-closed. TACUSDT (4bps) и прочие <11bps — skip.",
   "note_funding_gate_2026_08_29": "VELVET-инцидент: TP=3×funding (0.09%) < комиссия round-trip 0.22% → сделка убыточна до входа. funding_fee_round_trip_pct = фактические издержки (обсчитано по CLOUSDT/VELVET), funding_min_edge_mult = запас поверх. Вход блокируется, пока цель < издержки×mult (funding ≥ ~11 bps/8ч).",
   "note_bingx_fees_2026_09_01": "BingX taker 0.05%/сторона = 0.10% RT (подтверждено фактическими комиссиями: 2.707/5414 = 0.05%). Было 0.22 (Bybit+запас). Меньше комиссия = ниже порог проходимости funding-аномалий.",
@@ -89,5 +89,12 @@
   "note_entry_gate_2026_09_02": "OWNER: entry_quality_gate отключен для ручного контура. Гейт от AUTO (OPPOSITE_IMPULSE/EXTENDED_ENTRY) блокировал 100% сигналов. Ручной контур решает сам.",
   "note_funding_min_funding_bps_2026_09_02": "OWNER: Снижен с 20 -> 11 bps. При 11 bps + 3 выплаты = 33 bps goal, комиссия 0.10% RT покрыта с запасом 1.5x. 11 bps достаточен по экономическому гейту (goal > fee×mult).",
   "note_max_amount_pct_5_2026_09_03": "GIGANTIC-POSITION BUG (2026-09-03): max_amount_pct=50 давал NEARUSDT 0k notional (50% equity!) — market order закрылся instantly, убыток 9 = ВСЕ комиссия (taker 2×0.055% × 0k). AVAX 8k fees 9.80 > gross +/bin/bash.46. 50 → 5 (5% equity = k на 80k demo).",
-  "note_funding_fee_bybit_2026_09_04": "Fee-gate audit 2026-09-04: funding_fee_round_trip_pct restored 0.1 -> 0.22 (0.1 была BingX-fee Sept-1, но watchdog сканирует funding-аномалии Bybit: actual RT fees 0.075% small / 0.22% big positions — GOOGL/PRL/CYS $20 fees per entry). funding_min_funding_bps restored 11 -> 20 per note 2026-08-30 (min 20 bps при fee 0.22% покрыта). BingX anomalies (если появятся) будут over-blocked — right conservative."
+  "note_funding_fee_bybit_2026_09_04": "Fee-gate audit 2026-09-04: funding_fee_round_trip_pct restored 0.1 -> 0.22 (0.1 была BingX-fee Sept-1, но watchdog сканирует funding-аномалии Bybit: actual RT fees 0.075% small / 0.22% big positions — GOOGL/PRL/CYS $20 fees per entry). funding_min_funding_bps restored 11 -> 20 per note 2026-08-30 (min 20 bps при fee 0.22% покрыта). BingX anomalies (если появятся) будут over-blocked — right conservative.",
+  "manual_orders_disabled": true,
+  "manual_orders_disabled_note": "2026-09-07 owner: ручные ордера отключены — авто и так работают. /manual_on — вернуть",
+  "blocked_signal_cooldown_sec": 3600,
+  "note_blocked_signal_cooldown": "T19: BLOCKED дубли не пишутся чаще 1 раза в час на символ",
+  "market_move_cancel_pct": 1.0,
+  "note_market_move_cancel": "T1.3: WAIT-limit отменяется если цена ушла от зоны >1% (LONG: выше лимитки, SHORT: ниже). Настраивается через market_move_cancel_pct.",
+  "note_funding_auto_execute_disabled": "OWNER-APPROVED 2026-09-24: funding auto-execution отключен. Реальный счет, минимальный риск сливает. Ручной контур продолжает работу."
 }

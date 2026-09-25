@@ -61,6 +61,26 @@ def _is_paused() -> bool:
     return bool(_pause_state().get("paused", False))
 
 
+def _manual_orders_disabled() -> bool:
+    """2026-09-07 (owner: «ручные ордера отключи, не вижу смысла — авто и так
+    работают»): глобальное отключение НОВЫХ ручных входов.
+    Флаг: manual_session.json → manual_orders_disabled. Файл отсутствует/битый
+    → False (не блокируем по умолчанию; отключение должно быть явным).
+    Управление: /manual_off (отключить), /manual_on (вернуть).
+    Открытые позиции и управление ими (close/SL/TP/BingX-действия) не трогает."""
+    try:
+        return bool(_cfg().get("manual_orders_disabled", False))
+    except Exception:
+        return False
+
+
+def _manual_off_msg() -> str:
+    return ("🚫 <b>Ручные ордера отключены</b> (manual_orders_disabled=true).\n"
+            "Авто-контуры (reality, long-limit, funding, dn_sweep, авто-портфель) "
+            "работают штатно.\n"
+            "<i>Вернуть: /manual_on</i>")
+
+
 def _set_paused(paused: bool, reason: str = "user") -> None:
     """Записать kill-switch состояние на диск (persistent)."""
     st = _pause_state()
@@ -457,6 +477,33 @@ async def cmd_resume(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.effective_message.reply_text("▶️ Ручная сессия возобновлена.")
 
 
+async def cmd_manual_off(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """2026-09-07 (owner): глобальное отключение новых ручных ордеров.
+    Авто-контуры не трогает; управление открытыми позициями остаётся."""
+    cfg = _cfg()
+    cfg["manual_orders_disabled"] = True
+    cfg["manual_orders_disabled_note"] = (
+        "2026-09-07 owner: ручные ордера отключены — авто и так работают. /manual_on — вернуть")
+    CONFIG.parent.mkdir(parents=True, exist_ok=True)
+    CONFIG.write_text(json.dumps(cfg, indent=2, ensure_ascii=False))
+    await update.effective_message.reply_text(
+        "🚫 <b>Ручные ордера отключены.</b>\n"
+        "✅ Авто-контуры работают штатно (reality, long-limit, funding, dn_sweep, авто-портфель)\n"
+        "✅ Открытые позиции ведутся (guardian, SL/TP, частичные закрытия)\n"
+        "🚫 Новые ручные входы: /bet, маркет-карточки, WAIT-лимитки, BingX-входы — блокированы\n\n"
+        "<i>Вернуть: /manual_on</i>", parse_mode="HTML")
+
+
+async def cmd_manual_on(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Вернуть ручные ордера."""
+    cfg = _cfg()
+    cfg["manual_orders_disabled"] = False
+    cfg["manual_orders_disabled_note"] = "возвращено owner через /manual_on"
+    CONFIG.write_text(json.dumps(cfg, indent=2, ensure_ascii=False))
+    await update.effective_message.reply_text(
+        "✅ <b>Ручные ордера включены обратно.</b>", parse_mode="HTML")
+
+
 async def cmd_waitreport(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """P2b: отчёт по эффективности WAIT-лимиток (entry improvement, fee)."""
     try:
@@ -615,10 +662,11 @@ def _main_menu_kb() -> InlineKeyboardMarkup:
         [InlineKeyboardButton("🎯 Сигналы", callback_data="signals_menu"),
          InlineKeyboardButton("📋 Позиции", callback_data="positions_menu")],
         [InlineKeyboardButton("🔵 BingX-сигнал", callback_data="bx_menu"),
-         InlineKeyboardButton("⚙️ SL/TP", callback_data="sltp_menu")],
-        [InlineKeyboardButton("💰 Риск", callback_data="risk_menu"),
-         InlineKeyboardButton("⏸ Пауза", callback_data="pause_menu")],
-        [InlineKeyboardButton("ℹ️ Помощь", callback_data="help_menu")],
+         InlineKeyboardButton("📊 BingX-позиции", callback_data="bxdigest")],
+        [InlineKeyboardButton("⚙️ SL/TP", callback_data="sltp_menu"),
+         InlineKeyboardButton("💰 Риск", callback_data="risk_menu")],
+        [InlineKeyboardButton("⏸ Пауза", callback_data="pause_menu"),
+         InlineKeyboardButton("ℹ️ Помощь", callback_data="help_menu")],
     ])
 
 
@@ -655,6 +703,11 @@ async def _execute_manual_order(update, context, uid: int, pending: dict, amount
             "Исполнение заблокировано. Для возобновления: /resume",
             parse_mode="HTML",
         )
+        return
+    # 2026-09-07 (owner): ручные ордера отключены — fail-safe перед API-вызовом.
+    if _manual_orders_disabled():
+        _awaiting_amount.pop(uid, None)
+        await reply.reply_text(_manual_off_msg(), parse_mode="HTML")
         return
     # sell_disabled=true → SHORT входы заблокированы (2026-08-25).
     # Защита от старых SHORT-сигналов в журнале после отключения шортов.
@@ -1196,6 +1249,10 @@ async def _handle_bx_confirm(update: Update, context: ContextTypes.DEFAULT_TYPE,
     if action == "BXNO":
         await q.message.reply_text("❌ BingX-лимитка отменена.", parse_mode="HTML")
         return
+    # 2026-09-07 (owner): ручные ордера отключены
+    if _manual_orders_disabled():
+        await q.message.reply_text(_manual_off_msg(), parse_mode="HTML")
+        return
     if datetime.now(timezone.utc) > entry["expires"]:
         await q.message.reply_text("⏰ Подтверждение истекло (120 сек). Повтори сигнал.", parse_mode="HTML")
         return
@@ -1557,6 +1614,10 @@ async def callback_handler_manual(update: Update, context: ContextTypes.DEFAULT_
         if _is_paused():
             await query.message.reply_text("⏸ PAUSED — исполнение заблокировано.")
             return True
+        # 2026-09-07 (owner): ручные ордера отключены
+        if _manual_orders_disabled():
+            await query.message.reply_text(_manual_off_msg(), parse_mode="HTML")
+            return True
         sig = _last_signals.get(sym)
         if sig is None or not sig.get("wait_limit_entry"):
             sig = _load_signal_from_journal(sym)
@@ -1751,6 +1812,12 @@ async def callback_handler_manual(update: Update, context: ContextTypes.DEFAULT_
                                 f"(цена в/за зоной). Это не откат, а проход — ждём новых сигналов /signals.",
                                 parse_mode="HTML")
                             _awaiting_amount.pop(uid, None)
+                            return True
+                        # 2026-09-07 (audit HIGH): финальный fail-safe — ручные
+                        # ордера отключены. Визард мог быть открыт ДО /manual_off.
+                        if _manual_orders_disabled():
+                            _awaiting_amount.pop(uid, None)
+                            await query.message.reply_text(_manual_off_msg(), parse_mode="HTML")
                             return True
                         res = await asyncio_to_thread(
                             lambda: _place_limit_order(sym, pending["side"], wl, amount,
@@ -2314,7 +2381,8 @@ def _execute_confirmed_pending(pending: dict, amount: float, audit_extra: dict) 
     try:
         res = _place_market_order(
             pending["symbol"], pending["side"], amount,
-            pending["sl"], pending["tp"])
+            pending["sl"], pending["tp"],
+            leverage=pending.get("lev"))
         if res.get("ok"):
             return True, "executed"
         return False, f"execution failed: {res}"
@@ -2368,25 +2436,32 @@ _tg_notifier = None
 
 
 def _load_tg_creds() -> tuple[str, str, str]:
-    """Токен/чат/прокси нотификатора TradingOS из .env гардиана."""
+    """Токен/чат/прокси нотификатора TradingOS.
+
+    2026-09-07: источник №1 — /root/mt5_trading_bot/.env (РАБОЧИЙ токен, им
+    поллит сам бот-процесс). Источник №2 — execution/.env: его токен
+    ОТОЗВАН Telegram (401 Unauthorized, проверено getMe) — только fallback."""
     token, chat, proxy = "", "", ""
-    env_path = "/root/trading_brain_v4/research/execution/.env"
-    try:
-        with open(env_path) as f:
-            for line in f:
-                line = line.strip()
-                if not line or line.startswith("#") or "=" not in line:
-                    continue
-                k, v = line.split("=", 1)
-                k, v = k.strip(), v.strip()
-                if k == "TELEGRAM_BOT_TOKEN":
-                    token = v
-                elif k == "TELEGRAM_CHAT_ID":
-                    chat = v
-                elif k == "TELEGRAM_PROXY":
-                    proxy = v
-    except FileNotFoundError:
-        pass
+    for env_path in ("/root/mt5_trading_bot/.env",
+                     "/root/trading_brain_v4/research/execution/.env"):
+        try:
+            with open(env_path) as f:
+                for line in f:
+                    line = line.strip()
+                    if not line or line.startswith("#") or "=" not in line:
+                        continue
+                    k, v = line.split("=", 1)
+                    k, v = k.strip(), v.strip()
+                    if k == "TELEGRAM_BOT_TOKEN" and not token:
+                        token = v
+                    elif k == "TELEGRAM_CHAT_ID" and not chat:
+                        chat = v
+                    elif k == "TELEGRAM_PROXY" and not proxy:
+                        proxy = v
+        except FileNotFoundError:
+            continue
+        if token and chat:
+            break
     return token, chat, proxy
 
 
@@ -2401,8 +2476,9 @@ async def _get_tradingos_notifier():
             logger.warning("TELEGRAM_BOT_TOKEN/CHAT_ID нет в .env — карточка в TradingOS не отправлена")
             return None
         from tradingos.notifier.notifier import Notifier
-        _tg_notifier = Notifier(token=token, chat_id=chat, proxy_url=proxy or None)
-        await _tg_notifier.start()
+        _n = Notifier(token=token, chat_id=chat, proxy_url=proxy or None)
+        await _n.start()
+        _tg_notifier = _n  # FIX 2026-09-07 (audit MEDIUM): assign ПОСЛЕ start — гонка
     except Exception as e:
         logger.warning(f"TradingOS notifier init failed: {e}")
         _tg_notifier = None
@@ -2881,11 +2957,9 @@ def _set_manual_trading_stop(symbol: str, qty: float, sl: float, tp: float) -> b
     try:
         sys.path.insert(0, "/root/tradingos")
         from guardian.reality_guardian import _set_trading_stop
-        ok1 = _set_trading_stop(symbol, stop_loss=sl)
-        ok2 = _set_trading_stop(symbol, take_profit=tp)
-        logger.info(f"🛡 WAIT-LIMIT SL/TP поставлены после филла: {symbol} SL={sl} TP={tp} "
-                    f"({ok1}/{ok2})")
-        return bool(ok1 and ok2)
+        ok = _set_trading_stop(symbol, stop_loss=sl, take_profit=tp)
+        logger.info(f"🛡 WAIT-LIMIT SL/TP поставлены после филла: {symbol} SL={sl} TP={tp} ({ok})")
+        return bool(ok)
     except Exception as e:
         logger.error(f"WAIT-LIMIT set-trading-stop error {symbol}: {e}")
         return False
@@ -2992,6 +3066,7 @@ def _cancel_wait_limits() -> None:
     не касалась и прошло 3 закрытия H1, гипотеза устарела. При отмене:
     уведомление в TradingOS-чат + журнал исхода (P2a) + удаление из state.
     """
+    from tradingos.signals.manual_scanner import load_config
     import hashlib
     import hmac
     import httpx
@@ -3015,7 +3090,28 @@ def _cancel_wait_limits() -> None:
         # Жёсткий потолок времени тоже держим (защита от застревания)
         hard_expires = rec.get("expires_at", now + 1)
         expired_age = bars_elapsed >= max_h1 or now >= hard_expires
-        if not expired_age:
+        # T1.3: market-move cancel — если цена ушла от зоны лимитки назад
+        # (для LONG: цена выше лимитки + порог; для SHORT: ниже). Лимитка
+        # «не дождётся» отката — cancel и предложить новый уровень.
+        market_move_reason = None
+        if not expired_age and rec.get("status") == "PLACED":
+            _mmp_cfg = float(load_config().get("market_move_cancel_pct", 1.0) or 1.0)
+            try:
+                import httpx as _hx
+                with _hx.Client(timeout=5) as _mc:
+                    _tr = _mc.get("https://api.bybit.com/v5/market/tickers",
+                                  params={"category": "linear", "symbol": sym})
+                    _cur = float((_tr.json().get("result") or {}).get("list") or [{}])[0].get("lastPrice", 0)
+                _lp = float(rec.get("price") or 0)
+                _side = str(rec.get("side", "LONG")).upper()
+                if _cur > 0 and _lp > 0:
+                    if _side in ("LONG", "BUY") and _cur > _lp * (1 + _mmp_cfg / 100):
+                        market_move_reason = f"PRICE_ABOVE_ZONE: cur={_cur:.4f} > limit={_lp:.4f} (+{_mmp_cfg}%)"
+                    elif _side in ("SHORT", "SELL") and _cur < _lp * (1 - _mmp_cfg / 100):
+                        market_move_reason = f"PRICE_BELOW_ZONE: cur={_cur:.4f} < limit={_lp:.4f} (-{_mmp_cfg}%)"
+            except Exception:
+                pass
+        if not expired_age and not market_move_reason:
             continue
         # Уже исполнен/удалён — не трогаем
         if rec.get("status") not in ("PLACED",):
@@ -3039,14 +3135,17 @@ def _cancel_wait_limits() -> None:
             res = r.json()
             if res.get("retCode") == 0:
                 logger.info(f"⛔ WAIT-LIMIT истёк и отменён: {sym}")
-                cancelled.append((sym, rec))
+                _cr = market_move_reason or "не исполнился за 4 часа (экспирация)"
+                cancelled.append((sym, rec, _cr))
             else:
                 logger.warning(f"WAIT-LIMIT cancel fail {sym}: {res.get('retMsg')}")
             # P2a: журналируем исход (экскурсия цены + гипотетический PnL)
+            _outcome_reason = "MARKET_MOVE" if market_move_reason else "EXPIRED"
             try:
-                _log_wait_outcome(sym, rec, "EXPIRED")
+                _log_wait_outcome(sym, rec, _outcome_reason)
             except Exception as e:
                 logger.debug(f"wait outcome log fail {sym}: {e}")
+            _cancel_notify_msg = market_move_reason if market_move_reason else "не исполнился за 4 часа (экспирация)"
             del st[sym]
         except Exception as e:
             logger.warning(f"WAIT-LIMIT cancel error {sym}: {e}")
@@ -3057,10 +3156,9 @@ def _cancel_wait_limits() -> None:
             import asyncio as _asi
             _loop = _asi.new_event_loop()
             _asi.set_event_loop(_loop)
-            for sym, rec in cancelled:
+            for sym, rec, reason in cancelled:
                 _loop.run_until_complete(
-                    _notify_wait_limit_cancelled(
-                        sym, "не исполнился за 4 часа (экспирация)"))
+                    _notify_wait_limit_cancelled(sym, reason))
             _loop.close()
         except Exception as e:
             logger.warning(f"WAIT-LIMIT cancel notify failed: {e}")
@@ -3182,6 +3280,122 @@ def _delete_wait_limit(symbol: str, reason: str = "CANCELLED") -> dict:
 # Задача 4: мониторинг MANUAL-позиций — уведомление о закрытии (SL/TP/ручное)
 _tracked_positions: dict[str, dict] = {}
 
+# ─── Универсальные карточки сделок (2026-09-07, owner: «нет сообщений о
+# закрытии или открытии сделок — так не пойдёт») ─────────────────────────────
+# Монитор позиций теперь трекает ВСЕ позиции (AUTO-портфель, funding, reality,
+# manual) и шлёт карточки ОТКРЫТИЕ/ЗАКРЫТИЕ. closed-pnl сверка ловит сделки,
+# открывшиеся и закрывшиеся между опросами (TMX-кейс 16:00).
+_seen_close_ids: dict[str, float] = {}
+_SEEN_CLOSES_PATH = ROOT / "operations/monitor_seen_closes.json"
+_monitor_bootstrapped = False
+_monitor_started_at = 0.0
+# symbol → ts последней ЗАКРЫТИЕ-карточки (анти-дубль между циклами)
+_closed_card_ts: dict[str, float] = {}
+_CLOSED_CARD_TTL = 900.0  # 15 мин
+
+
+def _load_seen_closes() -> None:
+    global _seen_close_ids
+    try:
+        d = json.loads(_SEEN_CLOSES_PATH.read_text())
+        cutoff = time.time() - 48 * 3600
+        _seen_close_ids = {k: v for k, v in d.items() if isinstance(v, (int, float)) and v > cutoff}
+    except Exception:
+        _seen_close_ids = {}
+
+
+def _save_seen_closes() -> None:
+    try:
+        cutoff = time.time() - 48 * 3600
+        _SEEN_CLOSES_PATH.write_text(
+            json.dumps({k: v for k, v in _seen_close_ids.items() if v > cutoff}))
+    except Exception:
+        pass
+
+
+def _fmt_qty(q: float) -> str:
+    """Человекочитаемое количество БЕЗ e-нотации (12930, не 1.293e+04)."""
+    try:
+        q = float(q)
+    except Exception:
+        return str(q)
+    if q >= 1000:
+        return f"{q:,.0f}".replace(",", " ")
+    if q >= 100:
+        return f"{q:,.1f}"
+    if q >= 1:
+        return f"{q:.2f}"
+    return f"{q:.6f}".rstrip("0").rstrip(".") or "0"
+
+
+async def _send_trade_card(kind: str, text: str, *, symbol: str = "",
+                           side: str = "", entry_price: float = 0.0,
+                           qty: float = 0.0, sl: float = 0.0, tp: float = 0.0,
+                           exit_price: float = 0.0, pnl: float = 0.0,
+                           entry_time: float | None = None,
+                           exit_time: float | None = None,
+                           leverage: int = 10):
+    """Карточка сделки в TG (открытие/закрытие — любой контур).
+    С графиком (PNG: свечи Bybit + разметка входа/SL/TP — как в старых
+    ubot-карточках, notifier/chart_gen.py) при возможности; текст — caption.
+    Fallback — текст-only, если генерация упала."""
+    try:
+        # График строим только когда есть чем: symbol + цены
+        if symbol and (entry_price or exit_price):
+            n = await _get_tradingos_notifier()
+            if n is not None:
+                try:
+                    from tradingos.notifier.chart_gen import generate_trade_chart
+                    _side = side or ("LONG" if "LONG" in text else "SHORT")
+                    # generate_trade_chart требует entry_time (иначе None) —
+                    # для открытых позиций подставляем текущее время
+                    _et = entry_time or time.time()
+                    _xt = exit_time or None
+                    chart_bytes = await generate_trade_chart(
+                        exchange=None, symbol=symbol,
+                        entry_price=entry_price or exit_price,
+                        entry_time=_et,
+                        exit_price=exit_price or None,
+                        exit_time=_xt,
+                        side=_side, sl=sl or 0, tp=tp or 0,
+                        interval="15", leverage=leverage, pnl=pnl or None,
+                        qty=qty or None,
+                    )
+                    if chart_bytes:
+                        # 2026-09-08: _send_photo напрямую (синхронный результат:
+                        # True/False), очередь-вариант возвращал None → ложный
+                        # фолбэк-текст дублировал каждую карточку с фото
+                        _photo_ok = await n._send_photo(chart_bytes, caption=text)
+                        if _photo_ok:
+                            return
+                except Exception as _ce:
+                    logger.debug(f"chart gen fail {symbol}: {_ce}")
+    except Exception:
+        pass
+    # Fallback: текст-only (старый путь)
+    try:
+        import httpx
+        from telegram import Bot
+        from telegram.request import HTTPXRequest
+        load_dotenv("/root/mt5_trading_bot/.env")
+        token = os.environ.get("TELEGRAM_BOT_TOKEN", "")
+        chat_id = os.environ.get("TELEGRAM_CHAT_ID", "")
+        if not token or not chat_id:
+            return
+        request = HTTPXRequest(proxy="socks5://127.0.0.1:1080", connect_timeout=15, read_timeout=60)
+        bot = Bot(token=token, request=request)
+        try:
+            await bot.send_message(chat_id=chat_id, text=text, parse_mode="HTML")
+        finally:
+            # FIX 2026-09-07: закрывать HTTPXRequest — иначе «Unclosed client
+            # session» копится на каждой карточке-фолбэке
+            try:
+                await request.shutdown()
+            except Exception:
+                pass
+    except Exception as e:
+        logger.warning(f"trade card ({kind}) send failed: {e}")
+
 
 def _update_tracked_mfe_mae(sym: str, info: dict, pos: dict):
     """Телеслой: обновить MFE/MAE живой позиции по цене из position-ответа.
@@ -3254,6 +3468,35 @@ def _log_position_close(sym: str, info: dict, now: float | None = None):
         JOURNAL.parent.mkdir(parents=True, exist_ok=True)
         with JOURNAL.open("a") as f:
             f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+        # POST-DOGE guard (2026-09-07, A+B): детект стоп-аута и запись в
+        # sl_guards_state — кулдаун 4ч + дневной лимит на повторный вход.
+        # SL берём из guardian state (там точный sl_initial/be). Детект:
+        # LONG закрыт ниже SL / SHORT выше SL.
+        try:
+            import sys as _sysg
+            if "/root/tradingos" not in _sysg.path:
+                _sysg.path.insert(0, "/root/tradingos")
+            from tradingos.operations.risk_guards import record_stop_out
+            _sl = None
+            try:
+                _gs = json.loads(Path("/root/tradingos/guardian/reality_state.json").read_text())
+                _gsl = (_gs.get(sym) or {}).get("sl_initial")
+                if _gsl:
+                    _sl = float(_gsl)
+            except Exception:
+                _sl = info.get("sl")
+            if _sl and entry:
+                _is_long = str(side).upper() in ("BUY", "LONG")
+                _hit_sl = (last_px <= _sl) if _is_long else (last_px >= _sl)
+                # FIX 2026-09-08 (owner ночь): BE-выход С ПРИБЫЛЬЮ — не нож!
+                # SL у BE стоит выше входа (BE_LOCK) → hit_sl=True при pnl>0,
+                # и прибыльная сделка получала 4ч кулдаун (SUI-кейс: +$0.68 → блок).
+                if _hit_sl and pnl_usd < 0:
+                    record_stop_out(sym, pnl_usd=pnl_usd)
+                    logger.info(f"🧊 SL guard: {sym} стоп-аут записан "
+                                f"(pnl≈{pnl_usd:.2f}$) → кулдаун/дневной лимит активны")
+        except Exception as _ge:
+            logger.debug(f"sl guard record fail {sym}: {_ge}")
         # T18: дописать MFE/MAE в последний FILLED/PARTIAL-исход этого символа
         # в wait_limit_outcomes.jsonl — чтобы /waitreport мог показывать MFE/MAE
         # на уровень лестницы (LF1 vs L2). Читаем → апдейт → перезапись.
@@ -3338,7 +3581,180 @@ async def background_position_monitor():
                 except Exception as e:
                     logger.debug(f"validation counterfactual update failed: {e}")
 
-            # Проверить отслеживаемые MANUAL-позиции
+            # ─── Универсальные карточки ОТКРЫТИЕ/ЗАКРЫТИЕ (2026-09-07) ───
+            # Все позиции (AUTO/funding/reality/manual), не только MANUAL.
+            global _monitor_bootstrapped
+            _first_cycle = not _monitor_bootstrapped
+            if _first_cycle:
+                _load_seen_closes()
+                _monitor_started_at = time.time()
+                _monitor_bootstrapped = True
+            _closed_notified: set[str] = set()
+            # FIX 2026-09-07 (audit HIGH): трек «уже разосланных закрытий» на
+            # символ — живёт между циклами (модульный словарь), чтобы
+            # отставший closed-pnl (>$60с) не дал вторую карточку после
+            # fallback-оценки.
+            # closed-pnl сверка: ловит сделки, открывшиеся И закрывшиеся между
+            # опросами (быстрые стопы — TMX-кейс), и даёт точный PnL закрытия.
+            # Частичные закрытия (позиция ещё открыта) НЕ карточим — их
+            # анонсирует guardian (LADDER_TP/PARTIAL_TP/TRAIL).
+            try:
+                import hashlib as _hl, hmac as _hm
+                _ts2 = int(time.time() * 1000)
+                _q2 = "category=linear&limit=50"
+                _p2 = f"{_ts2}{_ak}{recv_window}{_q2}"
+                _sg2 = _hm.new(_as.encode(), _p2.encode(), _hl.sha256).hexdigest()
+                _h2 = {"X-BAPI-API-KEY": _ak, "X-BAPI-TIMESTAMP": str(_ts2),
+                       "X-BAPI-RECV-WINDOW": recv_window, "X-BAPI-SIGN": _sg2}
+                with httpx.Client(timeout=15) as _c:
+                    _rc = _c.get(_api_base() + "/v5/position/closed-pnl?" + _q2, headers=_h2)
+                for _cl in ((_rc.json().get("result") or {}).get("list") or []):
+                    _oid = _cl.get("orderId") or ""
+                    if not _oid or _oid in _seen_close_ids:
+                        continue
+                    _cl_ts = int(float(_cl.get("updatedTime", 0) or 0)) / 1000
+                    _seen_close_ids[_oid] = time.time()
+                    if _cl_ts < _monitor_started_at - 60:
+                        continue  # закрытие ДО старта монитора — не спамим
+                    _sym_c = _cl.get("symbol", "?")
+                    if _sym_c in current:
+                        continue  # частичное — guardian уже анонсирует
+                    if _first_cycle:
+                        continue  # после рестарта не спамим старыми закрытиями
+                    _closed_notified.add(_sym_c)
+                    _last_card = _closed_card_ts.get(_sym_c, 0)
+                    if time.time() - _last_card < _CLOSED_CARD_TTL:
+                        continue  # карточка этого закрытия уже ушла (fallback)
+                    # POST-DOGE guard (2026-09-07): записываем стоп-аут в
+                    # risk_guards (кулдаун 4ч + дневной лимит) — ДЛЯ ВСЕХ
+                    # контуров, включая авто-портфель (раньше писались только
+                    # manual — DOGE/PYTH повторно входили в тот же нож).
+                    try:
+                        from tradingos.operations.risk_guards import record_stop_out
+                        _info = _tracked_positions.get(_sym_c)
+                        _is_sl = False
+                        if _info:
+                            _csl = float(_info.get("sl", 0) or 0)
+                            _cside = str(_info.get("side", "")).lower()
+                            _cxp = float(_cl.get("avgExitPrice", 0) or 0)
+                            if _csl > 0:
+                                _is_sl = ((_cxp <= _csl * 1.001) if _cside.startswith("buy")
+                                          else (_cxp >= _csl * 0.999))
+                        elif float(_cl.get("closedPnl", 0) or 0) < 0:
+                            # открылась+закрылась между опросами и в минус —
+                            # это почти наверняка мгновенный стоп (нож)
+                            _is_sl = True
+                        _cl_pnl = float(_cl.get("closedPnl", 0) or 0)
+                        if _is_sl and _cl_pnl < 0:
+                            record_stop_out(_sym_c, pnl_usd=_cl_pnl)
+                            logger.info(f"🧊 SL guard: {_sym_c} стоп-аут (авто-контур) записан")
+                        elif _is_sl:
+                            logger.info(f"🧊 SL-guard: {_sym_c} BE-выход в плюс ({_cl_pnl:+.2f}$) — не нож, не блокируем")
+                    except Exception as _rse:
+                        logger.debug(f"sl guard record fail {_sym_c}: {_rse}")
+                    _pnl = float(_cl.get("closedPnl", 0) or 0)
+                    _qty = float(_cl.get("qty", 0) or 0)
+                    _ep = float(_cl.get("avgEntryPrice", 0) or 0)
+                    _xp = float(_cl.get("avgExitPrice", 0) or 0)
+                    _side = "SHORT" if str(_cl.get("side")) == "Buy" else "LONG"  # side закрывающего
+                    _emo = "🟢" if _pnl >= 0 else "🔴"
+                    # 2026-09-11: ЕДИНАЯ карточка закрытия — guardian (rich-карточка
+                    # notify_trade_close) и этот монитор делят реестр
+                    # operations/close_cards.py. Кто первый застолбил — тот и шлёт.
+                    try:
+                        from tradingos.operations import close_cards as _cc
+                        if not _cc.claim(_sym_c):
+                            logger.info(f"close card dedup: {_sym_c} — guardian уже отправил карточку")
+                            continue
+                    except Exception:
+                        pass
+                    # Обогащение из записи closed-pnl (owner 2026-09-11: «в карточке
+                    # нет комиссии и другого — зачем тогда эти поля»):
+                    # комиссия openFee+closeFee, длительность, причина, R.
+                    _extra_lines = []
+                    _fees = abs(float(_cl.get("openFee", 0) or 0)) + abs(float(_cl.get("closeFee", 0) or 0))
+                    _ct = int(float(_cl.get("createdTime", 0) or 0)) / 1000
+                    _ut = int(float(_cl.get("updatedTime", 0) or 0)) / 1000
+                    if _fees > 0.005:
+                        _extra_lines.append(f"💸 Комиссия: ${_fees:.2f}")
+                    if _ct > 0 and _ut > _ct:
+                        _d = int(_ut - _ct)
+                        _dur = f"{_d}с" if _d < 60 else (
+                            f"{_d // 60}мин" if _d < 3600 else f"{_d // 3600}ч {(int(_ut - _ct) % 3600) // 60}мин")
+                        _extra_lines.append(f"⏱ {_dur}")
+                    # Причина: execType (Stop/Take) точнее эвристики; иначе — по SL из трека
+                    _reason_txt = ""
+                    _exec = str(_cl.get("execType", "") or "")
+                    _info_c = _tracked_positions.get(_sym_c) or {}
+                    _csl = float(_info_c.get("sl", 0) or 0)
+                    if "Stop" in _exec:
+                        _reason_txt = "🛑 Stop Loss"
+                    elif "Take" in _exec:
+                        _reason_txt = "🎯 Take Profit"
+                    elif _csl > 0 and abs(_xp - _csl) <= max(abs(_ep - _csl) * 0.1, _ep * 0.001):
+                        _reason_txt = "🛑 Stop Loss"
+                    if _reason_txt:
+                        _extra_lines.insert(0, _reason_txt)
+                    # R-multiple по фактическому SL из трека
+                    if _csl > 0 and abs(_ep - _csl) > 0:
+                        _r = ((_ep - _xp) if _side == "SHORT" else (_xp - _ep)) / abs(_ep - _csl)
+                        _extra_lines.append(f"📊 R: {_r:+.2f}R")
+                    _extra_txt = ("\n" + " | ".join(_extra_lines)) if _extra_lines else ""
+                    _closed_card_ts[_sym_c] = time.time()
+                    await _send_trade_card(
+                        "close",
+                        f"{_emo} <b>ЗАКРЫТИЕ</b> {_sym_c} {_side}\n"
+                        f"{_ep:.6g} → {_xp:.6g} | qty {_fmt_qty(_qty)}\n"
+                        f"PnL: <b>{_pnl:+.2f}$</b>{_extra_txt}",
+                        symbol=_sym_c, side=_side, entry_price=_ep, qty=_qty,
+                        exit_price=_xp, pnl=_pnl,
+                        entry_time=_ct or None,
+                        exit_time=_ut or None,
+                        leverage=10)
+                _save_seen_closes()
+            except Exception as _ce:
+                logger.debug(f"closed-pnl sweep fail: {_ce}")
+            # Трекинг/карточки ОТКРЫТИЯ: новая позиция, которой не было в треке
+            for sym, p in current.items():
+                if sym in _tracked_positions:
+                    continue
+                _tracked_positions[sym] = {
+                    "symbol": sym, "side": p.get("side"),
+                    "size": float(p.get("size", 0)),
+                    "entry": float(p.get("avgPrice", 0)),
+                    "opened_at": time.time(),
+                    "sl": float(p.get("stopLoss", 0) or 0),
+                    "mfe": 0.0, "mae": 0.0, "mfe_pct": 0.0, "mae_pct": 0.0,
+                    "last_px": float(p.get("avgPrice", 0)),
+                }
+                if _first_cycle:
+                    continue  # после рестарта существующие позиции молча в трек
+                _px = float(p.get("avgPrice", 0) or 0)
+                _sz = float(p.get("size", 0) or 0)
+                _sd = str(p.get("side", "?"))
+                _side_txt = 'LONG' if _sd.lower().startswith('buy') else 'SHORT'
+                _sl_v = float(p.get('stopLoss', 0) or 0)
+                _tp_v = float(p.get('takeProfit', 0) or 0)
+                # 2026-09-08 (owner: «не очень всё понятно»): человеческий формат —
+                # ношнл, риск в $, % депо, % дистанции стопа. Без e-нотации.
+                _notional = _px * _sz
+                _risk = abs(_px - _sl_v) * _sz if _sl_v else 0.0
+                _eq_now = _get_manual_equity() or 1000.0
+                _risk_pct = _risk / _eq_now * 100 if _eq_now else 0
+                _sl_pct = abs(_px - _sl_v) / _px * 100 if _px and _sl_v else 0
+                _tp_pct = abs(_tp_v - _px) / _px * 100 if _px and _tp_v else 0
+                _src_tag = "MANUAL" if _is_manual_symbol(sym) else "авто"
+                await _send_trade_card(
+                    "open",
+                    f"🔵 <b>ОТКРЫТИЕ</b> {sym} {_side_txt} · {_src_tag}\n"
+                    f"Вход: <code>{_px:.6g}</code> | Кол-во: <code>{_fmt_qty(_sz)}</code>\n"
+                    f"Ношнл: <b>${_notional:,.0f}</b> ({_notional/_eq_now*100:.0f}% депо) | "
+                    f"Риск: <b>${_risk:,.2f}</b> ({_risk_pct:.1f}%)\n"
+                    f"🛑 SL {_sl_v:.6g} (−{_sl_pct:.2f}%) | 🎯 TP {_tp_v:.6g} (+{_tp_pct:.2f}%)",
+                    symbol=sym, side=_side_txt, entry_price=_px, qty=_sz,
+                    sl=_sl_v, tp=_tp_v, entry_time=time.time(), leverage=10)
+            # Проверить отслеживаемые позиции (ЗАКРЫТИЯ — fallback, если
+            # closed-pnl запись ещё не видна)
             for sym, info in list(_tracked_positions.items()):
                 if sym not in current:
                     # Закрылась — телеслой: outcome/MFE/MAE/time-to-MFE в журнал
@@ -3346,15 +3762,26 @@ async def background_position_monitor():
                         _log_position_close(sym, info, now=time.time())
                     except Exception as e:
                         logger.warning(f"position close log failed {sym}: {e}")
-                    try:
-                        from telegram_control.manual_signal import _chat_id
-                        _cid = _chat_id()
-                        _bot = None
-                        # Используем контекст бота через глобальный референс
-                        # (упрощённо: отправляем через прям мой httpx API)
-                        await _send_manual_close_notification(sym, info)
-                    except Exception as e:
-                        logger.warning(f"manual close notify failed {sym}: {e}")
+                    if sym not in _closed_notified:
+                        _ep = float(info.get("entry", 0) or 0)
+                        _lp = float(info.get("last_px", 0) or 0)
+                        _sd = str(info.get("side", ""))
+                        _is_long = _sd.lower().startswith("buy")
+                        _pnl_est = ((_lp - _ep) * float(info.get("size", 0) or 0)
+                                    if _is_long else (_ep - _lp) * float(info.get("size", 0) or 0))
+                        _emo = "🟢" if _pnl_est >= 0 else "🔴"
+                        _side_txt = "LONG" if _is_long else "SHORT"
+                        _closed_card_ts[sym] = time.time()
+                        await _send_trade_card(
+                            "close_track",
+                            f"{_emo} <b>ЗАКРЫТИЕ</b> {sym} {_side_txt}\n"
+                            f"entry {_ep:.6g} → ~{_lp:.6g}\n"
+                            f"PnL ≈ <b>{_pnl_est:+.2f}$</b> (оценка)",
+                            symbol=sym, side=_side_txt, entry_price=_ep,
+                            qty=float(info.get("size", 0) or 0),
+                            exit_price=_lp, pnl=_pnl_est,
+                            entry_time=float(info.get("opened_at", 0) or 0) or None,
+                            exit_time=time.time(), leverage=10)
                     _tracked_positions.pop(sym, None)
                     continue
                 # Живая позиция: обновляем MFE/MAE по текущей цене
@@ -3444,6 +3871,30 @@ async def background_position_monitor():
                     rec["status"] = "FILLED"
                     rec["filled_at"] = datetime.now(timezone.utc).isoformat()
                     rec["filled_price"] = float(current[sym].get("avgPrice", 0) or 0)
+                    # T1.2: actual-risk recalc — сравнить риск по фактической цене входа
+                    # vs планируемой (лимитка). Если fill хуже плана >10% — предупреждение.
+                    _planned_px = float(rec.get("price") or 0)
+                    _filled_px = rec["filled_price"]
+                    _sl = float(rec.get("sl") or 0)
+                    _qty = float(rec.get("qty") or 0)
+                    if _planned_px > 0 and _filled_px > 0 and _sl > 0 and _qty > 0:
+                        _planned_risk = abs(_planned_px - _sl) * _qty
+                        _actual_risk = abs(_filled_px - _sl) * _qty
+                        _risk_delta_pct = ((_actual_risk - _planned_risk) / _planned_risk * 100
+                                           if _planned_risk > 0 else 0.0)
+                        rec["planned_risk_usd"] = round(_planned_risk, 4)
+                        rec["actual_risk_usd"] = round(_actual_risk, 4)
+                        rec["risk_delta_pct"] = round(_risk_delta_pct, 1)
+                        if abs(_risk_delta_pct) > 10.0:
+                            logger.warning(
+                                f"⚠️ WAIT-LIMIT risk delta {sym}: "
+                                f"planned=${_planned_risk:.2f} actual=${_actual_risk:.2f} "
+                                f"delta={_risk_delta_pct:+.1f}% "
+                                f"(entry {_planned_px:.4f}→filled {_filled_px:.4f})")
+                    else:
+                        rec["planned_risk_usd"] = 0.0
+                        rec["actual_risk_usd"] = 0.0
+                        rec["risk_delta_pct"] = 0.0
                     _WAIT_LIMIT_STATE.write_text(
                         json.dumps(wl_state, ensure_ascii=False))
                     # A2: SL/TP на позицию — ПОСЛЕ филла (не attached к ордеру)
@@ -3528,14 +3979,20 @@ async def _send_manual_close_notification(sym: str, info: dict):
         proxy_url = "socks5://127.0.0.1:1080"
         request = HTTPXRequest(proxy=proxy_url, connect_timeout=15, read_timeout=60)
         bot = Bot(token=token, request=request)
-        await bot.send_message(
-            chat_id=chat_id,
-            text=(f"🔔 <b>MANUAL-позиция закрыта</b>\n"
-                  f"{sym} {info.get('side')} | qty={info.get('size', 0):.4g}\n"
-                  f"entry={info.get('entry', 0):.6g}\n"
-                  f"Была открыта: {datetime.now(timezone.utc).strftime('%H:%M')} UTC"),
-            parse_mode="HTML",
-        )
+        try:
+            await bot.send_message(
+                chat_id=chat_id,
+                text=(f"🔔 <b>MANUAL-позиция закрыта</b>\n"
+                      f"{sym} {info.get('side')} | qty={info.get('size', 0):.4g}\n"
+                      f"entry={info.get('entry', 0):.6g}\n"
+                      f"Была открыта: {datetime.now(timezone.utc).strftime('%H:%M')} UTC"),
+                parse_mode="HTML",
+            )
+        finally:
+            try:
+                await request.shutdown()
+            except Exception:
+                pass
     except Exception as e:
         logger.warning(f"manual close notify failed: {e}")
 
@@ -3684,12 +4141,13 @@ async def _send_wait_limit_card(bot, sig: dict):
     _log_signal_sent(sig, tp_unreachable=False)
 
 
-def _log_signal_sent(sig: dict, tp_unreachable: bool):
-    """Персист отправленной автосканом карточки в JOURNAL (event=SIGNAL_SENT).
+def _log_signal_sent(sig: dict, tp_unreachable: bool, event: str = "SIGNAL_SENT"):
+    """Персист отправленной автосканом карточки в JOURNAL (event=SIGNAL_SENT
+    или SIGNAL_QUIET для тихого режима без пуша).
 
     Полный срез сигнала для forensic-трассировки; переживает рестарт бота."""
     rec = {
-        "event": "SIGNAL_SENT",
+        "event": event,
         "tp_unreachable": tp_unreachable,
         "ts": datetime.now(timezone.utc).isoformat(),
     }
@@ -3725,6 +4183,14 @@ async def background_scan_loop(application, interval_min: int = 20):
     Задача 5: dedup по TTL 2ч (раньше — пожизненно до рестарта)."""
     import asyncio
     logger.info(f"🔄 Фоновый автоскан запущен (каждые {interval_min} мин)")
+    # Пуш-гейт (2026-09-07, owner: «много инфы»): в TG летят только сильные
+    # сигналы — mtf_agree + score≥push_min_score. Остальные в журнал
+    # (SIGNAL_QUIET) и видны по кнопке «🎯 Сигналы» / команде /signals.
+    try:
+        from tradingos.signals.manual_scanner import load_config
+        _push_min_score = int(load_config().get("push_min_score", 80))
+    except Exception:
+        _push_min_score = 80
     sent_keys: dict[str, float] = {}  # key → timestamp
     while True:
         try:
@@ -3738,6 +4204,38 @@ async def background_scan_loop(application, interval_min: int = 20):
                 try:
                     # Route by contour field (new classifier)
                     contour = sig.get("contour", "NO_TRADE")
+                    # FIX 2026-09-09 (owner: «сигналы исчезли совсем»): mtf_agree=None
+                    # означает MIXED-тренд (нет данных/боковик) — НЕ конфликт. Блокирует
+                    # только прямой конфликт mtf_agree=False. В боковике топ-сигналы
+                    # (score 80-93) неделями не пушались — 39 штук за 24ч.
+                    strong = (sig.get("score") or 0) >= _push_min_score \
+                        and sig.get("mtf_agree") is not False
+                    if not strong:
+                        # Тихий режим: журнал без пуша, карточка доступна по /signals
+                        _last_signals[sig["symbol"]] = {**sig, "_stored_at": time.time()}
+                        _log_signal_sent(sig, tp_unreachable=False, event="SIGNAL_QUIET")
+                        sent_keys[f"{sig['symbol']}_{sig['side']}"] = time.time()
+                        logger.info(f"Сигнал тихо: {sig['symbol']} score={sig.get('score')} "
+                                    f"mtf={sig.get('mtf_agree')} (пуш пропущен)")
+                        continue
+                    # 2026-09-08 (owner): wall-гейт — BLOCKED (стенка на пути до TP)
+                    # → тихо в журнал, карточку не шлём. Fail-open при сбое детектора.
+                    try:
+                        from tradingos.signals.wall_detector import analyze_walls as _aw
+                        _wp = await asyncio.to_thread(
+                            _aw, sig["symbol"], sig.get("price", 0) or sig.get("entry", 0),
+                            sig.get("sl", 0) or 0,
+                            sig.get("final_tp") or sig.get("tp", 0) or 0,
+                            sig.get("side", "LONG"))
+                        if _wp.get("verdict") == "BLOCKED":
+                            _last_signals[sig["symbol"]] = {**sig, "_stored_at": time.time()}
+                            _log_signal_sent(sig, tp_unreachable=False, event="SIGNAL_WALL_BLOCKED")
+                            sent_keys[f"{sig['symbol']}_{sig['side']}"] = time.time()
+                            logger.info(f"🧱 WALL-BLOCKED: {sig['symbol']} — стенка на пути до TP, "
+                                        f"пуш пропущен ({_wp.get('reason')})")
+                            continue
+                    except Exception as _wle:
+                        logger.debug(f"wall gate loop err: {_wle}")
                     if contour == "LIMIT":
                         await _send_wait_limit_card(application.bot, sig)
                     elif contour == "MARKET":
@@ -3786,12 +4284,119 @@ async def background_equity_sampler(interval_sec: int = 300):
             logger.warning(f"equity sampler: {e}")
 
 
-async def background_bingx_digest(application, interval_min: int = 15):
-    """Каждые interval_min минут: дайджест открытых BingX-позиций с
-    рекомендацией и кнопками действий + проверка пробоя уровней.
-    Пусто (нет позиций) — не шлём спам (кроме level-break алертов)."""
+async def background_spot_monitor(application, interval_min: int = 15):
+    """2026-09-08 (owner: «есть спот на демо, нужно за ним тоже следить»).
+
+    Монитор спот-портфеля демо-аккаунта (UNIFIED): BTC/ETH/USDC и др.
+    Каждые interval_min минут: ценит активы, алерт при движении >2% с
+    прошлого отчёта или изменении состава. Фьючерсные позиции НЕ трогает —
+    их ведут guardian/монитор (BTC 22.571 — owner-ручная, не трогаем).
+
+    2026-09-11 (owner: «это появляется слишком часто. Отключи пока»):
+    ВЫКЛЮЧЕН по умолчанию — карточка приходила на каждый микродрейф баланса
+    (USDT-фандинг +0.68 триггерил «изменение состава» каждые 15 мин).
+    Вернуть: SPOT_MONITOR_ENABLED=1 в /root/trading_brain_v4/research/execution/.env
+    (заодно стоит поднять порог «изменение состава» до значимого).
+    """
     import asyncio
-    logger.info(f"🔵 BingX-дайджест запущен (каждые {interval_min} мин)")
+    import os as _os
+    if (_os.environ.get("SPOT_MONITOR_ENABLED", "") or "").strip().lower() not in ("1", "true", "yes", "on"):
+        logger.info("💎 Спот-монитор демо ОТКЛЮЧЁН (SPOT_MONITOR_ENABLED не задан, owner 2026-09-11)")
+        return
+    logger.info(f"💎 Спот-монитор демо запущен (каждые {interval_min} мин)")
+    _SPOT_STATE = ROOT / "operations/spot_portfolio_state.json"
+    _TRACK = ("BTC", "ETH", "USDC", "USDT", "SOL", "XRP")  # что считаем спотом
+
+    def _spot_snapshot() -> tuple[dict, float]:
+        """(балансы спот-монет, общая $ стоимость). USDT/USDC = 1:1."""
+        import httpx as _hx, hashlib as _hl, hmac as _hm
+        _ak, _as_ = "", ""
+        for l in open("/root/trading_brain_v4/research/execution/.env"):
+            l = l.strip()
+            if l.startswith("BYBIT_API_KEY="): _ak = l.split("=",1)[1].strip()
+            elif l.startswith("BYBIT_API_SECRET="): _as_ = l.split("=",1)[1].strip()
+        _ts = int(time.time()*1000)
+        _q = "accountType=UNIFIED"
+        _p = f"{_ts}{_ak}5000{_q}"
+        _sg = _hm.new(_as_.encode(), _p.encode(), _hl.sha256).hexdigest()
+        with _hx.Client(timeout=15) as c:
+            r = c.get("https://api-demo.bybit.com/v5/account/wallet-balance?" + _q,
+                      headers={"X-BAPI-API-KEY": _ak, "X-BAPI-TIMESTAMP": str(_ts),
+                               "X-BAPI-RECV-WINDOW": "5000", "X-BAPI-SIGN": _sg})
+        coins = {}
+        for a in ((r.json().get("result") or {}).get("list") or []):
+            for co in (a.get("coin") or []):
+                cn, wb = co.get("coin"), float(co.get("walletBalance", 0) or 0)
+                if cn in _TRACK and wb > 0:
+                    coins[cn] = wb
+        total = coins.get("USDT", 0) + coins.get("USDC", 0)
+        for cn, wb in coins.items():
+            if cn in ("USDT", "USDC"): continue
+            try:
+                t = _hx.get("https://api.bybit.com/v5/market/tickers",
+                            params={"category": "linear", "symbol": f"{cn}USDT"},
+                            timeout=8).json()
+                px = float(((t.get("result") or {}).get("list") or [{}])[0].get("lastPrice", 0) or 0)
+                total += wb * px
+            except Exception:
+                pass
+        return coins, total
+
+    while True:
+        await asyncio.sleep(interval_min * 60)
+        try:
+            coins, total = await asyncio.to_thread(_spot_snapshot)
+            prev = {}
+            try:
+                prev = json.loads(_SPOT_STATE.read_text())
+            except Exception:
+                pass
+            prev_total = float(prev.get("total", 0) or 0)
+            prev_coins = prev.get("coins", {})
+            _SPOT_STATE.parent.mkdir(parents=True, exist_ok=True)
+            _SPOT_STATE.write_text(json.dumps(
+                {"total": total, "coins": coins, "ts": time.time()}, indent=1))
+            if not prev_total:
+                logger.info(f"💎 Спот-портфель: базовый снапшот ${total:,.0f}")
+                continue
+            _chg = (total - prev_total) / prev_total * 100 if prev_total else 0
+            _diff_coins = {k: v for k, v in coins.items() if abs(v - prev_coins.get(k, 0)) > 1e-9}
+            if abs(_chg) >= 2.0 or _diff_coins:
+                _emo = "📈" if _chg >= 0 else "📉"
+                # 2026-09-09 (owner: «что это за спорт портфель»): понятный формат —
+                # заголовок «спот-купли демо», каждая монета с $-оценкой
+                _px_map = {"USDT": 1.0, "USDC": 1.0}
+                try:
+                    import httpx as _hxs
+                    for cn in coins:
+                        if cn in _px_map: continue
+                        _t = _hxs.get("https://api.bybit.com/v5/market/tickers",
+                                      params={"category": "linear", "symbol": f"{cn}USDT"},
+                                      timeout=8).json()
+                        _px_map[cn] = float(((_t.get("result") or {}).get("list") or [{}])[0].get("lastPrice", 0) or 0)
+                except Exception:
+                    pass
+                _lines = [f"💎 <b>СПОТ-АКТИВЫ ДЕМО (куплены вручную)</b> {_emo} {_chg:+.2f}%"]
+                for cn, wb in sorted(coins.items(), key=lambda kv: -(kv[1]*_px_map.get(kv[0],0))):
+                    _pv = prev_coins.get(cn, 0)
+                    _val = wb * _px_map.get(cn, 0)
+                    _arrow = "" if abs(wb - _pv) < 1e-9 else (
+                        f" (было {_fmt_qty(_pv)})" if wb < _pv else f" (+{_fmt_qty(wb-_pv)})")
+                    _lines.append(f"├ {cn}: <code>{_fmt_qty(wb)}</code> ≈ ${_val:,.0f}{_arrow}")
+                _lines.append(f"└ Итого: <b>${total:,.0f}</b>")
+                await _send_trade_card("spot", "\n".join(_lines))
+                logger.info(f"💎 Спот-алерт: {_chg:+.2f}% (${prev_total:,.0f} → ${total:,.0f})")
+        except Exception as e:
+            logger.warning(f"spot monitor error: {e}")
+
+
+async def background_bingx_digest(application, interval_min: int = 15):
+    """Каждые interval_min минут: проверка пробоя уровней (actionable → пуш).
+    Позиционный дайджест АВТО-ПУШЕМ НЕ ХОДИТ (2026-09-07, owner: «много инфы»):
+    смотрите по кнопке «📊 BingX-позиции» в /menu (BG_BINGX_DIGEST_PUSH=1
+    возвращает старое поведение)."""
+    import asyncio
+    logger.info(f"🔵 BingX level-break check запущен (каждые {interval_min} мин)")
     while True:
         await asyncio.sleep(interval_min * 60)
         # ─── Level-break alerts (2026-09-01, owner) ──────────────
@@ -3807,28 +4412,41 @@ async def background_bingx_digest(application, interval_min: int = 15):
                         chat_id=chat, text=m, parse_mode="HTML")
         except Exception as e:
             logger.warning(f"level-break check error: {e}")
-        try:
-            from tradingos.bingx_signal import position_digest_all, action_label
-            digests = await asyncio.to_thread(position_digest_all)
-            if not digests:
-                continue
+        # ─── Позиционный дайджест: только по запросу ─────────────
+        if os.getenv("BG_BINGX_DIGEST_PUSH", "0") != "1":
+            continue
+        await send_bingx_positions_digest(application)
+
+
+async def send_bingx_positions_digest(application):
+    """Дайджест открытых BingX-позиций с кнопками действий.
+    Вызывается по кнопке «📊 BingX-позиции» (bxdigest) — не по расписанию."""
+    try:
+        from tradingos.bingx_signal import position_digest_all, action_label
+        digests = await asyncio.to_thread(position_digest_all)
+        if not digests:
             chat = os.getenv("TELEGRAM_CHAT_ID", "")
-            if not chat:
-                logger.warning("BingX digest: нет TELEGRAM_CHAT_ID")
-                continue
-            for d in digests:
-                kb_rows = []
-                for a in d.get("actions", ["hold"]):
-                    if a == "hold":
-                        continue  # «Держать» = no-op, кнопку не рисуем (owner 2026-09-01)
-                    kb_rows.append([InlineKeyboardButton(
-                        action_label(a),
-                        callback_data=f"BXACT:{a}:{d['symbol']}:{d['side']}")])
-                kb = InlineKeyboardMarkup(kb_rows) if kb_rows else None
+            if chat:
                 await application.bot.send_message(
-                    chat_id=chat, text=d["text"], parse_mode="HTML", reply_markup=kb)
-        except Exception as e:
-            logger.warning(f"BingX digest error: {e}")
+                    chat_id=chat, text="🔵 Открытых BingX-позиций нет")
+            return
+        chat = os.getenv("TELEGRAM_CHAT_ID", "")
+        if not chat:
+            logger.warning("BingX digest: нет TELEGRAM_CHAT_ID")
+            return
+        for d in digests:
+            kb_rows = []
+            for a in d.get("actions", ["hold"]):
+                if a == "hold":
+                    continue  # «Держать» = no-op, кнопку не рисуем (owner 2026-09-01)
+                kb_rows.append([InlineKeyboardButton(
+                    action_label(a),
+                    callback_data=f"BXACT:{a}:{d['symbol']}:{d['side']}")])
+            kb = InlineKeyboardMarkup(kb_rows) if kb_rows else None
+            await application.bot.send_message(
+                chat_id=chat, text=d["text"], parse_mode="HTML", reply_markup=kb)
+    except Exception as e:
+        logger.warning(f"BingX digest error: {e}")
 
 
 async def _bx_recommend_action(update: Update, context: ContextTypes.DEFAULT_TYPE):

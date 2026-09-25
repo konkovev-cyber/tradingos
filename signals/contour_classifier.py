@@ -151,14 +151,6 @@ class ContourClassifier:
             )
 
         # Hard gates that block both contours
-        if features.tp_unreachable:
-            return ContourDecision(
-                contour="NO_TRADE",
-                confidence=0.99,
-                features=features,
-                thresholds=self.thresholds,
-                reasoning=["TP_UNREACHABLE: target beyond 30D range"]
-            )
         if features.gate_reason:
             return ContourDecision(
                 contour="NO_TRADE",
@@ -272,6 +264,12 @@ class ContourClassifier:
                 reasons.append(f"MTF_AGREE: True ✓")
                 confidence_factors.append(0.1)
 
+        # 6. TP unreachable — blocks MARKET (no pullback entry possible),
+        #    but LIMIT contour handles this via wait_rr below.
+        if features.tp_unreachable:
+            passed = False
+            reasons.append(f"TP_UNREACHABLE: 30D target out of range (MARKET entry invalid)")
+
         confidence = sum(confidence_factors) if passed else 0.0
         return _ContourCheck(passed, confidence, reasons)
 
@@ -303,11 +301,17 @@ class ContourClassifier:
             confidence_factors.append(0.25)
 
         # 3. RR from current price is poor (market entry unattractive)
-        if features.rr_from_current >= self.thresholds.limit_max_rr_from_current:
+        #    EXCEPTION: when tp_unreachable, market entry has no valid TP —
+        #    LIMIT is preferred even if current RR looks decent, because the
+        #    limit entry restores a valid RR via the pullback zone.
+        if features.rr_from_current >= self.thresholds.limit_max_rr_from_current \
+                and not features.tp_unreachable:
             passed = False
             reasons.append(f"rr_from_current {features.rr_from_current:.2f} ≥ {self.thresholds.limit_max_rr_from_current} (market entry viable)")
         else:
-            reasons.append(f"rr_from_current {features.rr_from_current:.2f} < {self.thresholds.limit_max_rr_from_current} ✓ (limit improves entry)")
+            reasons.append(f"rr_from_current {features.rr_from_current:.2f} < {self.thresholds.limit_max_rr_from_current} ✓ (limit improves entry)"
+                           if features.rr_from_current < self.thresholds.limit_max_rr_from_current
+                           else f"rr_from_current {features.rr_from_current:.2f} ≥ threshold but tp_unreachable=True → limit still valid")
             confidence_factors.append(0.2)
 
         # 4. TP capped by 7d structure (wait_rr restores it)

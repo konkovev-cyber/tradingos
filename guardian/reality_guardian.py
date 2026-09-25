@@ -19,7 +19,23 @@ import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Tuple
+
+# Phase 5: Import OwnerResolver for Guardian ownership gate
+try:
+    sys.path.insert(0, '/root')
+    from tradingos.signals.owner_resolver import resolve_owner, OwnerKind
+    from tradingos.signals.sr_limit_v2 import _load_exchange_orders
+    _OWNER_RESOLVER_AVAILABLE = True
+except Exception as e:
+    logger.warning(f"OwnerResolver import failed: {e} — Guardian ownership gate disabled")
+    _OWNER_RESOLVER_AVAILABLE = False
+
+try:
+    from tradingos.guardian.lifecycle import get_tracker
+    _lifecycle = get_tracker()
+except Exception:
+    _lifecycle = None
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(name)s] %(message)s")
 logger = logging.getLogger("reality_guardian")
@@ -53,7 +69,14 @@ _API_BASE = "https://api-demo.bybit.com" if _demo_enabled() else "https://api.by
 # Guardian config
 POLL_INTERVAL = 30  # seconds
 MAX_HOLD_HOURS = 48
-BE_THRESHOLD = 0.8   # R multiple to move SL to breakeven (2026-09-01: 0.6 срабатывал при MFE 0.2-0.5R ночью — BE запирал позицию в минус; 0.8 = только при реальном движении)
+BE_THRESHOLD = 0.2   # Exit Stress Lab v1 (2026-09-15): 16 configs × 159 AUTO trades.
+# BE=0.2: +21.5R NET, WR 70%, PF 1.44, MaxDD -8.6R.
+# Walk-forward stable: train +0.11R, test +0.17R (both positive).
+# Catches MFE 0.2-0.3R zone — largest group of trades that briefly go
+# positive then reverse. 59 saves vs 20 at BE=0.5, 42 at BE=0.3.
+# SL width irrelevant (1.5-3.0 ATR all identical with same BE).
+# LONG +11.2R, SHORT +10.3R. Control (BE=0.5) = -21.3R.
+# Revert: BE_THRESHOLD = 0.5
 BE_MIN_PRICE_PCT = 1.5   # ИЛИ +1.5% цены от входа (было 0.5% — срабатывало раньше R-порога на широких стопах и выбивало в минус: ROSE +0.28R MFE → −$0.92)
 BE_LOCK_FRACTION = 0.3   # 2026-08-31: BE переносит SL НЕ на вход, а на вход + 30% от дохода (не в ноль!)
 PARTIAL_THRESHOLD = 1.0  # R multiple to move SL to entry + 0.5*ATR
@@ -81,7 +104,10 @@ SL_BUFFER_R_CAP = 0.3       # ... но не более 0.3R (лимит доп. 
 TRAILING_ENABLED = True
 TRAIL_START_AFTER_BE = True      # старт трейлинга после BE (а не после TIGHT)
 TRAIL_DISTANCE_R = 0.50          # SL = peak - 0.50R (широкий зазор — даём позиции жить)
-TRAIL_MIN_STEP_R = 0.10          # двигать SL при росте пика ≥0.10R (крупнее шаг, меньше дерганий)
+# 2026-09-08 (owner: «дубли сообщений»): шаг трейла 0.10R → 0.25R.
+# При дистанции 0.5R шаг 0.1 давал 16 карточек за ночь; 0.25R = ~4-5
+# при том же уровне защиты (SL всегда peak-0.5R, независимо от шага отчёта).
+TRAIL_MIN_STEP_R = 0.25
 TRAIL_MOVE_TP = True             # двигать TP только если он БЫЛ установлен
 TRAIL_TP_DISTANCE_R = 1.0
 
@@ -456,6 +482,56 @@ def _sl_hard_buffer(symbol: str, risk_per_unit: float) -> float:
     return min(buf, cap) if cap > 0 else buf
 
 
+def _get_tick_size(symbol: str) -> float:
+    """Get price tickSize from Bybit for normalization. Fallback 0.01."""
+    try:
+        import httpx as _hx
+        _base = "https://api.bybit.com" if not _demo_enabled() else "https://api-demo.bybit.com"
+        _r = _hx.get(_base + "/v5/market/instruments-info",
+                     params={"category": "linear", "symbol": symbol}, timeout=5)
+        _lst = (_r.json().get("result") or {}).get("list") or []
+        if _lst:
+            _tick = float((_lst[0].get("priceFilter") or {}).get("tickSize", "0.01"))
+            return _tick if _tick > 0 else 0.01
+    except Exception:
+        pass
+    return 0.01
+
+
+def _normalize_price(price: float, tick_size: float) -> float:
+    """Round price to nearest tickSize (matches exchange rounding)."""
+    if tick_size <= 0:
+        return price
+    return round(price / tick_size) * tick_size
+
+
+def _monotonic_sl_guard(symbol: str, side: str, proposed_sl: float,
+                        current_sl: float) -> tuple[bool, str]:
+    """Check proposed SL is at least as protective as current SL.
+
+    LONG (Buy): proposed >= current (SL can only move toward entry = lock profit)
+    SHORT (Sell): proposed <= current (SL can only move toward entry = lock profit)
+
+    Returns (allowed, reason). reason is empty if allowed.
+    Normalizes both prices to exchange tickSize before comparison.
+    """
+    if current_sl <= 0:
+        return True, ""  # no baseline — allow
+    tick = _get_tick_size(symbol)
+    norm_proposed = _normalize_price(proposed_sl, tick)
+    norm_current = _normalize_price(current_sl, tick)
+    if norm_proposed == norm_current:
+        return False, "SL unchanged after normalization"
+    is_buy = side.lower().startswith("buy")
+    if is_buy:
+        if norm_proposed < norm_current:
+            return False, (f"REGRESSION: proposed {norm_proposed:.8f} < current {norm_current:.8f}")
+    else:
+        if norm_proposed > norm_current:
+            return False, (f"REGRESSION: proposed {norm_proposed:.8f} > current {norm_current:.8f}")
+    return True, ""
+
+
 def _log_recovery_event(rec):
     """Append recovery event (ARM/SOFT_SL/FLOOR/TIMEOUT/RECOVERED/HARD_SL)."""
     RECOVERY_EVENTS_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -490,10 +566,26 @@ def _close_position(symbol: str, side: str, qty: float) -> bool:
         else:
             logger.warning(f"close_guard: invalid side {side!r} — close skipped")
             return False
+        # FIX 2026-09-07: округляем qty вниз к шагу лота (как в _create_reduce_only_order).
+        # 88.48×0.3=26.544 при qtyStep=0.01 → "Qty invalid" → owner-partial не стрелял
+        # и ретраил каждые 32с бесконечно (MARA-кейс).
+        _qty_f = float(qty)
+        try:
+            _r = httpx.get(
+                _API_BASE + "/v5/market/instruments-info",
+                params={"category": "linear", "symbol": symbol}, timeout=8)
+            _qstep = float(((_r.json().get("result") or {}).get("list") or [{}])[0]
+                           .get("lotSizeFilter", {}).get("qtyStep", 0) or 0)
+        except Exception:
+            _qstep = 0
+        if _qstep > 0 and _qty_f > 0:
+            from decimal import Decimal, ROUND_DOWN
+            _qty_f = float(Decimal(str(_qty_f)).quantize(
+                Decimal(str(_qstep)).normalize(), rounding=ROUND_DOWN))
         body = urllib.parse.urlencode({
             "category": "linear", "symbol": symbol,
             "side": close_side, "orderType": "Market",
-            "qty": str(qty), "reduceOnly": "true",
+            "qty": f"{_qty_f:g}", "reduceOnly": "true",
             "positionIdx": "0",
         })
         payload = f"{ts}{ak}{recv_window}{body}"
@@ -705,7 +797,8 @@ def _ensure_telegram_started():
 
 
 def _enqueue_telegram_event(event_type, symbol, side, entry, new_sl, r, peak_r,
-                             old_sl=0.0, current_price=0.0, leverage=1, entry_time=0):
+                             old_sl=0.0, current_price=0.0, leverage=1, entry_time=0,
+                             note_lines=None):
     """Fire Guardian event (BE/Partial/Tight) to Telegram in background thread.
 
     Direct async call via run_coroutine_threadsafe (no separate worker process).
@@ -724,6 +817,7 @@ def _enqueue_telegram_event(event_type, symbol, side, entry, new_sl, r, peak_r,
                     current_sl=new_sl, entry_price=entry, peak_r=peak_r,
                     old_sl=old_sl, current_price=current_price,
                     side=side, leverage=leverage, entry_time=entry_time,
+                    note_lines=note_lines,
                 ),
                 _tg_loop
             )
@@ -883,6 +977,49 @@ def _process_position(pos, state):
     is_new_position = sym_state is None or not isinstance(sym_state, dict)
     if is_new_position:
         sym_state = {"be_fired": False, "partial_fired": False, "tight_fired": False, "mfe_peak": 0.0}
+        # F1 (2026-09-19): capture decision_id + contour at open time via
+        # timestamp-proximity match — avoids symbol-collision bug in
+        # post-hoc recovery (XRPUSDT had 2 contours, last-by-symbol grabbed
+        # the wrong one). entry_time is set below; match against it here.
+        _pending_decision = None
+        _pending_contour = None
+        _pending_conviction = None
+        try:
+            _ec = Path("/root/tradingos/logs/executed_contours.jsonl")
+            if _ec.exists():
+                _lines = _ec.read_text(errors="replace").splitlines()[-1000:]
+                _best_diff = None
+                for _line in reversed(_lines):
+                    if not _line.strip():
+                        continue
+                    try:
+                        _r = json.loads(_line)
+                    except Exception:
+                        continue
+                    if _r.get("symbol") != symbol:
+                        continue
+                    _ct = _r.get("entry_timestamp") or _r.get("ts", "")
+                    try:
+                        _cdt = datetime.fromisoformat(_ct.replace("Z", "+00:00"))
+                        _diff = abs((_cdt - datetime.fromtimestamp(open_time, tz=timezone.utc)).total_seconds())
+                        if _best_diff is None or _diff < _best_diff:
+                            _best_diff = _diff
+                            _pending_decision = _r.get("decision_id") or None
+                            _pending_contour = _r.get("contour") or None
+                            _pending_conviction = bool(_r.get("conviction"))
+                    except Exception:
+                        continue
+                    if _best_diff and _best_diff < 300:
+                        break
+                if _pending_decision:
+                    sym_state["decision_id"] = _pending_decision
+                if _pending_contour:
+                    sym_state["contour"] = _pending_contour
+                if _pending_conviction:
+                    sym_state["conviction"] = True
+                    sym_state["be_r_override"] = 0.5
+        except Exception:
+            pass
         # Задача 1: пометка источника — MANUAL-позиции зарегистрированы с
         # source="MANUAL" (см. manual_signal._place_market_order). Если state
         # создаётся guardian'ом впервые, но символ есть в manual журнале — тоже MANUAL.
@@ -969,10 +1106,50 @@ def _process_position(pos, state):
             leverage=real_leverage, entry_time=open_time
         )
         logger.info(f"🟢 OPEN detected: {symbol} {side} @ {entry} qty={size} lev={real_leverage}x SL={sl} TP={tp}")
+        # F1+Lifecycle: track position in canonical lifecycle
+        if _lifecycle:
+            try:
+                _pos_id = pos.get("positionId", "") or pos.get("id", "")
+                _contour = sym_state.get("contour", "")
+                _dec_id = sym_state.get("decision_id", "")
+                # F1+Lifecycle: recover thesis from contours if missing
+                if not _dec_id:
+                    try:
+                        _ec = Path("/root/tradingos/logs/executed_contours.jsonl")
+                        if _ec.exists():
+                            for _line in reversed(_ec.read_text(errors="replace").splitlines()[-500:]):
+                                if not _line.strip():
+                                    continue
+                                try:
+                                    _r = json.loads(_line)
+                                except Exception:
+                                    continue
+                                if (_r.get("symbol") == symbol 
+                                    and abs(float(_r.get("fill_price", 0) or 0) - entry) < entry * 0.01):
+                                    _dec_id = _r.get("decision_id", "")
+                                    _contour = _r.get("contour") or _contour
+                                    break
+                    except Exception:
+                        pass
+                _lifecycle.on_position_open(
+                    symbol=symbol, decision_id=_dec_id, entry=entry, qty=size,
+                    side=side, contour=_contour, order_id=_pos_id,
+                    sl=float(sl or 0), tp=float(tp or 0),
+                )
+            except Exception as _le:
+                logger.warning(f"Lifecycle open failed: {_le}")
 
     # Update MFE peak (max profit reached)
     if r_multiple > sym_state.get("mfe_peak", 0):
         sym_state["mfe_peak"] = r_multiple
+    # Lifecycle: track MFE/MAE for open positions
+    if _lifecycle:
+        try:
+            _mfe = sym_state.get("mfe_peak", 0)
+            _mae = sym_state.get("mae_trough", 0)
+            _lifecycle.on_mfe_update(symbol, _mfe, _mae)
+        except Exception:
+            pass
         # SHADOW TRAIL PEAK (2026-09-05): копим максимум пика на момент БЫ
         # (для анализа альтернативного трейлинга «50% отдачи от пика»).
         sym_state["peak_last_r"] = r_multiple
@@ -1006,6 +1183,20 @@ def _process_position(pos, state):
     except Exception as _ste:
         logger.debug(f"shadow trail err: {_ste}")
 
+    # SHADOW BE SWEEP (2026-09-15): логируем какие BE-уровни были бы достигнуты
+    # для post-hoc A/B анализа. НЕ двигает SL, НЕ закрывает — чистый shadow.
+    try:
+        _mfe_now = sym_state.get("mfe_peak", 0)
+        _be_levels = [0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.50]
+        _reached = sym_state.get("_be_levels_reached", [])
+        for _bl in _be_levels:
+            if _mfe_now >= _bl and _bl not in _reached:
+                _reached.append(_bl)
+        sym_state["_be_levels_reached"] = _reached
+        # Пишем при закрытии позиции (ниже в коде) — не каждый цикл
+    except Exception:
+        pass
+
     # Update MAE trough (max adverse excursion)
     if r_multiple < sym_state.get("mae_trough", 0):
         sym_state["mae_trough"] = r_multiple
@@ -1031,7 +1222,9 @@ def _process_position(pos, state):
     # RECOVERED/FLOOR/TIMEOUT (else-ветка ниже) никогда не выполнялась.
     # Теперь блок выполняется также при активном recovery_state. Arm-часть
     # защищена `if recovery is None` (стр. 782) → повторного arm не будет.
-    if _soft_sl_recovery and (
+    # T24: skip SOFT-SL RECOVERY for MANUAL positions — owner controls exit.
+    _pos_source = sym_state.get("source", "AUTO")
+    if _soft_sl_recovery and _pos_source != "MANUAL" and (
         not sym_state.get("recovery_attempted", False)
         or sym_state.get("recovery_state") is not None
     ):
@@ -1207,7 +1400,13 @@ def _process_position(pos, state):
         except Exception:
             pass
         fee_buffer = entry * fee_pct  # комиссия в цене
-        peak_r = sym_state["mfe_peak"]
+        # FIX SL regression: cache peak_r at first BE activation.
+        # Without cache, BE recalculates from current mfe_peak on every poll —
+        # when price pulls back after PARTIAL/TIGHT, the new BE SL is looser
+        # and overwrites the better protective SL (72 symbols affected).
+        if not sym_state.get("be_peak_r_cached"):
+            sym_state["be_peak_r_cached"] = sym_state["mfe_peak"]
+        peak_r = sym_state["be_peak_r_cached"]
         # Доход в цене = peak_r × risk_per_unit; захватываем BE_LOCK_FRACTION от него
         lock_price = peak_r * risk_per_unit * float(BE_LOCK_FRACTION)
         if side == "Sell":
@@ -1224,34 +1423,114 @@ def _process_position(pos, state):
             sym_state["be_fired"] = True  # SL уже лучше — поглощено
             sym_state["be_sl"] = cur_sl_ex  # BE-уровень = текущий SL (не откатывать ниже)
             actions.append(f"BE absorbed (SL already better: {cur_sl_ex:.6f})")
-        elif _set_trading_stop(symbol, stop_loss=new_sl):
-            sym_state["be_fired"] = True
-            sym_state["be_fired_at"] = time.time()
-            sym_state["be_sl"] = new_sl  # запоминаем BE-уровень для трейлинга (не откатывать ниже)
-            actions.append(f"Moved SL to breakeven+lock at +{r_multiple:.2f}R "
-                           f"(SL={new_sl:.5f}, lock {BE_LOCK_FRACTION*100:.0f}% от пика {peak_r:.2f}R)")
-            alert = {
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-                "type": "GUARDIAN_BREAKEVEN",
-                "symbol": symbol,
-                "side": side,
-                "entry": entry,
-                "r_multiple": round(r_multiple, 3),
-                "new_sl": new_sl,
-                "action": "SL moved to breakeven",
-            }
-            _log_profit_alert(alert)
-            logger.info(f"🟢 BE fired: {symbol} {side} at +{r_multiple:.2f}R, SL→{new_sl:.5f}")
-            # Telegram notification (enqueue for guaranteed delivery)
-            _enqueue_telegram_event("BE", symbol, side, entry, new_sl, r_multiple, sym_state.get("mfe_peak", 0),
-                                     old_sl=sl, current_price=current, leverage=real_leverage, entry_time=open_time)
+        else:
+            # Monotonic SL guard: prevent regression even when be_forward passes
+            _mg_ok, _mg_reason = _monotonic_sl_guard(symbol, side, new_sl, cur_sl_ex)
+            if not _mg_ok:
+                sym_state["be_fired"] = True
+                sym_state["be_sl"] = cur_sl_ex
+                actions.append(f"BE blocked by monotonic guard: {_mg_reason}")
+                logger.warning(f"🛑 BE monotonic guard BLOCKED {symbol} {side}: {_mg_reason}")
+            elif _set_trading_stop(symbol, stop_loss=new_sl):
+                sym_state["be_fired"] = True
+                sym_state["be_fired_at"] = time.time()
+                sym_state["be_sl"] = new_sl  # запоминаем BE-уровень для трейлинга (не откатывать ниже)
+                actions.append(f"Moved SL to breakeven+lock at +{r_multiple:.2f}R "
+                               f"(SL={new_sl:.5f}, lock {BE_LOCK_FRACTION*100:.0f}% от пика {peak_r:.2f}R)")
+                alert = {
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "type": "GUARDIAN_BREAKEVEN",
+                    "symbol": symbol,
+                    "side": side,
+                    "entry": entry,
+                    "r_multiple": round(r_multiple, 3),
+                    "new_sl": new_sl,
+                    "action": "SL moved to breakeven",
+                }
+                _log_profit_alert(alert)
+                logger.info(f"🟢 BE fired: {symbol} {side} at +{r_multiple:.2f}R, SL→{new_sl:.5f}")
+                # Telegram notification (enqueue for guaranteed delivery)
+                _enqueue_telegram_event("BE", symbol, side, entry, new_sl, r_multiple, sym_state.get("mfe_peak", 0),
+                                        old_sl=sl, current_price=current, leverage=real_leverage, entry_time=open_time)
+
+    # ─── v1.8 (2026-09-07): TP-ЛЕСТНИЦА «собирать по маленьку, но часто» ───
+    # Owner-запрос: много маленьких фиксов вместо ожидания большого TP.
+    # MFE-данные (60 закрытых сделок Bybit, 2026-09-07): 87% сделок касаются
+    # +0.7R, 65% доходят до +1.5R → ступени 0.7R/40% и 1.5R/30% собирают
+    # часто и рано, хвост 30% едет к TP/трейлингу (хвост не режем).
+    # EV лестницы ≈ +0.74R/сделку против ≈ −0.05R у старой схемы (ранний BE).
+    # При exit_ladder.enabled=true owner_partial (30%@0.5R) и partial_tp
+    # (50%@1R) ПРОПУСКАЮТСЯ — иначе суммарно закроется 120% позиции.
+    # SL-страховки (BE-замок, PARTIAL/TIGHT ratchet, трейлинг) работают как раньше.
+    # Откат: exit_ladder.enabled=false в trading_mode.json.
+    _ladder_on = False
+    try:
+        _lad_cfg = json.loads(Path("/root/tradingos/operations/trading_mode.json").read_text()).get("exit_ladder", {})
+        _ladder_on = bool(_lad_cfg.get("enabled", False))
+        if _ladder_on:
+            _lad_steps = _lad_cfg.get("steps") or [
+                {"trigger_r": 0.7, "close_frac": 0.4},
+                {"trigger_r": 1.5, "close_frac": 0.3},
+            ]
+            _lad_fired = sym_state.setdefault("ladder_fired", [False] * len(_lad_steps))
+            # миграция: legacy-партиалы уже могли сработать до включения лестницы
+            if sym_state.get("owner_partial_fired") and _lad_fired:
+                _lad_fired[0] = True
+            if sym_state.get("partial_tp_fired") and len(_lad_fired) > 1:
+                _lad_fired[1] = True
+            # FIX 2026-09-07 (audit MEDIUM): фиксируем ИСХОДНЫЙ размер ОДИН РАЗ —
+            # sym_state["size"] перезаписывается текущим размером (после ступеней
+            # дроби компаундились: S1 40% → S1 18% вместо 30%, хвост 49%).
+            if not sym_state.get("ladder_orig_size"):
+                sym_state["ladder_orig_size"] = float(pos.get("size", 0) or 0)
+            _lad_orig = float(sym_state.get("ladder_orig_size", 0) or 0)
+            _lad_cur = float(pos.get("size", 0) or 0)
+            for _li, _lst in enumerate(_lad_steps):
+                if _li >= len(_lad_fired) or _lad_fired[_li]:
+                    continue
+                _l_trig = float(_lst.get("trigger_r", 0))
+                _l_frac = float(_lst.get("close_frac", 0))
+                if sym_state["mfe_peak"] < _l_trig or _l_frac <= 0 or _l_trig <= 0:
+                    continue
+                _l_qty = min(_lad_orig * _l_frac, _lad_cur) if _lad_orig > 0 else 0
+                if _l_qty <= 0:
+                    continue
+                if _close_position(symbol, side, _l_qty):
+                    _lad_fired[_li] = True
+                    sym_state["ladder_fired"] = _lad_fired
+                    actions.append(f"LADDER S{_li+1}: closed {_l_frac*100:.0f}% ({_l_qty:.4g}) "
+                                   f"at +{r_multiple:.2f}R (trigger {_l_trig}R)")
+                    logger.info(f"🪜 LADDER S{_li+1}: {symbol} {side} закрыто {_l_qty:.4g} "
+                                f"({_l_frac*100:.0f}% исходных) — триггер {_l_trig}R, тек. +{r_multiple:.2f}R")
+                    # 2026-09-08 (owner: «не понять»): честная карточка ступени
+                    _lad_notes = [
+                        f"├ Триггер: <code>+{_l_trig}R</code> — закрыто <b>{_l_frac*100:.0f}%</b> ({_l_qty:.4g})",
+                        f"├ Текущая цена: <code>{current:.6g}</code>",
+                        f"├ SL позиции: <code>{sl if sl else '—'}</code>",
+                        f"└ Остаток {_lad_orig - _l_qty:.4g} ({(_lad_orig-_l_qty)/_lad_orig*100:.0f}%) → TP с трейлингом",
+                    ]
+                    _enqueue_telegram_event(f"LADDER_S{_li+1}", symbol, side, entry, sl, r_multiple,
+                                             sym_state.get("mfe_peak", 0),
+                                             old_sl=sl, current_price=current,
+                                             leverage=real_leverage, entry_time=open_time,
+                                             note_lines=_lad_notes)
+                    # 2026-09-08: персист ступени в profit_alerts (для digest-статистики)
+                    _log_profit_alert({
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                        "type": "GUARDIAN_LADDER",
+                        "symbol": symbol, "side": side, "entry": entry,
+                        "step": _li + 1, "trigger_r": _l_trig,
+                        "close_qty": _l_qty, "action": f"LADDER S{_li+1}",
+                    })
+    except Exception as _lde:
+        logger.debug(f"exit_ladder err: {_lde}")
 
     # ─── v1.7 (2026-09-06): EARLY PARTIAL для owner-лимиток ───
     # Данные: медиана MFE owner-филлов 0.46R, 23% ножей, 6 из 21 дотянувших
     # до +0.5R закрывались в минус. Для owner-позиций: при пике ≥0.5R закрываем
     # 30% (фиксация отдачи) и ставим SL в безубыток — остаток без риска.
     # НЕ применяется к обычным позициям (там partial_tp @1.0R работает).
-    if sym_state.get("owner_bet") and not sym_state.get("owner_partial_fired", False):
+    if sym_state.get("owner_bet") and not _ladder_on and not sym_state.get("owner_partial_fired", False):
         try:
             _opc = json.loads(Path("/root/tradingos/operations/trading_mode.json").read_text()).get("owner_partial", {})
             if _opc.get("enabled", True):
@@ -1277,7 +1556,8 @@ def _process_position(pos, state):
     # Rule 1.5: Partial TP — закрыть 50% позиции на +1.0R (T5)
     try:
         partial_tp_cfg = json.loads(Path("/root/tradingos/operations/trading_mode.json").read_text()).get("partial_tp", {})
-        if partial_tp_cfg.get("enabled"):
+        # при активной exit_ladder — partial_tp пропускается (лестница его заменяет)
+        if partial_tp_cfg.get("enabled") and not _ladder_on:
             pt_trigger = float(partial_tp_cfg.get("trigger_r", 1.0))
             pt_fraction = float(partial_tp_cfg.get("close_fraction", 0.5))
             if not sym_state.get("partial_tp_fired", False) and sym_state["mfe_peak"] >= pt_trigger:
@@ -1310,25 +1590,32 @@ def _process_position(pos, state):
         if not steps_forward:
             sym_state["partial_fired"] = True  # ступень "поглощена" трейлингом
             actions.append(f"PARTIAL absorbed by trail (SL already above {cur_sl_ex:.6f})")
-        elif _set_trading_stop(symbol, stop_loss=new_sl):
-            sym_state["partial_fired"] = True
-            sym_state["partial_fired_at"] = time.time()
-            actions.append(f"Moved SL to partial lock +{partial_offset:.6f} at +{r_multiple:.2f}R")
-            alert = {
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-                "type": "GUARDIAN_PARTIAL",
-                "symbol": symbol,
-                "side": side,
-                "entry": entry,
-                "r_multiple": round(r_multiple, 3),
-                "new_sl": new_sl,
-                "action": "SL moved to partial lock",
-            }
-            _log_profit_alert(alert)
-            logger.info(f"🟡 PARTIAL fired: {symbol} {side} at +{r_multiple:.2f}R, SL→{new_sl:.5f}")
-            # Telegram notification (enqueue for guaranteed delivery)
-            _enqueue_telegram_event("PARTIAL", symbol, side, entry, new_sl, r_multiple, sym_state.get("mfe_peak", 0),
-                                     old_sl=sl, current_price=current, leverage=real_leverage, entry_time=open_time)
+        else:
+            # Monotonic SL guard: prevent regression from any owner
+            _mg_ok, _mg_reason = _monotonic_sl_guard(symbol, side, new_sl, cur_sl_ex)
+            if not _mg_ok:
+                sym_state["partial_fired"] = True
+                actions.append(f"PARTIAL blocked by monotonic guard: {_mg_reason}")
+                logger.warning(f"🛑 PARTIAL monotonic guard BLOCKED {symbol} {side}: {_mg_reason}")
+            elif _set_trading_stop(symbol, stop_loss=new_sl):
+                sym_state["partial_fired"] = True
+                sym_state["partial_fired_at"] = time.time()
+                actions.append(f"Moved SL to partial lock +{partial_offset:.6f} at +{r_multiple:.2f}R")
+                alert = {
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "type": "GUARDIAN_PARTIAL",
+                    "symbol": symbol,
+                    "side": side,
+                    "entry": entry,
+                    "r_multiple": round(r_multiple, 3),
+                    "new_sl": new_sl,
+                    "action": "SL moved to partial lock",
+                }
+                _log_profit_alert(alert)
+                logger.info(f"🟡 PARTIAL fired: {symbol} {side} at +{r_multiple:.2f}R, SL→{new_sl:.5f}")
+                # Telegram notification (enqueue for guaranteed delivery)
+                _enqueue_telegram_event("PARTIAL", symbol, side, entry, new_sl, r_multiple, sym_state.get("mfe_peak", 0),
+                                         old_sl=sl, current_price=current, leverage=real_leverage, entry_time=open_time)
 
     # Rule 3: Tight lock at +1.5R
     if not recovery_active and sym_state["mfe_peak"] >= TIGHT_THRESHOLD and not sym_state.get("tight_fired", False):
@@ -1344,25 +1631,32 @@ def _process_position(pos, state):
         if not steps_forward2:
             sym_state["tight_fired"] = True  # поглощено трейлингом
             actions.append(f"TIGHT absorbed by trail (SL already above {cur_sl_ex2:.6f})")
-        elif _set_trading_stop(symbol, stop_loss=new_sl):
-            sym_state["tight_fired"] = True
-            sym_state["tight_fired_at"] = time.time()
-            actions.append(f"Moved SL to tight lock +{tight_offset:.6f} at +{r_multiple:.2f}R")
-            alert = {
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-                "type": "GUARDIAN_TIGHT",
-                "symbol": symbol,
-                "side": side,
-                "entry": entry,
-                "r_multiple": round(r_multiple, 3),
-                "new_sl": new_sl,
-                "action": "SL moved to tight lock",
-            }
-            _log_profit_alert(alert)
-            logger.info(f"🟢 TIGHT fired: {symbol} {side} at +{r_multiple:.2f}R, SL→{new_sl:.5f}")
-            # Telegram notification (enqueue for guaranteed delivery)
-            _enqueue_telegram_event("TIGHT", symbol, side, entry, new_sl, r_multiple, sym_state.get("mfe_peak", 0),
-                                     old_sl=sl, current_price=current, leverage=real_leverage, entry_time=open_time)
+        else:
+            # Monotonic SL guard: prevent regression from any owner
+            _mg_ok, _mg_reason = _monotonic_sl_guard(symbol, side, new_sl, cur_sl_ex2)
+            if not _mg_ok:
+                sym_state["tight_fired"] = True
+                actions.append(f"TIGHT blocked by monotonic guard: {_mg_reason}")
+                logger.warning(f"🛑 TIGHT monotonic guard BLOCKED {symbol} {side}: {_mg_reason}")
+            elif _set_trading_stop(symbol, stop_loss=new_sl):
+                sym_state["tight_fired"] = True
+                sym_state["tight_fired_at"] = time.time()
+                actions.append(f"Moved SL to tight lock +{tight_offset:.6f} at +{r_multiple:.2f}R")
+                alert = {
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "type": "GUARDIAN_TIGHT",
+                    "symbol": symbol,
+                    "side": side,
+                    "entry": entry,
+                    "r_multiple": round(r_multiple, 3),
+                    "new_sl": new_sl,
+                    "action": "SL moved to tight lock",
+                }
+                _log_profit_alert(alert)
+                logger.info(f"🟢 TIGHT fired: {symbol} {side} at +{r_multiple:.2f}R, SL→{new_sl:.5f}")
+                # Telegram notification (enqueue for guaranteed delivery)
+                _enqueue_telegram_event("TIGHT", symbol, side, entry, new_sl, r_multiple, sym_state.get("mfe_peak", 0),
+                                        old_sl=sl, current_price=current, leverage=real_leverage, entry_time=open_time)
 
     # Rule 3.5: Trailing stop (многоступенчатый)
     # Активен ПОСЛЕ BE (пик ≥0.8R), не после TIGHT — непрерывно следует
@@ -1407,39 +1701,45 @@ def _process_position(pos, state):
                 current_sl_on_exchange == 0
             )
             if only_forward and new_trail_sl > 0:
-                new_tp = None
-                # TP двигаем ТОЛЬКО если он был установлен изначально
-                # (SL-only модели — funding/DN-sweep — TP создавать нельзя,
-                # это ломает валидированный exit).
-                tp_existed = float(sym_state.get("tp_initial") or 0) > 0
-                if TRAIL_MOVE_TP and tp_existed:
-                    if side == "Sell":
-                        new_tp = peak_price - risk_per_unit * TRAIL_TP_DISTANCE_R
-                    else:
-                        new_tp = peak_price + risk_per_unit * TRAIL_TP_DISTANCE_R
-                if _set_trading_stop(symbol, stop_loss=new_trail_sl, take_profit=new_tp):
-                    sym_state["trail_last_peak_r"] = peak_r
-                    sym_state["trail_last_sl"] = new_trail_sl
-                    sym_state["trail_last_tp"] = new_tp if new_tp else 0
-                    actions.append(
-                        f"Trail SL→{new_trail_sl:.6f} (peak {peak_r:.2f}R)"
-                        + (f" TP→{new_tp:.6f}" if new_tp else "")
-                    )
-                    alert = {
-                        "timestamp": datetime.now(timezone.utc).isoformat(),
-                        "type": "GUARDIAN_TRAIL",
-                        "symbol": symbol,
-                        "side": side,
-                        "entry": entry,
-                        "r_multiple": round(peak_r, 3),
-                        "new_sl": new_trail_sl,
-                        "new_tp": new_tp,
-                        "action": "Trailing stop moved",
-                    }
-                    _log_profit_alert(alert)
-                    logger.info(
-                        f"📈 TRAIL fired: {symbol} {side} peak +{peak_r:.2f}R, "
-                        f"SL→{new_trail_sl:.6f}"
+                # Monotonic SL guard: prevent regression even when only_forward passes
+                _mg_ok, _mg_reason = _monotonic_sl_guard(symbol, side, new_trail_sl, current_sl_on_exchange)
+                if not _mg_ok:
+                    actions.append(f"TRAIL blocked by monotonic guard: {_mg_reason}")
+                    logger.warning(f"🛑 TRAIL monotonic guard BLOCKED {symbol} {side}: {_mg_reason}")
+                else:
+                    new_tp = None
+                    # TP двигаем ТОЛЬКО если он был установлен изначально
+                    # (SL-only модели — funding/DN-sweep — TP создавать нельзя,
+                    # это ломает валидированный exit).
+                    tp_existed = float(sym_state.get("tp_initial") or 0) > 0
+                    if TRAIL_MOVE_TP and tp_existed:
+                        if side == "Sell":
+                            new_tp = peak_price - risk_per_unit * TRAIL_TP_DISTANCE_R
+                        else:
+                            new_tp = peak_price + risk_per_unit * TRAIL_TP_DISTANCE_R
+                    if _set_trading_stop(symbol, stop_loss=new_trail_sl, take_profit=new_tp):
+                        sym_state["trail_last_peak_r"] = peak_r
+                        sym_state["trail_last_sl"] = new_trail_sl
+                        sym_state["trail_last_tp"] = new_tp if new_tp else 0
+                        actions.append(
+                            f"Trail SL→{new_trail_sl:.6f} (peak {peak_r:.2f}R)"
+                            + (f" TP→{new_tp:.6f}" if new_tp else "")
+                        )
+                        alert = {
+                            "timestamp": datetime.now(timezone.utc).isoformat(),
+                            "type": "GUARDIAN_TRAIL",
+                            "symbol": symbol,
+                            "side": side,
+                            "entry": entry,
+                            "r_multiple": round(peak_r, 3),
+                            "new_sl": new_trail_sl,
+                            "new_tp": new_tp,
+                            "action": "Trailing stop moved",
+                        }
+                        _log_profit_alert(alert)
+                        logger.info(
+                            f"📈 TRAIL fired: {symbol} {side} peak +{peak_r:.2f}R, "
+                            f"SL→{new_trail_sl:.6f}"
                         + (f" TP→{new_tp:.6f}" if new_tp else "")
                     )
                     _enqueue_telegram_event(
@@ -1607,6 +1907,32 @@ def _process_position(pos, state):
                     reason="TIME_STOP",
                 )
 
+    # Rule 3.9: TIME-TIGHTEN (2026-09-15, audit finding).
+    # 68% losers had MFE 0.15-0.30R → не добирались до BE (0.5R/0.8R).
+    # Позиция > 4ч в минусе и пик < 0.3R — маловероятно что дойдёт до TP.
+    # Ужесточаем SL до -1R от entry (tighter stop → меньше потери при развороте).
+    # НЕ закрываем позицию — если рынок развернётся, guardian продолжит защиту.
+    if (not recovery_active
+            and not sym_state.get("time_tightened", False)
+            and not sym_state.get("be_fired", False)
+            and not sym_state.get("time_stopped", False)):
+        _tt_peak = sym_state.get("mfe_peak", 0.0) or 0.0
+        if hold_hours >= 4.0 and _tt_peak < 0.3 and profit < 0:
+            _tighter_sl = entry - risk_per_unit if side.startswith("buy") else entry + risk_per_unit
+            _current_sl = float(sl or 0)
+            if _current_sl and abs(_tighter_sl - entry) < abs(_current_sl - entry):
+                if _set_trading_stop(symbol, stop_loss=_tighter_sl):
+                    sym_state["time_tightened"] = True
+                    sym_state["time_tightened_at"] = time.time()
+                    actions.append(
+                        f"TIME-TIGHTEN: {hold_hours:.1f}ч в минусе, пик {_tt_peak:.2f}R — "
+                        f"SL ужесточён до -1R ({_tighter_sl:.6g})"
+                    )
+                    logger.warning(
+                        f"⏱️ TIME-TIGHTEN {symbol} {side}: {hold_hours:.1f}ч, "
+                        f"пик {_tt_peak:.2f}R → SL {_tighter_sl:.6g} (was {_current_sl:.6g})"
+                    )
+
     # Rule 4: Timeout check (open_time heuristic)
     # FIX 2026-08-04: use openTime (real open) not createdTime (position-id artifact)
     if hold_hours > MAX_HOLD_HOURS and not sym_state.get("timeout_alerted", False):
@@ -1641,28 +1967,53 @@ TRADE_RESULTS_DIR = Path("/root/tradingos/logs/trades")
 FINAL_TRADE_LOG = Path("/root/tradingos/guardian/guardian_effectiveness.jsonl")
 
 
-def _fetch_actual_close_price(symbol: str, side: str, fallback: float) -> float:
-    """Fetch actual exit price from Bybit closed PnL history."""
+def _fetch_actual_close_price(symbol: str, side: str, fallback: float,
+                               entry_time_ms: float = None) -> float:
+    """Fetch actual exit price from Bybit closed PnL history.
+    
+    F2 (2026-09-19): query last 7 days (limit=10) and pick closest to
+    entry_time. Without time filter, limit=1 returns the most recent
+    closed trade for the symbol — which may be from a different position
+    entirely (e.g. BTCUSDT Sep 9 showed $4,946 PnL from stale close price).
+    """
     try:
         ak, as_ = _load_credentials()
         if not ak or not as_:
             return fallback
         import hmac, hashlib, httpx
         ts = str(int(time.time() * 1000))
-        q = f"category=linear&symbol={symbol}&limit=1"
-        sign = hmac.new(as_.encode(), f"{ts}{ak}5000{q}".encode(), hashlib.sha256).hexdigest()
+        _q = f"category=linear&symbol={symbol}&limit=10"
+        if entry_time_ms:
+            _q += f"&start_time={int(entry_time_ms - 7*86400*1000)}&end_time={int(entry_time_ms + 7*86400*1000)}"
+        sign = hmac.new(as_.encode(), f"{ts}{ak}5000{_q}".encode(), hashlib.sha256).hexdigest()
         headers = {
             "X-BAPI-API-KEY": ak, "X-BAPI-TIMESTAMP": ts,
             "X-BAPI-SIGN": sign, "X-BAPI-RECV-WINDOW": "5000",
         }
-        r = httpx.get(f"{_API_BASE}/v5/position/closed-pnl?{q}", headers=headers, timeout=5)
+        r = httpx.get(f"{_API_BASE}/v5/position/closed-pnl?{_q}", headers=headers, timeout=5)
         d = r.json()
         if d.get("retCode") == 0:
             items = d["result"].get("list", [])
             if items:
-                exit_price = float(items[0].get("avgExitPrice", 0))
-                if exit_price > 0:
-                    return exit_price
+                _best = None
+                _best_diff = None
+                for item in items:
+                    _ep = float(item.get("avgExitPrice", 0))
+                    if _ep <= 0:
+                        continue
+                    _ct = item.get("closedTime", 0)
+                    if entry_time_ms and _ct:
+                        try:
+                            _diff = abs(int(_ct) - int(entry_time_ms))
+                        except (ValueError, TypeError):
+                            _diff = 0
+                    else:
+                        _diff = 0
+                    if _best_diff is None or _diff < _best_diff:
+                        _best_diff = _diff
+                        _best = _ep
+                if _best:
+                    return _best
     except Exception:
         pass
     return fallback
@@ -1700,11 +2051,24 @@ def _fetch_closed_trade(symbol: str, side: str,
                 items = d["result"].get("list", [])
                 it = None
                 for candidate in items:
-                    if side and str(candidate.get("side", "")).lower() != side.lower():
-                        continue  # side filter — a Sell record is not proof for a Buy
+                    cand_side = str(candidate.get("side", "")).lower()
+                    # FIX 2026-09-11: в closed-pnl side — сторона ЗАКРЫВАЮЩЕГО
+                    # ордера (LONG(Buy)-позиция → запись "Sell"). Раньше
+                    # сравнивали со стороной ПОЗИЦИИ → фильтр всегда
+                    # отбраковывал валидную запись → комиссии/PnL всегда из
+                    # оценки ($0.00 в карточках). Валидная запись = сторона,
+                    # ПРОТИВОПОЛОЖНАЯ стороне позиции (same side позицию
+                    # закрыть не может — защита от чужих записей сохранена).
+                    if side and cand_side and cand_side == str(side).lower():
+                        continue  # запись того же направления не закрывала эту позицию
                     if min_created_time_ms is not None:
                         created = _safe_float(candidate.get("createdTime")) or 0
-                        if created < min_created_time_ms:
+                        # FIX 2026-09-11: допуск 60с — createdTime записи это
+                        # момент ОТКРЫТИЯ на бирже, который на доли секунд-минуты
+                        # РАНЬШЕ локального entry_time (регистрация после
+                        # подтверждения филла). Мгновенные стопы (4STOCKUSDT:
+                        # open 06:00:04.3, SL 06:00:19) теряли реальный PnL/fees.
+                        if created < min_created_time_ms - 60_000:
                             continue  # stale record from a previous closure
                     it = candidate
                     break
@@ -1725,8 +2089,11 @@ def _fetch_closed_trade(symbol: str, side: str,
             # retCode != 0 or empty list → retry with backoff
         except Exception:
             pass
-        if attempt < 2:
-            time.sleep(2 + attempt * 2)  # 2s, 4s backoff
+        # FIX 2026-09-08 (owner: «комиссия 0 везде»): endpoint лагает до ~60с
+        # после закрытия → 3 попытки за 6с часто мимо → комиссии терялись.
+        # Теперь 5 попыток, ~34с суммарно.
+        if attempt < 4:
+            time.sleep([2, 5, 10, 15][attempt])
     return None
 
 
@@ -1843,27 +2210,59 @@ def _record_trade_closure(symbol, state_entry):
         return
     # Атрибуция контура (2026-09-05): если state не помечен — ищем последний
     # EXECUTED по symbol в logs/executed_contours.jsonl (пишет trade_executor).
+    # FIX 2026-09-14: executed_contours.jsonl НЕ содержит поля `side` — только
+    # symbol + contour + source. Фильтр по side давал пустой match → contour
+    # оставался "unknown" у ~80% сделок (46% WR, -$59 за 7 дней без атрибуции).
+    # Теперь ищем только по symbol (последняя запись = свежий вход).
     if not state_entry.get("contour"):
         try:
             _exec_log = Path("/root/tradingos/logs/executed_contours.jsonl")
             if _exec_log.exists():
-                for _line in reversed(_exec_log.read_text(errors="replace").splitlines()[-500:]):
+                # F1 (2026-09-19): timestamp+price proximity match instead of
+                # last-by-symbol — prevents collision when same symbol has
+                # multiple positions (e.g. XRPUSDT reopened after close).
+                _state_entry_time = state_entry.get("entry_time", 0)
+                _state_entry = state_entry.get("entry", 0)
+                _state_side = state_entry.get("side", "")
+                _best_diff = None
+                _best_rec = None
+                for _line in reversed(_exec_log.read_text(errors="replace").splitlines()[-1000:]):
                     if not _line.strip():
                         continue
                     try:
                         _r = json.loads(_line)
                     except Exception:
                         continue
-                    if _r.get("symbol") == symbol and str(_r.get("side", "")).lower() == str(state_entry.get("side", "")).lower():
-                        state_entry["contour"] = _r.get("contour") or "unknown"
-                        if _r.get("decision_id"):
-                            state_entry.setdefault("decision_id", _r["decision_id"])
-                        # CONVICTION-позиция (2026-09-05): более пристальный
-                        # guardian — BE триггер раньше (0.5R вместо глобального)
-                        if _r.get("conviction"):
-                            state_entry["conviction"] = True
-                            state_entry.setdefault("be_r_override", 0.5)
+                    if _r.get("symbol") != symbol:
+                        continue
+                    # Price proximity (primary filter)
+                    _fp = float(_r.get("fill_price") or 0)
+                    if not _fp or abs(_fp - _state_entry) > abs(_state_entry) * 0.01:
+                        continue
+                    # Timestamp proximity (tiebreaker)
+                    _ct = _r.get("entry_timestamp") or _r.get("ts", "")
+                    _diff = 0
+                    if _state_entry_time and _ct:
+                        try:
+                            _cdt = datetime.fromisoformat(_ct.replace("Z", "+00:00"))
+                            _diff = abs(
+                                (_cdt - datetime.fromtimestamp(
+                                    _state_entry_time, tz=timezone.utc)).total_seconds()
+                            )
+                        except Exception:
+                            _diff = 99999
+                    if _best_diff is None or _diff < _best_diff:
+                        _best_diff = _diff
+                        _best_rec = _r
+                    if _best_diff and _best_diff < 300:
                         break
+                if _best_rec:
+                    state_entry["contour"] = _best_rec.get("contour") or "unknown"
+                    if _best_rec.get("decision_id"):
+                        state_entry.setdefault("decision_id", _best_rec["decision_id"])
+                    if _best_rec.get("conviction"):
+                        state_entry["conviction"] = True
+                        state_entry.setdefault("be_r_override", 0.5)
         except Exception:
             pass
     peak_r = state_entry.get("mfe_peak", 0)
@@ -1903,8 +2302,16 @@ def _record_trade_closure(symbol, state_entry):
         real_pnl = closed.get("closedPnl", 0)
         real_qty = closed.get("qty", 0) or state_entry.get("size", 0)
     else:
-        close_price = _fetch_actual_close_price(symbol, side, entry)
-        real_fees = 0.0
+        close_price = _fetch_actual_close_price(symbol, side, entry, entry_time * 1000 if entry_time else None)
+        # FIX 2026-09-08: fetch не удался → ОЦЕНКА комиссии (taker round-trip),
+        # а не молчаливый $0.00 в карточке закрытия
+        _rt_pct = 0.0022
+        try:
+            _ms = json.loads(Path("/root/tradingos/operations/manual_session.json").read_text())
+            _rt_pct = float(_ms.get("funding_fee_round_trip_pct", 0.22) or 0.22) / 100.0
+        except Exception:
+            pass
+        real_fees = entry * (state_entry.get("size", 0) or 0) * _rt_pct
         real_pnl = None
         real_qty = state_entry.get("size", 0)
 
@@ -2024,6 +2431,26 @@ def _record_trade_closure(symbol, state_entry):
         expected_pnl = (close_price - entry) * size
     slippage_cost = expected_pnl - realized_pnl
 
+    # Lifecycle: record position close with cause classification
+    if _lifecycle:
+        try:
+            _pos_id = state_entry.get("position_id", "")
+            _exit_oid = state_entry.get("exit_order_id", "")
+            _lifecycle.on_position_close(
+                symbol=symbol,
+                outcome=outcome,
+                exit_price=close_price,
+                net_pnl=net_pnl,
+                data_source="real" if real_pnl is not None else "estimated",
+                mfe_r=peak_r,
+                mae_r=trough_r,
+                guardian_trigger=guardian_trigger,
+                position_id=_pos_id,
+                exit_order_id=_exit_oid,
+            )
+        except Exception as _ce:
+            logger.warning(f"Lifecycle close failed: {_ce}")
+
     record = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "config_version": _read_config_version(),
@@ -2056,6 +2483,12 @@ def _record_trade_closure(symbol, state_entry):
         "estimated_benefit": round(estimated_benefit, 6),
         "protection_cost_window_hours": 24,
         "protection_cost_status": "PENDING",
+        # Shadow BE sweep: какие BE-уровни были бы достигнуты
+        "shadow_be_levels": state_entry.get("_be_levels_reached", []),
+        "mfe_peak_r": round(state_entry.get("mfe_peak", 0), 4),
+        "mae_trough_r": round(state_entry.get("mae_trough", 0), 4),
+        # Hold time
+        "hold_hours": round((time.time() - state_entry.get("entry_time", 0)) / 3600, 2) if state_entry.get("entry_time") else None,
     }
 
     TRADE_RESULTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -2076,7 +2509,7 @@ def _record_trade_closure(symbol, state_entry):
     try:
         sys.path.insert(0, "/root/tradingos")
         from tradingos.strategies.deposit_guard import get_guard
-        get_guard().on_trade_closed(net_pnl, fees=fees)
+        get_guard().on_trade_closed(net_pnl, fees=fees, contour=state_entry.get("contour", ""))
     except Exception as e:
         logger.error(f"Deposit guard on_close failed: {e}")
     # Enqueue Telegram notification (guaranteed delivery via persistent queue)
@@ -2221,6 +2654,55 @@ async def run_guardian():
             state = _load_guardian_state()
             if not isinstance(state, dict):
                 state = {}
+            # F1 startup recovery: match existing positions with contours
+            # by timestamp+price proximity (same logic as _process_position).
+            # Runs every cycle so restarts catch up missed positions.
+            try:
+                _ec = Path("/root/tradingos/logs/executed_contours.jsonl")
+                if _ec.exists():
+                    _clines = _ec.read_text(errors="replace").splitlines()
+                    _contours = []
+                    for _cl in _clines:
+                        if _cl.strip():
+                            try:
+                                _contours.append(json.loads(_cl))
+                            except Exception:
+                                pass
+                    for _sym, _st in state.items():
+                        if not isinstance(_st, dict) or not _st.get("entry_time"):
+                            continue
+                        if _st.get("decision_id"):
+                            continue
+                        _et = _st.get("entry_time", 0)
+                        _ep = float(_st.get("entry", 0) or 0)
+                        _best_d = None
+                        _best_c = None
+                        for _c in _contours:
+                            if _c.get("symbol") != _sym:
+                                continue
+                            _fp = float(_c.get("fill_price") or 0)
+                            if not _fp or abs(_fp - _ep) > _ep * 0.01:
+                                continue
+                            _cts = _c.get("entry_timestamp") or _c.get("ts", "")
+                            try:
+                                _cd = datetime.fromisoformat(_cts.replace("Z", "+00:00"))
+                                _d = abs((_cd - datetime.fromtimestamp(_et, tz=timezone.utc)).total_seconds())
+                            except Exception:
+                                continue
+                            if _best_d is None or _d < _best_d:
+                                _best_d = _d
+                                _best_c = _c
+                            if _best_d and _best_d < 300:
+                                break
+                        if _best_c:
+                            state[_sym]["decision_id"] = _best_c.get("decision_id", "")
+                            state[_sym]["contour"] = _best_c.get("contour", "")
+                            if _best_c.get("conviction"):
+                                state[_sym]["conviction"] = True
+                                state[_sym].setdefault("be_r_override", 0.5)
+                            logger.info(f"🔍 F1 recovery: {_sym} decision_id={state[_sym]['decision_id']}")
+            except Exception as _re:
+                logger.warning(f"F1 startup recovery failed: {_re}")
             state_symbols = set(state.keys())
             closed_symbols = state_symbols - live_symbols
             for sym in closed_symbols:
