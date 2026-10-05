@@ -85,7 +85,7 @@ def refresh():
         except: pass
     open_risk=sum((p["entry"]*p["qty"]*abs((p["mark"]-p["entry"])/p["entry"])/max(1,p["leverage"])) for p in positions if p.get("entry") and p.get("mark")) if positions else 0.0
     ctl=get_ctl(); act=_get_act(20)
-    _cache={"money":{"equity":equity,"available":free,"pnl":equity-free if equity>0 else 0,"risk":open_risk,"margin":max(0,equity-free) if equity>0 else 0},
+    _cache={"money":{"equity":equity,"available":free,"used_margin":equity-free if equity>0 else 0,"risk":open_risk},
             "positions":positions,"orders":orders,
             "market":[{"symbol":s,"price":tc.get(s,{}).get("price",0),"chg":tc.get(s,{}).get("change",0)} for s in ["BTCUSDT","ETHUSDT","SOLUSDT"]],
             "control":ctl,"activity":act,"candidates":pm.CANDIDATES,"ts":datetime.now().strftime("%H:%M:%S")}
@@ -516,14 +516,14 @@ tbody tr:hover{background:var(--bg3)}
       <div class="stat-sub"><span id="heroMode">—</span></div>
     </div>
     <div class="stat">
-      <div class="stat-label">БАЛАНС (USDT)</div>
+      <div class="stat-label">БАЛАНС</div>
       <div class="stat-value mono" id="heroEquity">—</div>
       <div class="stat-sub">ДОСТУПНО: <span class="mono" id="heroAvailable">—</span></div>
     </div>
     <div class="stat">
-      <div class="stat-label">ДНЕВНОЙ PNL</div>
+      <div class="stat-label">ИСПОЛЬЗОВАНО</div>
       <div class="stat-value mono" id="heroPnl">—</div>
-      <div class="stat-sub">РИСК: <span class="mono" id="heroRisk">—</span></div>
+      <div class="stat-sub">ЗАМРОЖЕНО В ПОЗИЦИЯХ</div>
     </div>
     <div class="stat">
       <div class="stat-label">BTCUSDT</div>
@@ -805,10 +805,11 @@ function renderDashboard(d){
   document.getElementById('heroEquity').textContent=fmtPx(m.equity);
   document.getElementById('heroAvailable').textContent=fmtPx(m.available);
   const pnlEl=document.getElementById('heroPnl');
-  const pnl=m.pnl||0;
-  pnlEl.textContent=pnlSign(pnl)+fmtPx(pnl);
-  pnlEl.className='stat-value mono '+pnlCls(pnl);
-  document.getElementById('heroRisk').textContent=fmtPx(m.risk);
+  const used=m.used_margin||0;
+  pnlEl.textContent='$'+fmtPx(used);
+  pnlEl.className='stat-value mono neutral';
+  const riskEl=document.getElementById('heroRisk');
+  if(riskEl) riskEl.textContent='$'+fmtPx(m.risk);
   const btc=(d.market||[])[0]||{};
   document.getElementById('heroBtc').textContent=fmtPx(btc.price);
   const btcChgEl=document.getElementById('heroBtcChg');
