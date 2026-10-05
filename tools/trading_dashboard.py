@@ -302,7 +302,7 @@ code,.mono{font-family:'JetBrains Mono','SF Mono',ui-monospace,'Roboto Mono',Men
 
 /* ── Panel (data block) ── */
 .panel{background:var(--bg2);border:1px solid var(--border);overflow:hidden}
-.panel-hd{display:flex;align-items:center;justify-content:space-between;padding:6px 12px;border-bottom:1px solid var(--border);background:var(--bg3);min-height:30px}
+.panel-hd{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-bottom:1px solid var(--border);background:linear-gradient(180deg,rgba(255,255,255,.02) 0%,transparent 100%);min-height:34px}
 .panel-title{font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.1em;display:flex;align-items:center;gap:6px}
 .panel-title-icon{width:12px;height:12px;stroke:var(--text2);fill:none;stroke-width:1.8}
 .panel-body{padding:0}
@@ -312,11 +312,15 @@ code,.mono{font-family:'JetBrains Mono','SF Mono',ui-monospace,'Roboto Mono',Men
 
 /* ── Stat cards (top strip) ── */
 .stat-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));background:var(--bg2);border-bottom:1px solid var(--border)}
-.stat{display:flex;flex-direction:column;padding:10px 14px;border-right:1px solid var(--border);position:relative;min-height:62px}
+.stat{display:flex;flex-direction:column;padding:12px 16px;border-right:1px solid var(--border);position:relative;min-height:68px;transition:all .18s}
+.stat:hover{background:var(--bg3)}
 .stat:last-child{border-right:none}
-.stat::after{content:'';position:absolute;left:0;right:0;bottom:0;height:1px;background:transparent}
+.stat::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--accent-dim),transparent);opacity:0;transition:opacity .2s;pointer-events:none}
+.stat:hover::before{opacity:1}
+.stat.green::before{background:linear-gradient(135deg,var(--green-dim),transparent)}
+.stat.red::before{background:linear-gradient(135deg,var(--red-dim),transparent)}
 .stat-label{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-bottom:3px}
-.stat-value{font-size:20px;font-weight:600;line-height:1.1;letter-spacing:-.01em}
+.stat-value{font-size:22px;font-weight:700;line-height:1.1;letter-spacing:-.02em}
 .stat-sub{font-size:10px;color:var(--text2);margin-top:2px;display:flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace}
 .stat-spark{margin-top:4px;height:14px;opacity:.7}
 .stat-spark svg{width:100%;height:100%}
@@ -330,7 +334,7 @@ code,.mono{font-family:'JetBrains Mono','SF Mono',ui-monospace,'Roboto Mono',Men
 .seg-btn.active{background:var(--bg3);color:var(--accent);box-shadow:inset 0 -2px 0 var(--accent)}
 .seg-btn.danger.active{color:var(--red);box-shadow:inset 0 -2px 0 var(--red)}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;height:100%;padding:0 12px;border:none;border-right:1px solid var(--border);background:transparent;color:var(--text);cursor:pointer;font-size:11px;font-weight:500;transition:all .1s;font-family:inherit;white-space:nowrap;text-transform:uppercase;letter-spacing:.05em}
-.btn:hover{background:var(--bg3);color:var(--text)}
+.btn:hover{background:var(--bg3);color:var(--text);box-shadow:0 0 12px var(--accent-dim)}
 .btn-primary{color:var(--accent)}
 .btn-primary:hover{color:var(--text);background:var(--bg3)}
 .btn-danger{color:var(--red)}
@@ -421,7 +425,7 @@ tbody tr:hover{background:var(--bg3)}
 /* ── Modal ── */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(2px);animation:fadeIn .1s}
 .modal-overlay.hidden{display:none}
-.modal{background:var(--bg2);border:1px solid var(--border-strong);width:100%;max-width:520px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 12px 40px rgba(0,0,0,.4)}
+.modal{background:var(--bg2);border:1px solid var(--border-strong);width:100%;max-width:520px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow-lg),0 0 0 1px rgba(255,255,255,.03) inset}
 .modal-hd{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);background:var(--bg3)}
 .modal-title{font-size:14px;font-weight:600;font-family:'JetBrains Mono',monospace;letter-spacing:-.01em;display:flex;align-items:center;gap:8px}
 .modal-body{padding:14px;overflow-y:auto;flex:1}
