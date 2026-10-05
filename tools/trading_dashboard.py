@@ -363,7 +363,7 @@ tbody tr:hover td:first-child{color:var(--accent)}
 .num{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;font-feature-settings:'tnum','zero'}
 
 /* ── Side tags (replace rounded pills) ── */
-.tag{display:inline-flex;align-items:center;gap:3px;padding:1px 5px;font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;font-family:'JetBrains Mono',monospace;border:1px solid}
+.tag{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;font-family:'JetBrains Mono',monospace;border:1px solid;border-radius:4px}
 .tag-long{color:var(--green);border-color:var(--green);background:var(--green-dim)}
 .tag-short{color:var(--red);border-color:var(--red);background:var(--red-dim)}
 .tag-buy{color:var(--green);border-color:var(--green);background:var(--green-dim)}
