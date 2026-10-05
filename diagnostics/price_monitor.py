@@ -6,11 +6,16 @@ price_monitor.py — мониторинг рынка и счёта TradingOS.
   python3 price_monitor.py              # полный отчёт (hourly)
   python3 price_monitor.py --fast       # лёгкий отчёт (dedup, каждые 5 мин)
 
+Интеграция:
+  Сетапы берутся из TradingOS scanner (manual_scanner.scan_all()) → контур
+  MARKET / LIMIT → показываются. NO_TRADE → пропускаются.
+  Fallback: простая ATR-аналитика (rrr >= 1.5), если scanner не нашёл ничего.
+
 Интерфейс для setup_cards.py:
   pm.CANDIDATES          — список символов для сканирования
-  pm.get_price(sym)      — текущая цена (Bybit public)
+  pm.get_price(sym)      — текущая цена (Binance public)
   pm.get_24h(sym)        — 24h change + volume
-  pm.analyze(sym, price, change, volume) -> dict | None
+  pm.analyze(sym, price, change, volume) -> dict | None  (fallback)
   pm._sym_short(sym)     — короткое имя (BTCUSDT → BTC)
   pm.fmt_px(v)           — форматирование цены
   pm._load_keys()        — (ak, as_) из .bingx.env
@@ -30,15 +35,17 @@ import urllib.parse
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
-from concurrent.futures import ThreadPoolExecutor, as_completed
 
+sys.path.insert(0, "/root")
 sys.path.insert(0, "/root/tradingos")
 sys.path.insert(0, "/root/trading_brain_v4")
 
 # ── Конфиг ─────────────────────────────────────────────────────────────
 BINGX_BASE = "https://open-api.bingx.com"
 BINGX_ENV = Path("/root/tradingos/operations/.bingx.env")
-BYBIT_TICKERS = "https://api.bybit.com/v5/market/tickers?category=spot"
+BINANCE_TICKERS = "https://api.binance.com/api/v3/ticker/24hr"
+BYBIT_TICKERS_PERP = "https://api.bybit.com/v5/market/tickers?category=linear"
+BYBIT_KLINE = "https://api.bybit.com/v5/market/kline"
 
 TELEGRAM_TOKEN = os.getenv(
     "TELEGRAM_BOT_TOKEN",
@@ -50,39 +57,13 @@ STATE_PATH = Path("/root/tradingos/operations/price_monitor_state.json")
 LOG_PATH = Path("/root/tradingos/research/price_monitor.log")
 FAST_LOG = Path("/root/tradingos/research/price_monitor_fast.log")
 
-CANDIDATES: list[str] = [
+CANDIDATES: list[str] = sorted({
     "BTCUSDT", "ETHUSDT", "SOLUSDT", "XRPUSDT", "DOGEUSDT", "BNBUSDT",
-    "LINKUSDT", "ADAUSDT", "AVAXUSDT", "LTCUSDT", "DOTUSDT", "MATICUSDT",
-    "UNIUSDT", "ATOMUSDT", "ETCUSDT", "XLMUSDT", "ALGOUSDT", "FILUSDT",
-    "NEARUSDT", "APTUSDT", "ARBUSDT", "OPUSDT", "SUIUSDT", "SEIUSDT",
-    "TRXUSDT", "RUNEUSDT", "INJUSDT", "RNDRUSDT", "FETUSDT", "IMXUSDT",
-    "APEUSDT", "GALAUSDT", "SANDUSDT", "AXSUSDT", "CHZUSDT", "ZECUSDT",
-    "DASHUSDT", "ENAAUSDT", "PENDLEUSDT", "TIAUSDT", "CELRUSDT",
-    "STRKUSDT", "JUPUSDT", "PYTHUSDT", "WLDUSDT", "ONDOUSDT",
-    "PENDLEUSDT", "ENAUSDT", "PEPEUSDT", "1000PEPEUSDT", "BOMEUSDT",
-    "ENTRUSTUSDT", "FLOCKUSDT", "ZORAUSDT", "TUSDT", "AKTUSDT",
-    "RENDERUSDT", "IOSTUSDT", "GMTUSDT", "APEUSDT", "BLURUSDT",
-    "LDOUSDT", "SFPUSDT", "CETUSDT", "SXPUSDT", "ICPUSDT",
-    "FLOWUSDT", "ROSEUSDT", "DODOUSDT", "TWTUSDT", "ANKRUSDT",
-    "KAVAUSDT", "TOMOUSDT", "KNCUSDT", "ONEUSDT", "ZILUSDT",
-    "CHRUSDT", "STXUSDT", "MINAUSDT", "AUDIOUSDT", "CVCUSDT",
-    "BADGERUSDT", "FORTHUSDT", "BALUSDT", "CTKUSDT", "IOTAUSDT",
-    "HNTUSDT", "CRVUSDT", "TWTUSDT", "HARDUSDT", "SFPUSDT",
-    "DODOUSDT", "BTCSTUSDT", "TRBUSDT", "REELEUSDT", "ALICEUSDT",
-    "HIVEUSDT", "SUSHUSDT", "RUNEUSDT",
-]
-# Убираем дубликаты и невалидные символы
-CANDIDATES = sorted({s for s in CANDIDATES if s.endswith("USDT") and len(s) < 20})
-
-# R:R параметры для classify_regime
-SETUP_PARAMS = {
-    "DIP":         {"entry": 0.97,  "sl": 0.96,  "tp": 1.12,  "ttl": 240},
-    "CORRECTION":  {"entry": 0.985, "sl": 0.97,  "tp": 1.10,  "ttl": 180},
-    "ACCUMULATION":{"entry": 0.99,  "sl": 0.975, "tp": 1.08,  "ttl": 360},
-    "IMPULSE":     {"entry": 0.995, "sl": 0.98,  "tp": 1.06,  "ttl": 120},
-}
-COST_PCT = 0.002  # 0.2% entry + 0.2% exit
-
+    "LINKUSDT", "ADAUSDT", "AVAXUSDT", "LTCUSDT", "DOTUSDT", "UNIUSDT",
+    "NEARUSDT", "APTUSDT", "ARBUSDT", "OPUSDT", "SUIUSDT", "TRXUSDT",
+    "RUNEUSDT", "INJUSDT", "RNDRUSDT", "FETUSDT", "SANDUSDT",
+    "AXSUSDT", "ZECUSDT", "WLDUSDT", "ONDOUSDT", "STRKUSDT",
+})
 
 logger = logging.getLogger("price_monitor")
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
@@ -93,21 +74,21 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
 # ═══════════════════════════════════════════════════════════════════════
 
 def _sym_short(sym: str) -> str:
-    """BTCUSDT → BTC, ETHUSDT → ETH."""
     return sym.replace("USDT", "")
 
 
 def fmt_px(v: float) -> str:
     v = float(v)
-    if v >= 1000:
+    if abs(v) >= 1000:
         return f"{v:,.2f}"
-    if v >= 1:
+    if abs(v) >= 1:
+        return f"{v:.4f}".rstrip("0").rstrip(".")
+    if abs(v) >= 0.01:
         return f"{v:.4f}".rstrip("0").rstrip(".")
     return f"{v:.6f}".rstrip("0").rstrip(".")
 
 
 def _tv_url(sym: str) -> str:
-    """BINANCE:<SYM>USDT.P"""
     base = sym.replace("USDT", "")
     return f"https://www.tradingview.com/chart/?symbol=BINANCE:{base}USDT.P"
 
@@ -135,15 +116,11 @@ def _load_keys() -> tuple[str, str]:
     return ak, as_
 
 
-def _bx_sign(params: dict, secret: str) -> str:
-    qs = "&".join(f"{k}={v}" for k, v in sorted(params.items()))
-    return hmac.new(secret.encode(), qs.encode(), hashlib.sha256).hexdigest()
-
-
 def _bx_get(path: str, params: dict, ak: str, as_: str) -> dict:
     ts = str(int(time.time() * 1000))
     params = {**params, "timestamp": ts}
-    sig = _bx_sign(params, as_)
+    qs_raw = "&".join(f"{k}={v}" for k, v in sorted(params.items()))
+    sig = hmac.new(as_.encode(), qs_raw.encode(), hashlib.sha256).hexdigest()
     qs = urllib.parse.urlencode(params)
     url = f"{BINGX_BASE}{path}?{qs}&signature={sig}"
     r = httpx.get(url, headers={"X-BX-APIKEY": ak}, timeout=10)
@@ -155,9 +132,7 @@ def _bx_get(path: str, params: dict, ak: str, as_: str) -> dict:
 
 
 def bingx_balance(ak: str, as_: str) -> dict:
-    """Возвращает {equity, free, ...}. Для fallback в setup_cards."""
     raw = _bx_get("/openApi/swap/v2/user/balance", {"asset": "USDT"}, ak, as_)
-    # BingX returns: {"balance": {"equity": "...", "freezedMargin": "..."}}
     if isinstance(raw, dict):
         bal = raw.get("balance") or {}
         return {
@@ -212,22 +187,83 @@ def bingx_open_orders(ak: str, as_: str) -> list[dict]:
 
 
 # ═══════════════════════════════════════════════════════════════════════
-# Цены (Bybit public, без ключей)
+# Цены (Binance public — точные % изменения)
 # ═══════════════════════════════════════════════════════════════════════
 
 _ticker_cache: dict[str, dict] = {}
 _ticker_ts: float = 0.0
-_TICKER_TTL = 30.0  # сек
+_TICKER_TTL = 30.0
+
+_atr_cache: dict[str, float] = {}
+_atr_ts: float = 0.0
+_ATR_TTL = 60.0
+
+
+def _get_atr(sym: str, client: httpx.Client) -> float:
+    global _atr_ts
+    now = time.time()
+    if sym in _atr_cache and now - _atr_ts < _ATR_TTL:
+        return _atr_cache[sym]
+    for category in ("spot", "linear"):
+        try:
+            r = client.get(BYBIT_KLINE, params={
+                "category": category, "symbol": sym, "interval": "60", "limit": 20
+            }, timeout=5)
+            rows = (r.json().get("result") or {}).get("list") or []
+            if len(rows) >= 15:
+                recent = rows[-14:]
+                closes = [float(c[4]) for c in recent]
+                trs = []
+                for j in range(1, len(recent)):
+                    tr = max(
+                        abs(closes[j] - closes[j - 1]),
+                        abs(closes[j] - float(recent[j - 1][3])),
+                        abs(closes[j] - float(recent[j - 1][2])),
+                    )
+                    trs.append(tr)
+                if trs:
+                    atr = sum(trs) / len(trs)
+                    _atr_cache[sym] = atr
+                    _atr_ts = now
+                    return atr
+        except Exception:
+            continue
+    return 0.0
 
 
 def _bulk_tickers(client: httpx.Client) -> dict[str, dict]:
-    """Кэш тикеров Bybit на 30 сек."""
     global _ticker_ts
     now = time.time()
     if now - _ticker_ts < _TICKER_TTL:
         return _ticker_cache
     try:
-        r = client.get(BYBIT_TICKERS, timeout=10)
+        r = client.get(BINANCE_TICKERS, timeout=10)
+        r.raise_for_status()
+        list_data = r.json()
+        cache: dict[str, dict] = {}
+        for t in list_data:
+            sym = t.get("symbol", "")
+            if not sym.endswith("USDT"):
+                continue
+            try:
+                pct = float(t.get("priceChangePercent", 0) or 0)
+            except (ValueError, TypeError):
+                pct = 0.0
+            cache[sym] = {
+                "price": float(t.get("lastPrice", 0) or 0),
+                "change": pct,
+                "volume": float(t.get("quoteVolume", 0) or 0),
+            }
+        if cache:
+            _ticker_cache.clear()
+            _ticker_cache.update(cache)
+            _ticker_ts = now
+            return _ticker_cache
+    except Exception:
+        pass
+
+    try:
+        r = client.get(BYBIT_TICKERS_PERP, timeout=10)
         r.raise_for_status()
         data = r.json()
         list_data = (data.get("result") or {}).get("list") or []
@@ -236,14 +272,20 @@ def _bulk_tickers(client: httpx.Client) -> dict[str, dict]:
             sym = t.get("symbol", "")
             if not sym.endswith("USDT"):
                 continue
+            pct_str = t.get("price24hPcnt", "0")
+            try:
+                pct = float(pct_str) * 100
+            except (ValueError, TypeError):
+                pct = 0.0
             cache[sym] = {
                 "price": float(t.get("lastPrice", 0) or 0),
-                "change": float(t.get("priceChangePercent", 0) or 0),
-                "volume": float(t.get("volume24h") or t.get("turnover24h") or 0),
+                "change": pct,
+                "volume": float(t.get("volume24h") or 0),
             }
-        _ticker_cache.clear()
-        _ticker_cache.update(cache)
-        _ticker_ts = now
+        if cache:
+            _ticker_cache.clear()
+            _ticker_cache.update(cache)
+            _ticker_ts = now
     except Exception as e:
         logger.warning(f"bulk tickers error: {e}")
     return _ticker_cache
@@ -268,35 +310,158 @@ def get_24h(sym: str) -> dict:
 
 
 # ═══════════════════════════════════════════════════════════════════════
-# Анализ сетапов
+# Формирование карточки из scanner signal
 # ═══════════════════════════════════════════════════════════════════════
 
-def _atr_1h(sym: str, client: httpx.Client) -> float:
-    """Быстрая оценка ATR(14) на 1h."""
-    try:
-        r = client.get(
-            "https://api.bybit.com/v5/market/kline",
-            params={"category": "spot", "symbol": sym, "interval": "60", "limit": 20},
-            timeout=5,
-        )
-        rows = (r.json().get("result") or {}).get("list") or []
-        if len(rows) < 15:
-            return 0.0
-        closes = [float(row[4]) for row in rows[-14:]]
-        trs = []
-        for i in range(1, len(closes)):
-            tr = max(
-                closes[i] - closes[i - 1],
-                abs(closes[i] - closes[i - 1]),
-                closes[i] - min(closes[:i + 1]),
-            )
-            trs.append(tr)
-        if not trs:
-            return 0.0
-        return sum(trs) / len(trs)
-    except Exception:
-        return 0.0
+_REGIME_FROM_DESC = {
+    "накопление": "ACCUMULATION",
+    "дип-откат": "DIP",
+    "коррекция": "CORRECTION",
+    "импульс": "IMPULSE",
+    "всплеск": "IMPULSE",
+}
+_TTL_FROM_DESC = {
+    "ACCUMULATION": 360,
+    "DIP": 240,
+    "CORRECTION": 180,
+    "IMPULSE": 120,
+}
+_SIDE_FROM_DESC = {
+    "Дип-откат": "LONG", "дип-откат": "LONG",
+    "Коррекция": "LONG", "коррекция": "LONG",
+    "Накопление": "LONG", "накопление": "LONG",
+    "Импульс": "SHORT", "импульс": "SHORT",
+    "Всплеск": "SHORT", "всплеск": "SHORT",
+}
 
+
+def _desc_from_score(sig: dict) -> str:
+    """Описание режима из score-компонентов."""
+    parts = sig.get("parts", {})
+    h1 = parts.get("h1_trend", 0)
+    mom = parts.get("momentum", 0)
+    chg = sig.get("chg", 0)
+    if chg <= -2:
+        return "дип-откат — ловим дно"
+    if chg <= -0.5:
+        return "коррекция — вход на восстановлении"
+    if chg >= 6:
+        return "всплеск — шортим перекупленность"
+    if chg > 0:
+        return "накопление — спокойный рост"
+    return "коррекция — вход на восстановлении"
+
+
+def _scanner_to_card(sig: dict, equity: float, ticker_cache: dict) -> dict | None:
+    """Конвертирует сигнал сканера в карточку для price_monitor."""
+    sym = sig["symbol"]
+    price = sig.get("price", 0)
+    if not price:
+        return None
+
+    side = sig.get("side", "LONG")
+    sl = sig.get("sl", 0)
+    tp = sig.get("final_tp", sig.get("raw_tp", 0))
+    atr = sig.get("atr", 0)
+    rr = sig.get("rr", 0)
+    contour = sig.get("contour", "NO_TRADE")
+    trade_decision = sig.get("trade_decision", "SKIP")
+    skip_reason = sig.get("skip_reason", "")
+    dist_e20 = sig.get("dist_e20_pct", 0)
+    vol_ratio = sig.get("vol_ratio", 0)
+
+    # Filter: only show MARKET and LIMIT contours, or ALLOW with NO_TRADE but good RR
+    if contour == "NO_TRADE" and trade_decision == "SKIP":
+        return None
+    if contour == "NO_TRADE" and skip_reason in ("MTF_CONFLICT", "STOCH_ZONE_CONFLICT"):
+        return None
+
+    # Calculate entry range from ATR
+    if atr <= 0:
+        return None
+
+    chg = ticker_cache.get(sym, {}).get("change", 0)
+    vol = ticker_cache.get(sym, {}).get("volume", 0)
+
+    # Entry zone: use wait_limit_entry if LIMIT, else current-price-adjacent
+    wait_entry = sig.get("wait_limit_entry", 0)
+    if wait_entry and wait_entry > 0:
+        entry_low = wait_entry
+        entry_high = wait_entry + atr * 0.3
+    elif side == "LONG":
+        entry_low = price - atr * 0.8
+        entry_high = price + atr * 0.2
+    else:
+        entry_high = price + atr * 0.8
+        entry_low = entry_high - atr * 0.3
+
+    if entry_low <= 0 or entry_high <= 0 or sl <= 0 or tp <= 0:
+        return None
+
+    cost = entry_low * 0.002
+    risk = abs(entry_low - sl) + cost
+    reward = abs(tp - entry_low) - cost
+    net_rr = reward / risk if risk > 0 else 0
+    if net_rr < 1.2:
+        return None
+
+    desc = _desc_from_score(sig)
+    regime = _REGIME_FROM_DESC.get(desc.split("—")[0].strip(), "ACCUMULATION")
+    ttl = _TTL_FROM_DESC.get(regime, 180)
+    now = datetime.now(timezone.utc)
+    expires_ts = now.timestamp() + ttl * 60
+
+    # Trailing TP
+    if side == "LONG":
+        trailing_tp = tp + atr
+    else:
+        trailing_tp = tp - atr
+
+    # Distance to entry
+    if price < entry_low:
+        dist = (price - entry_low) / entry_low * 100
+    else:
+        dist = (price - entry_low) / entry_low * 100
+
+    # SMC hint
+    smc_hint = _smc_one_line(sym, price, atr)
+
+    notional = int(equity * 0.1) if equity else 21
+
+    return {
+        "symbol": sym,
+        "short": _sym_short(sym),
+        "side": side,
+        "entry_low": round(entry_low, 6),
+        "entry_high": round(entry_high, 6),
+        "tp": round(tp, 6),
+        "sl": round(sl, 6),
+        "rrr": round(net_rr, 2),
+        "sl_pct": round(abs(entry_low - sl) / entry_low * 100, 1),
+        "tp_pct": round(abs(tp - entry_low) / entry_low * 100, 1),
+        "hold": f"{ttl // 60}ч" if ttl >= 60 else f"{ttl}мин",
+        "desc": desc,
+        "chg": round(chg, 1),
+        "vol": round(vol, 0),
+        "cur": round(price, 6),
+        "atr": round(atr, 6),
+        "atr_pct": round(atr / price * 100, 1) if price else 0,
+        "regime": regime,
+        "expires_ts": expires_ts,
+        "ttl_min": ttl,
+        "trailing_tp": round(trailing_tp, 6),
+        "smc_hint": smc_hint,
+        "dist_to_entry": round(dist, 1),
+        "score": sig.get("score", 0),
+        "contour": contour,
+        "contour_reasoning": sig.get("contour_reasoning", []),
+        "notional": notional,
+    }
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# Простая ATR-аналитика (fallback если scanner пустой)
+# ═══════════════════════════════════════════════════════════════════════
 
 def classify_regime(chg: float, vol: float) -> str:
     if chg <= -2.0 and vol > 1e7:
@@ -310,373 +475,319 @@ def classify_regime(chg: float, vol: float) -> str:
     return ""
 
 
+_REGIME_SIDE = {"DIP": "LONG", "CORRECTION": "LONG", "ACCUMULATION": "LONG", "IMPULSE": "SHORT"}
+_REGIME_DESC = {
+    "DIP": "дип-откат — ловим дно",
+    "CORRECTION": "коррекция — вход на восстановлении",
+    "ACCUMULATION": "накопление — спокойный рост",
+    "IMPULSE": "импульс — вход на коррекции",
+}
+_REGIME_TTL = {"DIP": 240, "CORRECTION": 180, "ACCUMULATION": 360, "IMPULSE": 120}
+
+
 def analyze(sym: str, price: float, change: float, volume: float) -> dict | None:
-    """
-    Классифицирует рыночный режим и строит карточку сетапа.
-    Возвращает dict с полями: symbol, short, side, entry, tp, sl, rrr,
-      sl_pct, tp_pct, hold, desc, chg, vol, cur.
-    Возвращает None если нет сетапа.
-    """
+    """Fallback analysis — только при rrr >= 1.5."""
     regime = classify_regime(change, volume)
     if not regime:
         return None
 
-    params = SETUP_PARAMS[regime]
-    is_long = change < 0  # дип/коррекция → LONG; импульс → SHORT
-    side = "LONG" if is_long else "SHORT"
+    side = _REGIME_SIDE[regime]
+    now = datetime.now(timezone.utc)
+    ttl = _REGIME_TTL[regime]
+    expires_ts = now.timestamp() + ttl * 60
 
-    if is_long:
-        entry = price * params["entry"]
-        sl = price * params["sl"]
-        tp = price * params["tp"]
+    atr = _get_atr(sym, httpx.Client(timeout=5))
+    if atr <= 0:
+        return None
+
+    atr_pct = atr / price * 100 if price else 0
+
+    if side == "LONG":
+        entry_low = price - atr * 1.0
+        entry_high = entry_low + atr * 0.5
+        sl = entry_low - atr * 2.0
+        tp = entry_low + atr * 5.0
     else:
-        entry = price * (2 - params["entry"])  # mirror для шорта
-        sl = price * (2 - params["sl"])
-        tp = price * (2 - params["tp"])
+        entry_high = price + atr * 1.0
+        entry_low = entry_high - atr * 0.5
+        sl = entry_high + atr * 2.0
+        tp = entry_high - atr * 5.0
 
-    # R:R с учётом costs
-    cost = entry * COST_PCT
-    risk = abs(entry - sl) + cost
-    reward = abs(tp - entry) - cost
+    if sl <= 0 or tp <= 0 or entry_low <= 0 or entry_high <= 0:
+        return None
+
+    cost = entry_low * 0.002
+    risk = abs(entry_low - sl) + cost
+    reward = abs(tp - entry_low) - cost
     if risk <= 0:
         return None
     net_rr = reward / risk
-    if net_rr < 1.2:
+    if net_rr < 1.5:  # Стриктнее чем у scanner — только хорошие
         return None
 
-    # Классификация
-    if net_rr >= 1.5:
-        eligibility = "AUTO"
-    elif net_rr >= 1.2:
-        eligibility = "MANUAL"
+    if side == "LONG":
+        trailing_tp = tp + atr
     else:
-        return None
+        trailing_tp = tp - atr
 
-    hold_map = {"DIP": "24ч", "CORRECTION": "3ч", "ACCUMULATION": "6ч", "IMPULSE": "2ч"}
-    desc_map = {
-        "DIP": "сильный откат — ловим дно",
-        "CORRECTION": "умеренный откат — вход с докупом",
-        "ACCUMULATION": "спокойный рост — накопление",
-        "IMPULSE": "импульс — вход на коррекции",
-    }
-
-    ttl = params["ttl"]
-    now = datetime.now(timezone.utc)
-    expires_ts = (now.timestamp() + ttl * 60)
+    dist = (price - entry_low) / entry_low * 100
+    smc_hint = _smc_one_line(sym, price, atr)
 
     return {
         "symbol": sym,
         "short": _sym_short(sym),
         "side": side,
-        "entry": round(entry, 6),
+        "entry_low": round(entry_low, 6),
+        "entry_high": round(entry_high, 6),
         "tp": round(tp, 6),
         "sl": round(sl, 6),
         "rrr": round(net_rr, 2),
-        "eligibility": eligibility,
-        "sl_pct": round(abs(entry - sl) / entry * 100, 2),
-        "tp_pct": round(abs(tp - entry) / entry * 100, 2),
-        "hold": hold_map.get(regime, ""),
-        "desc": desc_map.get(regime, ""),
+        "sl_pct": round(abs(entry_low - sl) / entry_low * 100, 1),
+        "tp_pct": round(abs(tp - entry_low) / entry_low * 100, 1),
+        "hold": f"{ttl // 60}ч" if ttl >= 360 else f"{ttl}мин",
+        "desc": _REGIME_DESC[regime],
         "chg": round(change, 1),
         "vol": round(volume, 0),
         "cur": round(price, 6),
+        "atr": round(atr, 6),
+        "atr_pct": round(atr_pct, 1),
         "regime": regime,
         "expires_ts": expires_ts,
         "ttl_min": ttl,
+        "trailing_tp": round(trailing_tp, 6),
+        "smc_hint": smc_hint,
+        "dist_to_entry": round(dist, 1),
+        "score": 0,
+        "contour": "FALLBACK",
+        "contour_reasoning": [],
+        "notional": 0,
     }
 
 
-# ═══════════════════════════════════════════════════════════════════════
-# SMC-анализ (ликвидационные свипы, консолидация, ключевые уровни)
-# ═══════════════════════════════════════════════════════════════════════
+def _smc_one_line(sym: str, price: float, atr: float) -> str:
+    candidates = []
+    for mult in [1, 10, 100, 1000, 10000]:
+        rounded = round(price / mult) * mult
+        if rounded == price:
+            continue
+        dist = abs(rounded - price) / price * 100
+        if dist < 1.5:
+            candidates.append((dist, rounded, "круглая цена"))
 
-def _smc_summary(sym: str, client: httpx.Client) -> str:
-    """Один абзац SMC-контекста для символа. Быстро, без исключений."""
-    try:
-        r = client.get(
-            "https://api.bybit.com/v5/market/kline",
-            params={"category": "spot", "symbol": sym, "interval": "60", "limit": 50},
-            timeout=5,
-        )
-        rows = (r.json().get("result") or {}).get("list") or []
-        if len(rows) < 20:
-            return ""
-        # Найти ближайший round number
-        last_close = float(rows[-1][4])
-        for mult in [1, 10, 100, 1000]:
-            rounded = round(last_close / mult) * mult
-            if rounded == last_close:
-                continue
-            dist = abs(rounded - last_close) / last_close * 100
-            if dist < 1.0:
-                direction = "выше" if rounded > last_close else "ниже"
-                return f"💡 Круглая цена {fmt_px(rounded)} {direction} на дистанции {dist:.1f}%"
+    for offset_mult in [0.3, 0.5, 0.8, 1.0, 1.5, 2.0]:
+        lvl = price * (1 - offset_mult * atr / price) if atr else 0
+        if lvl <= 0:
+            continue
+        dist = abs(lvl - price) / price * 100
+        if 0.3 < dist < 3.0:
+            label = "поддержка" if lvl < price else "сопротивление"
+            candidates.append((dist, lvl, label))
+
+    if not candidates:
         return ""
-    except Exception:
-        return ""
+    candidates.sort(key=lambda x: x[0])
+    dist, lvl, label = candidates[0]
+    near = "рядом" if dist < 0.5 else f"на дистанции {dist:.1f}%"
+    if label == "круглая цена":
+        return f"Круглая цена {fmt_px(lvl)} {near} — рынок на распутье"
+    elif lvl < price:
+        return f"Поддержка {fmt_px(lvl)} держит снизу"
+    else:
+        return f"Сопротивление {fmt_px(lvl)} прямо перед ценой"
 
 
-def _build_smc_section(candidates: list[str], client: httpx.Client) -> str:
-    """Сборка SMC-секции — один абзац по BTC + хинты по кандидатным."""
-    lines = []
-    # Сначала BTC
-    btc_hint = _smc_summary("BTCUSDT", client)
-    if btc_hint:
-        lines.append(btc_hint)
-    # Затем кандидаты с сильными сигналами
-    for sym in candidates[:5]:
-        hint = _smc_summary(sym, client)
-        if hint:
-            lines.append(hint)
-    if not lines:
-        lines.append("Рынок стоит — жди пробития")
-    return "\n".join(lines)
+def _smc_section(ticker_cache: dict) -> str:
+    parts = []
+    for sym in ["BTCUSDT", "ETHUSDT"]:
+        price = ticker_cache.get(sym, {}).get("price", 0)
+        if not price:
+            continue
+        with httpx.Client(timeout=5) as c:
+            atr = _get_atr(sym, c)
+        if atr <= 0:
+            continue
+        if atr / price * 100 < 0.5:
+            parts.append(sym.replace("USDT", ""))
+    if parts:
+        return f"⚡ Рынок стоит ({', '.join(parts)}) — жди пробития, новых входов пока нет"
+    return ""
 
 
 # ═══════════════════════════════════════════════════════════════════════
-# Сборка отчётов
+# Сборка отчёта
 # ═══════════════════════════════════════════════════════════════════════
 
-def _btc_info(client: httpx.Client) -> str:
-    """BTC price + 24h change для шапки."""
+def _btc_line(client: httpx.Client) -> str:
     cache = _bulk_tickers(client)
     btc = cache.get("BTCUSDT", {})
     price = btc.get("price", 0)
     chg = btc.get("change", 0)
-    arrow = "▲" if chg >= 0 else "▼"
-    return f"BTC ${fmt_px(price)} {arrow} {chg:+.1f}%"
+    arrow = "🟢▲" if chg >= 0 else "🔴▼"
+    return f"BTC {fmt_px(price)} {arrow} {chg:+.1f}%"
 
 
-def _format_pos_line(p: dict) -> str:
-    side_ru = "LONG" if p["side"] == "LONG" else "SHORT"
-    emoji = "🟢" if p["upnl"] >= 0 else "🔴"
-    pnl_pct = (p["mark"] - p["entry"]) / p["entry"] * 100 if p["side"] == "LONG" else (p["entry"] - p["mark"]) / p["entry"] * 100
-    liq_dist = abs(p["liq"] - p["mark"]) / p["mark"] * 100 if p["liq"] and p["mark"] else 0
-    return (
-        f"{emoji} *{p['symbol']}* {side_ru}  PnL *{p['upnl']:+.2f}*  "
-        f"плюс *{pnl_pct:+.1f}%*  ликв. {liq_dist:.1f}%"
-    )
+def _now_msk() -> str:
+    try:
+        import zoneinfo
+        return datetime.now(zoneinfo.ZoneInfo("Europe/Moscow")).strftime("%H:%M")
+    except Exception:
+        return datetime.now(timezone.utc).astimezone().strftime("%H:%M")
 
 
-def _format_order_line(o: dict, current_price: float) -> str:
-    side_ru = "🟢" if o["side"].upper() == "BUY" else "🔴"
-    dist = (current_price - o["price"]) / o["price"] * 100 if o["price"] else 0
-    if dist <= 0:
-        status = "✅ скоро"
-    elif dist < 5:
-        status = f"⏳ +{dist:.1f}%"
+def _pos_lines(p: dict, equity: float) -> list[str]:
+    sym = p["symbol"]
+    side = p["side"]
+    lev = p["leverage"]
+    entry = p["entry"]
+    mark = p["mark"]
+    upnl = p["upnl"]
+    liq = p["liq"]
+    pnl_pct = (mark - entry) / entry * 100 if side == "LONG" else (entry - mark) / entry * 100
+    liq_dist = abs(liq - mark) / mark * 100 if liq and mark else 0
+    pnl_emoji = "🟢" if upnl >= 0 else "🔴"
+    liq_emoji = "🟢" if liq_dist > 50 else "🟡" if liq_dist > 20 else "🔴"
+    return [
+        f"▶ <code>{sym}</code> {side} x{lev}  <code>{fmt_px(entry)}</code>→<code>{fmt_px(mark)}</code>",
+        f"   PnL {pnl_emoji}<code>${upnl:+.2f}</code> ({pnl_pct:+.1f}%)  ·  ликв {liq_emoji}<code>{liq_dist:.0f}%</code>",
+    ]
+
+
+def _order_line(o: dict, cur: float) -> str:
+    sym = o["symbol"]
+    side = o["side"].upper()
+    price = o["price"]
+    if not price or not cur:
+        return f"   {sym} 📥 лимит <code>{fmt_px(price)}</code> ❓"
+    side_icon = "📥" if side == "BUY" else "📤"
+    tv = _tv_url(sym)
+    if side == "BUY":
+        dist = (cur - price) / price * 100
+        icon = "✅" if dist <= 0 else "❌"
     else:
-        status = f"📍 +{dist:.1f}%"
-    return f"{side_ru} *{o['symbol']}* ${fmt_px(current_price)}  лимит ${fmt_px(o['price'])}  {status}"
+        dist = (price - cur) / price * 100
+        icon = "✅" if dist <= 0 else "❌"
+    return f"   {sym} {side_icon} лимит <code>{fmt_px(price)}</code>  <a href=\"{tv}\">📊</a> {icon}"
 
 
-def _fmt_setup(card: dict) -> str:
-    side_ru = "ЛОНГ" if card["side"] == "LONG" else "ШОРТ"
-    badge = "✅AUTO" if card["eligibility"] == "AUTO" else "✋MANUAL"
-    dist = (card["entry"] - card["cur"]) / card["cur"] * 100 if card["cur"] else 0
-    tv = _tv_url(card["symbol"])
-    return (
-        f"🟢 *{card['short']}* {side_ru} [{badge}]\n"
-        f"  вход  *{fmt_px(card['entry'])}*\n"
-        f"  цель  *{fmt_px(card['tp'])}*  (+{card['tp_pct']:.1f}%)\n"
-        f"  стоп  *{fmt_px(card['sl'])}*  (-{card['sl_pct']:.1f}%)\n"
-        f"  риск/прибыль 1:{card['rrr']}  ·  24ч {card['chg']:+.1f}%  ·  объём ${card['vol']/1e6:.0f}M\n"
-        f"  причина: {card['desc']}\n"
-        f"  {tv}"
-    )
+def _setup_line(c: dict) -> str:
+    sym = c["short"]
+    side_ru = "ЛОНГ" if c["side"] == "LONG" else "ШОРТ"
+    side_emoji = "🟢" if c["side"] == "LONG" else "🔴"
+    tv = _tv_url(c["symbol"])
+    dist = c["dist_to_entry"]
+    dist_emoji = "🟢" if dist <= 0.2 else ("🟡" if dist <= 1.0 else "⚪")
+
+    elapsed = time.time() - (c["expires_ts"] - c["ttl_min"] * 60)
+    remaining = max(0, int(c["ttl_min"] - elapsed / 60))
+
+    lines = [
+        f"{side_emoji} <b><code>{sym}</code></b> {side_ru}  ·  {c['desc']}",
+        f"🔵 Вход:  <code>{fmt_px(c['entry_low'])}</code>–<code>{fmt_px(c['entry_high'])}</code>",
+        f"🟢 Тейк: <code>{fmt_px(c['tp'])}</code>  (+{c['tp_pct']}%)",
+        f"🔴 Стоп: <code>{fmt_px(c['sl'])}</code>  (-{c['sl_pct']}%)",
+        f"⚙️ Плечо: 20  ·  Размер: ${c.get('notional', 21)}(10%)",
+        f"📍 до цены входа {dist_emoji}<b>{dist:+.1f}%</b>  ·  24ч <b>{c['chg']:+.1f}%</b>",
+        f"📊 Волатильность {c['atr_pct']}% за час",
+        "   Рынок затаился — жди резкого движения",
+        f"   Трейлинг: если растёт → тейк поднимется до {fmt_px(c['trailing_tp'])}",
+        f"⏳ Активен ещё {remaining} мин  ·  <a href=\"{tv}\">📊</a>",
+        "   ⚠️ Это идея, а не сигнал — жди подхода цены",
+    ]
+    if c.get("smc_hint"):
+        lines.append(f"   {c['smc_hint']}")
+    return "\n".join(lines)
 
 
-def build() -> str:
-    """Полный hourly отчёт."""
+def _collect_setups(
+    scanner_sigs: list[dict],
+    ticker_cache: dict,
+    equity: float,
+) -> list[dict]:
+    """Собираем карточки из scanner + fallback."""
+    cards: list[dict] = []
+
+    for sig in scanner_sigs:
+        card = _scanner_to_card(sig, equity, ticker_cache)
+        if card:
+            cards.append(card)
+
+    # Fallback: если scanner не дал результатов — простая ATR-аналитика
+    if not cards:
+        for sym in CANDIDATES:
+            t = ticker_cache.get(sym, {})
+            p, chg, vol = t.get("price", 0), t.get("change", 0), t.get("volume", 0)
+            if not p or p <= 0:
+                continue
+            card = analyze(sym, p, chg, vol)
+            if card:
+                cards.append(card)
+
+    cards.sort(key=lambda c: (-c.get("score", c["rrr"]), -c["rrr"]))
+    return cards
+
+
+def _build_report(positions: list[dict], equity: float, free: float,
+                  scanner_sigs: list[dict], next_check_min: int) -> str:
     ak, as_ = _load_keys()
     with httpx.Client(timeout=15) as client:
-        btc = _btc_info(client)
-        # Позиции
-        positions = bingx_positions(ak, as_) if ak and as_ else []
-        # Ордеры
-        orders = bingx_open_orders(ak, as_) if ak and as_ else []
-        # Тикеры
+        btc = _btc_line(client)
         cache = _bulk_tickers(client)
-        # Equity
-        equity = 0.0
-        free = 0.0
-        if ak and as_:
-            try:
-                bal = bingx_balance(ak, as_)
-                equity = bal.get("equity", 0)
-                free = bal.get("free", 0)
-            except Exception:
-                pass
+        orders = bingx_open_orders(ak, as_) if ak and as_ else []
+
         total_pnl = sum(p["upnl"] for p in positions)
+        unrealised = equity - free if equity > 0 else 0
+        risk_usd = equity * 0.01 if equity else 0
+        pnl_emoji = "🟢" if total_pnl >= 0 else "🔴"
+        equity_emoji = "🟢" if unrealised >= 0 else "🔴"
+        now_msk = _now_msk()
 
         lines = [
-            f"⏰ {datetime.now(timezone.utc).strftime('%H:%M UTC')}  💰 *BingX Отчёт*",
+            f"⏰ <b>{now_msk} MSK</b>  ·  <b>{btc}</b>",
             "",
-            f"📈 *{btc}* за 24ч",
-            "",
-            f"💼 *Баланс счёта*",
-            f"   Equity: *${equity:.2f}* USDT",
-            f"   Свободно: ${free:.2f}  ·  Занято в позициях: ${equity - free:.2f}",
-            f"   Нереализованный PnL: *{total_pnl:+.4f} USDT*",
+            f"💰 <b>Баланс:</b> ${fmt_px(equity)}  ·  свободно ${fmt_px(free)}  ·  {equity_emoji}<b>${unrealised:+.2f}</b>",
+            f"⚠️ <b>Риск:</b> 1% = ${fmt_px(risk_usd)}  ·  ⏱ через <b>{next_check_min} мин</b>",
             "",
         ]
 
-        if positions:
-            lines.append("📊 *Открытые позиции:*")
-            for p in positions:
-                lines.append(f"   {_format_pos_line(p)}")
-            lines.append("")
+        # Positions
+        lines.append(f"📂 <b>Позиции ({len(positions)})</b>")
+        for p in positions:
+            for pline in _pos_lines(p, equity):
+                lines.append(pline)
+        lines.append("")
 
+        # Orders
         ENTRY_TYPES = {"LIMIT", "STOP_LIMIT", "TAKE_PROFIT_LIMIT"}
-        if orders:
-            lines.append("📋 *Активные лимит-ордера:*")
-            for o in orders:
+        entry_orders = [o for o in orders if o.get("type", "").upper() in ENTRY_TYPES]
+        if entry_orders:
+            lines.append(f"📋 <b>Ордера ({len(entry_orders)})</b>")
+            for o in entry_orders:
                 cur = cache.get(o["symbol"], {}).get("price", 0)
-                lines.append(f"   {_format_order_line(o, cur)}")
+                lines.append(_order_line(o, cur))
             lines.append("")
 
-        # Сетапы
-        setups: list[dict] = []
-        for sym in CANDIDATES:
-            price = cache.get(sym, {}).get("price", 0)
-            change = cache.get(sym, {}).get("change", 0)
-            volume = cache.get(sym, {}).get("volume", 0)
-            if not price or price <= 0:
-                continue
-            card = analyze(sym, price, change, volume)
-            if card:
-                setups.append(card)
-        setups.sort(key=lambda c: -c["rrr"])
-
+        # Setups from scanner + fallback
+        setups = _collect_setups(scanner_sigs, cache, equity)
         if setups:
-            lines.append("🎯 *Рекомендации к входу:*")
-            for card in setups[:8]:
+            lines.append("🎯 <b>СЕТАПЫ ДЛЯ ВХОДА</b>")
+            lines.append("")
+            for c in setups[:8]:
+                lines.append(_setup_line(c))
                 lines.append("")
-                lines.append(_fmt_setup(card))
+
+        # SMC bottom
+        smc = _smc_section(cache)
+        if smc:
+            lines.append(f"  {smc}")
             lines.append("")
 
-        lines.append(f"📊 Итого PnL: {total_pnl:+.2f}U")
-        lines.append("⏳ След. проверка через 1 час")
-
-    msg = "\n".join(lines)
-    logger.info(f"build done, {len(setups)} setups")
-    return msg
-
-
-def _build_position_report(positions: list[dict]) -> str:
-    """Быстрый отчёт для fast-режима (positions + orders)."""
-    ak, as_ = _load_keys()
-    with httpx.Client(timeout=15) as client:
-        cache = _bulk_tickers(client)
-        btc = _btc_info(client)
-        orders = bingx_open_orders(ak, as_) if ak and as_ else []
-
-        equity = 0.0
-        if ak and as_:
-            try:
-                equity = bingx_balance(ak, as_)["equity"]
-            except Exception:
-                pass
-        total_pnl = sum(p["upnl"] for p in positions)
-
-        lines = [
-            f"⏰ {datetime.now(timezone.utc).strftime('%H:%M UTC')}  💰 *BingX Отчёт*",
-            "",
-            f"📈 *{btc}*",
-            "",
-            f"💼 *Equity: ${equity:.2f}*  PnL нереал. *{total_pnl:+.4f}U*",
-            "",
-        ]
-
-        shown: set[str] = set()
-        if positions:
-            lines.append("📊 *Позиции:*")
-            for p in positions:
-                sym = p["symbol"]
-                if sym in shown:
-                    continue
-                shown.add(sym)
-                lines.append(f"   {_format_pos_line(p)}")
-            lines.append("")
-
-        ENTRY_TYPES = {"LIMIT", "STOP_LIMIT", "TAKE_PROFIT_LIMIT"}
-        orders_filtered = [o for o in orders if o.get("type", "") in ENTRY_TYPES]
-        if orders_filtered:
-            lines.append("📋 *Лимит-ордера:*")
-            for o in orders_filtered:
-                cur = cache.get(o["symbol"], {}).get("price", 0)
-                lines.append(f"   {_format_order_line(o, cur)}")
-            lines.append("")
-
-        # Сетапы (только top-5 по R:R)
-        setups: list[dict] = []
-        for sym in CANDIDATES:
-            price = cache.get(sym, {}).get("price", 0)
-            change = cache.get(sym, {}).get("change", 0)
-            volume = cache.get(sym, {}).get("volume", 0)
-            if not price or price <= 0:
-                continue
-            card = analyze(sym, price, change, volume)
-            if card:
-                setups.append(card)
-        setups.sort(key=lambda c: -c["rrr"])
-
-        if setups:
-            lines.append("🎯 *Сетапы:*")
-            for card in setups[:5]:
-                lines.append(f"   {_fmt_setup(card)}")
-            lines.append("")
-
-        lines.append(f"📊 Итого PnL: {total_pnl:+.2f}U")
-        lines.append("⏳ След. через 5 мин")
+        lines.append(f"{pnl_emoji} <b>Итого PnL ${total_pnl:+.2f}</b>  ·  ⏱ следующая проверка через <b>{next_check_min} мин</b>")
 
     return "\n".join(lines)
 
 
 # ═══════════════════════════════════════════════════════════════════════
-# Telegram
-# ═══════════════════════════════════════════════════════════════════════
-
-TG_URL = "https://api.telegram.org/bot{token}/sendMessage"
-TG_IP = "149.154.167.220"
-
-
-def send_tg(text: str) -> bool:
-    """Отправить сообщение в Telegram через curl с IP-resolve."""
-    safe = text.replace("&", "&amp;")
-    # Восстанавливаем HTML-теги после экранирования
-    for tag in ("b", "code", "i", "u", "s", "inlineurl"):
-        safe = safe.replace(f"&lt;{tag}&gt;", f"<{tag}>").replace(f"&lt;/{tag}&gt;", f"</{tag}>")
-        safe = safe.replace(f"&lt;{tag} ", f"<{tag} ")
-    payload = json.dumps({
-        "chat_id": TELEGRAM_CHAT,
-        "text": safe,
-        "parse_mode": "HTML",
-        "disable_web_page_preview": True,
-    }, ensure_ascii=False)
-    for attempt in range(3):
-        try:
-            import subprocess
-            proc = subprocess.run(
-                ["curl", "-s", "--max-time", "15",
-                 "--resolve", f"api.telegram.org:443:{TG_IP}",
-                 "-X", "POST", TG_URL.format(token=TELEGRAM_TOKEN),
-                 "-H", "Content-Type: application/json",
-                 "-d", payload],
-                capture_output=True, timeout=20,
-            )
-            resp = proc.stdout.decode()
-            if '"ok":true' in resp:
-                return True
-            logger.warning(f"TG attempt {attempt+1} failed: {resp[:200]}")
-        except Exception as e:
-            logger.warning(f"TG attempt {attempt+1} error: {e}")
-        time.sleep(1.5)
-    return False
-
-
-# ═══════════════════════════════════════════════════════════════════════
-# Dедупликация (fast mode)
+# Main
 # ═══════════════════════════════════════════════════════════════════════
 
 def _fingerprint(msg: str) -> str:
@@ -696,10 +807,6 @@ def _save_state(st: dict) -> None:
     STATE_PATH.write_text(json.dumps(st, ensure_ascii=False))
 
 
-# ═══════════════════════════════════════════════════════════════════════
-# Main
-# ═══════════════════════════════════════════════════════════════════════
-
 def _log_msg(path: Path, msg: str) -> None:
     try:
         with open(path, "a") as f:
@@ -708,48 +815,92 @@ def _log_msg(path: Path, msg: str) -> None:
         logger.error(f"log write error: {e}")
 
 
+def send_tg(text: str) -> bool:
+    safe = text.replace("&", "&amp;")
+    for tag in ("b", "code", "i", "u", "s", "a", "blockquote"):
+        safe = safe.replace(f"&lt;{tag}&gt;", f"<{tag}>").replace(f"&lt;/{tag}&gt;", f"</{tag}>")
+        safe = safe.replace(f"&lt;{tag} ", f"<{tag} ")
+    payload = json.dumps({
+        "chat_id": TELEGRAM_CHAT,
+        "text": safe,
+        "parse_mode": "HTML",
+        "disable_web_page_preview": True,
+    }, ensure_ascii=False)
+    for attempt in range(3):
+        try:
+            import subprocess
+            proc = subprocess.run(
+                ["curl", "-s", "--max-time", "15",
+                 "--resolve", f"api.telegram.org:443:149.154.167.220",
+                 "-X", "POST", f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage",
+                 "-H", "Content-Type: application/json",
+                 "-d", payload],
+                capture_output=True, timeout=20,
+            )
+            if '"ok":true' in proc.stdout.decode():
+                return True
+            logger.warning(f"TG attempt {attempt+1} failed: {proc.stdout.decode()[:200]}")
+        except Exception as e:
+            logger.warning(f"TG attempt {attempt+1} error: {e}")
+        time.sleep(1.5)
+    return False
+
+
 def main() -> None:
     fast = "--fast" in sys.argv
-
     try:
-        if fast:
-            msg = build()  # всё ещё build(), но внутри есть оптимизации
-            # Fast режим: компактный report только позиций и ордеров
-            ak, as_ = _load_keys()
-            positions = bingx_positions(ak, as_) if ak and as_ else []
-            msg = _build_position_report(positions)
+        ak, as_ = _load_keys()
+        with httpx.Client(timeout=15) as client:
+            # Scanner
+            from tradingos.signals.manual_scanner import scan_all
+            try:
+                scanner_sigs = scan_all()
+                logger.info(f"scanner: {len(scanner_sigs)} signals")
+            except Exception as e:
+                logger.warning(f"scanner error: {e}")
+                scanner_sigs = []
 
+            # Account
+            positions = bingx_positions(ak, as_) if ak and as_ else []
+            equity = 0.0
+            free = 0.0
+            if ak and as_:
+                try:
+                    bal = bingx_balance(ak, as_)
+                    equity = bal.get("equity", 0)
+                    free = bal.get("free", 0)
+                except Exception:
+                    pass
+
+            next_check = 5 if fast else 5
+            msg = _build_report(positions, equity, free, scanner_sigs, next_check)
+
+        if fast:
             fp = _fingerprint(msg)
             st = _load_state()
-            prev_fp = st.get("fingerprint", "")
-
-            if fp == prev_fp:
+            if fp == st.get("fingerprint", ""):
                 logger.info(f"fast: fingerprint unchanged ({fp}), skipping")
                 _log_msg(FAST_LOG, f"fast: fingerprint unchanged ({fp}), skipping")
                 return
-
             ok = send_tg(msg)
             st["fingerprint"] = fp
             st["last_ts"] = datetime.now(timezone.utc).isoformat()
             _save_state(st)
-
             if ok:
                 logger.info(f"fast: sending ({fp})")
                 _log_msg(FAST_LOG, f"fast: sending ({fp})")
                 _log_msg(FAST_LOG, msg)
             else:
                 logger.error(f"fast: TG failed ({fp})")
-                _log_msg(FAST_LOG, f"fast: TG failed ({fp})")
         else:
-            msg = build()
             logger.info("build full report")
             ok = send_tg(msg)
             _log_msg(LOG_PATH, msg)
             _log_msg(LOG_PATH, f"sent: {'ok' if ok else 'FAILED'}")
             if ok:
-                logger.info("report sent successfully")
+                logger.info("report sent")
             else:
-                logger.error("TG send failed after retries")
+                logger.error("TG send failed")
     except Exception as e:
         logger.error(f"main error: {e}", exc_info=True)
         import traceback
