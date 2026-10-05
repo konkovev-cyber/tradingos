@@ -310,8 +310,48 @@ def get_24h(sym: str) -> dict:
 
 
 # ═══════════════════════════════════════════════════════════════════════
-# Формирование карточки из scanner signal
+# Сканирование с мягкими порогами (для price_monitor)
 # ═══════════════════════════════════════════════════════════════════════
+
+def _scan_for_monitor() -> list[dict]:
+    """Сканирует CANDIDATES с мягкими порогами и фильтрует до хороших сигналов."""
+    from tradingos.signals.manual_scanner import score_symbol
+    import httpx
+
+    # Мягкие пороги: ниже ликвидность и ниже score
+    low_notional = 50_000   # $50k вместо $200k
+    low_score = 55           # вместо 70
+
+    good: list[dict] = []
+    with httpx.Client(timeout=20) as client:
+        for sym in CANDIDATES:
+            try:
+                sig = score_symbol(client, sym, min_score=low_score)
+                if not sig:
+                    continue
+                contour = sig.get("contour", "NO_TRADE")
+                decision = sig.get("trade_decision", "SKIP")
+                skip = sig.get("skip_reason", "")
+
+                # Принимаем: MARKET / LIMIT — всегда
+                # NO_TRADE + ALLOW — только если rr >= 1.5 и не блокирован MTF/stoch
+                accept = False
+                if contour in ("MARKET", "LIMIT"):
+                    accept = True
+                elif decision == "ALLOW" and skip not in ("MTF_CONFLICT", "STOCH_ZONE_CONFLICT"):
+                    rr = sig.get("rr", 0)
+                    if rr >= 1.5:
+                        accept = True
+
+                if accept:
+                    good.append(sig)
+            except Exception:
+                continue
+
+    # Сортируем: MARKET > LIMIT > ALLOW, по score desc
+    contour_order = {"MARKET": 0, "LIMIT": 1, "NO_TRADE": 2}
+    good.sort(key=lambda s: (contour_order.get(s.get("contour", "NO_TRADE"), 2), -s.get("score", 0)))
+    return good[:3]  # Макс 3
 
 _REGIME_FROM_DESC = {
     "накопление": "ACCUMULATION",
@@ -852,10 +892,9 @@ def main() -> None:
         ak, as_ = _load_keys()
         with httpx.Client(timeout=15) as client:
             # Scanner
-            from tradingos.signals.manual_scanner import scan_all
             try:
-                scanner_sigs = scan_all()
-                logger.info(f"scanner: {len(scanner_sigs)} signals")
+                scanner_sigs = _scan_for_monitor()
+                logger.info(f"scanner: {len(scanner_sigs)} good signals")
             except Exception as e:
                 logger.warning(f"scanner error: {e}")
                 scanner_sigs = []
