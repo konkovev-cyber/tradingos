@@ -314,35 +314,50 @@ def get_24h(sym: str) -> dict:
 # ═══════════════════════════════════════════════════════════════════════
 
 def _scan_for_monitor() -> list[dict]:
-    """Сканирует CANDIDATES с мягкими порогами и фильтрует до хороших сигналов."""
+    """Сканирует CANDIDATES с мягкими порогами и фильтрует до хороших сигналов.
+
+    Критерии качества (чтобы не показывать пустышки):
+    - score ≥ 75 (сильный сигнал)
+    - momentum ≥ 8 (есть импульс, RSI не ~50)
+    - vol_ratio ≥ 1.2 (объём не пустой)
+    - Не блокирован MTF/stoch
+    """
     from tradingos.signals.manual_scanner import score_symbol
     import httpx
-
-    # Мягкие пороги: ниже ликвидность и ниже score
-    low_notional = 50_000   # $50k вместо $200k
-    low_score = 55           # вместо 70
 
     good: list[dict] = []
     with httpx.Client(timeout=20) as client:
         for sym in CANDIDATES:
             try:
-                sig = score_symbol(client, sym, min_score=low_score)
+                sig = score_symbol(client, sym, min_score=55)
                 if not sig:
                     continue
+
                 contour = sig.get("contour", "NO_TRADE")
                 decision = sig.get("trade_decision", "SKIP")
                 skip = sig.get("skip_reason", "")
+                parts = sig.get("parts", {})
+                momentum = parts.get("momentum", 0)
+                vol_ratio = sig.get("vol_ratio", 0)
+                score = sig.get("score", 0)
+
+                # Жёсткий фильтр:必须有 импульс и объём
+                if momentum < 8:
+                    continue
+                if vol_ratio < 1.2:
+                    continue
+                if score < 75:
+                    continue
+                if skip in ("MTF_CONFLICT", "STOCH_ZONE_CONFLICT"):
+                    continue
 
                 # Принимаем: MARKET / LIMIT — всегда
-                # NO_TRADE + ALLOW — только если score ≥ 75 и rr >= 1.5 (хороший сигнал, но рынок flat)
+                # NO_TRADE + ALLOW — только если все фильтры пройдены
                 accept = False
                 if contour in ("MARKET", "LIMIT"):
                     accept = True
-                elif decision == "ALLOW" and skip not in ("MTF_CONFLICT", "STOCH_ZONE_CONFLICT"):
-                    rr = sig.get("rr", 0)
-                    score = sig.get("score", 0)
-                    if score >= 75 and rr >= 1.5:
-                        accept = True
+                elif decision == "ALLOW":
+                    accept = True
 
                 if accept:
                     good.append(sig)
@@ -744,24 +759,13 @@ def _collect_setups(
     ticker_cache: dict,
     equity: float,
 ) -> list[dict]:
-    """Собираем карточки из scanner + fallback."""
+    """Собираем карточки ТОЛЬКО из scanner — без fallback."""
     cards: list[dict] = []
 
     for sig in scanner_sigs:
         card = _scanner_to_card(sig, equity, ticker_cache)
         if card:
             cards.append(card)
-
-    # Fallback: если scanner не дал результатов — простая ATR-аналитика
-    if not cards:
-        for sym in CANDIDATES:
-            t = ticker_cache.get(sym, {})
-            p, chg, vol = t.get("price", 0), t.get("change", 0), t.get("volume", 0)
-            if not p or p <= 0:
-                continue
-            card = analyze(sym, p, chg, vol)
-            if card:
-                cards.append(card)
 
     cards.sort(key=lambda c: (-c.get("score", c["rrr"]), -c["rrr"]))
     return cards
