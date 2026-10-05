@@ -334,13 +334,14 @@ def _scan_for_monitor() -> list[dict]:
                 skip = sig.get("skip_reason", "")
 
                 # Принимаем: MARKET / LIMIT — всегда
-                # NO_TRADE + ALLOW — только если rr >= 1.5 и не блокирован MTF/stoch
+                # NO_TRADE + ALLOW — только если score ≥ 75 и rr >= 1.5 (хороший сигнал, но рынок flat)
                 accept = False
                 if contour in ("MARKET", "LIMIT"):
                     accept = True
                 elif decision == "ALLOW" and skip not in ("MTF_CONFLICT", "STOCH_ZONE_CONFLICT"):
                     rr = sig.get("rr", 0)
-                    if rr >= 1.5:
+                    score = sig.get("score", 0)
+                    if score >= 75 and rr >= 1.5:
                         accept = True
 
                 if accept:
