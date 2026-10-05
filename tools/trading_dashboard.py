@@ -611,7 +611,7 @@ async function loadDashboard(){
   // Market
   document.getElementById('heroBtc').textContent='$'+fmtPx((d.market||[])[0]?.price||0);
   const btcChg=(d.market||[])[0]?.chg||0;
-  const btcEl=document.getElementById('btcChg');
+  const btcEl=document.getElementById('heroBtcChg');
   if(btcEl){btcEl.textContent=(btcChg>=0?'+':'')+btcChg.toFixed(2)+'%';btcEl.style.color=btcChg>=0?'var(--green)':'var(--red)';}
   // Positions
   const pos=(d.positions||[]);
@@ -822,7 +822,7 @@ async function cancelOrd(sym,price){
 
 // ── Search ──
 function onSearchInput(q){
-  const dd=document.getElementById('coinDropdown');
+  const dd=document.getElementById('searchDd');
   if(!q||q.length<1){dd.classList.remove('show');dd.innerHTML='';return;}
   const matches=CANDIDATES.filter(s=>s.includes(q.toUpperCase())).slice(0,10);
   dd.innerHTML=matches.map(s=>`<div class="search-item" onclick="selectCoin('${s}')">${s.replace('USDT','')}</div>`).join('');
@@ -831,13 +831,13 @@ function onSearchInput(q){
 function doSearch(){
   const v=document.getElementById('coinSearchInput').value.toUpperCase().replace(/[^A-Z0-9]/g,'');
   if(v&&!v.endsWith('USDT'))v+='USDT';
-  if(v){switchPage('analysis');loadCoin(v);document.getElementById('coinDropdown').classList.remove('show');}
+  if(v){switchPage('analysis');loadCoin(v);document.getElementById('searchDd').classList.remove('show');}
 }
 function selectCoin(sym){
   document.getElementById('coinSearchInput').value=sym.replace('USDT','');
-  loadCoin(sym);document.getElementById('coinDropdown').classList.remove('show');
+  loadCoin(sym);document.getElementById('searchDd').classList.remove('show');
 }
-document.addEventListener('click',e=>{if(!e.target.closest('.search-wrap'))document.getElementById('coinDropdown').classList.remove('show')});
+document.addEventListener('click',e=>{if(!e.target.closest('.search-wrap'))document.getElementById('searchDd').classList.remove('show')});
 
 // ── Init ──
 let CANDIDATES=[];
