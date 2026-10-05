@@ -218,7 +218,7 @@ HTML = r"""<!DOCTYPE html>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0a0e14">
-<title>TradingOS — Control Center</title>
+<title>TradingOS — Панель управления</title>
 <style>
 :root{
   --bg:#0a0e14;--bg2:#11161d;--bg3:#1a212b;--bg4:#232c38;
@@ -456,14 +456,14 @@ tbody tr:hover{background:var(--bg3)}
   <div class="brand"><span class="dot dot-off" id="statusDot"></span><span>TradingOS</span></div>
   <nav class="nav">
     <div class="nav-link active" data-page="dashboard" onclick="switchPage('dashboard')">
-      <span>📊</span><span>Dashboard</span>
+      <span>📊</span><span>Дашборд</span>
     </div>
     <div class="nav-link" data-page="scanner" onclick="switchPage('scanner')">
-      <span>🔍</span><span>Scanner</span>
+      <span>🔍</span><span>Сканер</span>
       <span class="badge-count" id="navSetupsCount" style="display:none">0</span>
     </div>
     <div class="nav-link" data-page="activity" onclick="switchPage('activity')">
-      <span>📋</span><span>Activity</span>
+      <span>📋</span><span>События</span>
     </div>
   </nav>
   <div class="top-right">
@@ -484,22 +484,22 @@ tbody tr:hover{background:var(--bg3)}
 
   <div class="panel">
     <div class="panel-hd">
-      <div class="panel-title"><span class="panel-title-icon">📡</span> System Status</div>
+      <div class="panel-title"><span class="panel-title-icon">📡</span> Статус системы</div>
       <span class="panel-count" id="lastUpdate">—</span>
     </div>
     <div class="stat-grid" id="statGrid">
       <div class="stat-card accent-blue">
-        <div class="stat-label">Status</div>
+        <div class="stat-label">Статус</div>
         <div class="stat-value" id="heroStatus">—</div>
         <div class="stat-sub" id="heroMode">—</div>
       </div>
       <div class="stat-card accent-green" id="equityCard">
-        <div class="stat-label">Equity</div>
+        <div class="stat-label">Баланс</div>
         <div class="stat-value" id="heroEquity">—</div>
         <div class="stat-sub" id="heroAvailable">—</div>
       </div>
       <div class="stat-card" id="pnlCard">
-        <div class="stat-label">PnL (Day)</div>
+        <div class="stat-label">PnL (день)</div>
         <div class="stat-value" id="heroPnl">—</div>
         <div class="stat-sub" id="heroRisk">—</div>
       </div>
@@ -509,7 +509,7 @@ tbody tr:hover{background:var(--bg3)}
         <div class="stat-sub" id="heroBtcChg">—</div>
       </div>
       <div class="stat-card accent-blue">
-        <div class="stat-label">Setups</div>
+        <div class="stat-label">Сетапы</div>
         <div class="stat-value" id="heroSetups">—</div>
         <div class="stat-sub">Активные сигналы</div>
       </div>
@@ -529,14 +529,14 @@ tbody tr:hover{background:var(--bg3)}
     <div style="display:flex;flex-direction:column;gap:16px">
       <div class="panel">
         <div class="panel-hd">
-          <div class="panel-title"><span class="panel-title-icon">📂</span> Open Positions</div>
+          <div class="panel-title"><span class="panel-title-icon">📂</span> Открытые позиции</div>
           <span class="panel-count" id="posCount">0</span>
         </div>
         <div class="panel-body no-pad" id="posWrap"><div id="posBody"></div></div>
       </div>
       <div class="panel">
         <div class="panel-hd">
-          <div class="panel-title"><span class="panel-title-icon">📋</span> Open Orders</div>
+          <div class="panel-title"><span class="panel-title-icon">📋</span> Открытые ордера</div>
           <span class="panel-count" id="ordCount">0</span>
         </div>
         <div class="panel-body no-pad" id="ordWrap"><div id="ordBody"></div></div>
@@ -545,18 +545,18 @@ tbody tr:hover{background:var(--bg3)}
 
     <div class="sidebar">
       <div class="panel">
-        <div class="panel-hd"><div class="panel-title"><span class="panel-title-icon">📈</span> Market</div></div>
+        <div class="panel-hd"><div class="panel-title"><span class="panel-title-icon">📈</span> Рынок</div></div>
         <div class="panel-body no-pad" id="marketBody"></div>
       </div>
       <div class="panel">
         <div class="panel-hd">
-          <div class="panel-title"><span class="panel-title-icon">🎯</span> Top Setups</div>
+          <div class="panel-title"><span class="panel-title-icon">🎯</span> Топ сетапы</div>
           <span class="panel-count" id="setCount">0</span>
         </div>
         <div class="panel-body no-pad"><div id="setBody"></div></div>
       </div>
       <div class="panel">
-        <div class="panel-hd"><div class="panel-title"><span class="panel-title-icon">📋</span> Recent Activity</div></div>
+        <div class="panel-hd"><div class="panel-title"><span class="panel-title-icon">📋</span> Последние события</div></div>
         <div class="panel-body no-pad">
           <div class="act-list" id="actBody"></div>
         </div>
@@ -568,7 +568,7 @@ tbody tr:hover{background:var(--bg3)}
 <div class="page" id="page-scanner">
   <div class="panel">
     <div class="panel-hd">
-      <div class="panel-title"><span class="panel-title-icon">🔍</span> Scanner — все сетапы</div>
+      <div class="panel-title"><span class="panel-title-icon">🔍</span> Сканер — все сетапы</div>
       <div style="display:flex;align-items:center;gap:8px">
         <span class="panel-count" id="scanStats">—</span>
         <button class="btn btn-sm" onclick="loadScanner()">🔄</button>
@@ -581,7 +581,7 @@ tbody tr:hover{background:var(--bg3)}
 <div class="page" id="page-activity">
   <div class="panel">
     <div class="panel-hd">
-      <div class="panel-title"><span class="panel-title-icon">📋</span> Activity Log</div>
+      <div class="panel-title"><span class="panel-title-icon">📋</span> Журнал событий</div>
       <span class="panel-count" id="actCount">0</span>
     </div>
     <div class="panel-body no-pad">
@@ -596,7 +596,7 @@ tbody tr:hover{background:var(--bg3)}
 <div class="modal-overlay hidden" id="modalOverlay" onclick="if(event.target===this)closeModal()">
   <div class="modal">
     <div class="modal-hd">
-      <span class="modal-title" id="modalTitle">Details</span>
+      <span class="modal-title" id="modalTitle">Детали</span>
       <button class="icon-btn" onclick="closeModal()">✕</button>
     </div>
     <div class="modal-body" id="modalBody"></div>
@@ -768,11 +768,11 @@ function renderPositions(pos){
     body.innerHTML='<div class="empty"><div class="empty-icon">📭</div><div class="empty-title">Нет открытых позиций</div><div class="empty-sub">Откройте первую сделку или дождитесь сигнала от сканера</div><button class="empty-cta" onclick="switchPage(\'scanner\')">🔍 Перейти в Scanner</button></div>';
     return;
   }
-  body.innerHTML='<table><thead><tr><th>Symbol</th><th>Side</th><th>Size</th><th>Entry</th><th>Mark</th><th>PnL</th><th>Liq%</th><th></th></tr></thead><tbody>'+pos.map(p=>{
+  body.innerHTML='<table><thead><tr><th>Монета</th><th>Сторона</th><th>Размер</th><th>Вход</th><th>Текущая</th><th>PnL</th><th>Лик%</th><th></th></tr></thead><tbody>'+pos.map(p=>{
     const pnl=p.upnl||0;
     const liqDist=p.liq&&p.mark?Math.abs((p.liq-p.mark)/p.mark*100):0;
     const liqCls=liqDist>50?'positive':liqDist>20?'neutral':'negative';
-    return '<tr><td><span class="sym">'+escHtml(p.symbol)+'</span></td><td>'+badge(p.side==='LONG'?'long':'short',p.side)+'</td><td class="price">'+fmtN(p.qty,4)+'</td><td class="price">$'+fmtPx(p.entry)+'</td><td class="price">$'+fmtPx(p.mark)+'</td><td class="'+pnlCls(pnl)+'" style="font-weight:600">'+pnlSign(pnl)+'$'+fmtN(pnl,2)+'</td><td class="'+liqCls+'">'+liqDist.toFixed(0)+'%</td><td><button class="btn btn-sm btn-danger" onclick="closePos(\''+escHtml(p.symbol)+'\',\''+escHtml(p.side)+'\')">Close</button></td></tr>';
+    return '<tr><td><span class="sym">'+escHtml(p.symbol)+'</span></td><td>'+badge(p.side==='LONG'?'long':'short',p.side)+'</td><td class="price">'+fmtN(p.qty,4)+'</td><td class="price">$'+fmtPx(p.entry)+'</td><td class="price">$'+fmtPx(p.mark)+'</td><td class="'+pnlCls(pnl)+'" style="font-weight:600">'+pnlSign(pnl)+'$'+fmtN(pnl,2)+'</td><td class="'+liqCls+'">'+liqDist.toFixed(0)+'%</td><td><button class="btn btn-sm btn-danger" onclick="closePos(\''+escHtml(p.symbol)+'\',\''+escHtml(p.side)+'\')">Закрыть</button></td></tr>';
   }).join('')+'</tbody></table>';
 }
 
@@ -784,7 +784,7 @@ function renderOrders(orders){
     body.innerHTML='<div class="empty"><div class="empty-icon">📋</div><div class="empty-title">Нет активных ордеров</div><div class="empty-sub">Лимитные ордера появятся здесь после создания</div></div>';
     return;
   }
-  body.innerHTML='<table><thead><tr><th>Symbol</th><th>Side</th><th>Type</th><th>Price</th><th>Qty</th><th></th></tr></thead><tbody>'+ord.map(o=>'<tr><td><span class="sym">'+escHtml(o.symbol)+'</span></td><td>'+badge(o.side==='BUY'?'long':'short',o.side)+'</td><td><span class="badge badge-neutral">'+escHtml(o.type)+'</span></td><td class="price">$'+fmtPx(o.price)+'</td><td class="price">'+fmtN(o.qty,4)+'</td><td><button class="btn btn-sm btn-danger" onclick="cancelOrd(\''+escHtml(o.symbol)+'\','+(parseFloat(o.price)||0)+')">Cancel</button></td></tr>').join('')+'</tbody></table>';
+  body.innerHTML='<table><thead><tr><th>Монета</th><th>Сторона</th><th>Тип</th><th>Цена</th><th>Кол-во</th><th></th></tr></thead><tbody>'+ord.map(o=>'<tr><td><span class="sym">'+escHtml(o.symbol)+'</span></td><td>'+badge(o.side==='BUY'?'long':'short',o.side)+'</td><td><span class="badge badge-neutral">'+escHtml(o.type)+'</span></td><td class="price">$'+fmtPx(o.price)+'</td><td class="price">'+fmtN(o.qty,4)+'</td><td><button class="btn btn-sm btn-danger" onclick="cancelOrd(\''+escHtml(o.symbol)+'\','+(parseFloat(o.price)||0)+')">Отменить</button></td></tr>').join('')+'</tbody></table>';
 }
 
 function renderMarket(market){
@@ -832,7 +832,7 @@ function renderSetupCard(s){
   const scoreCls=s.score>=80?'badge-long':s.score>=70?'badge-info':'badge-neutral';
   const dist=s.dist_to_entry!=null?s.dist_to_entry:0;
   const distEmoji=Math.abs(dist)<=0.2?'🟢':Math.abs(dist)<=1?'🟡':'⚪';
-  return '<div class="setup-card '+side+'" onclick="showCoin(\''+escHtml(s.symbol)+'\')"><div class="setup-card-head"><div><div class="setup-sym">'+escHtml(s.short||s.symbol)+'</div><div class="setup-side '+side+'">'+side+'</div></div><span class="badge '+scoreCls+'">'+s.score+'</span></div><div class="setup-prices"><div class="setup-pr-cell"><div class="setup-pr-label">Entry</div><div class="setup-pr-val entry">$'+fmtPx(s.entry_low||s.price)+'</div></div><div class="setup-pr-cell"><div class="setup-pr-label">TP</div><div class="setup-pr-val tp">$'+fmtPx(s.tp)+'</div></div><div class="setup-pr-cell"><div class="setup-pr-label">SL</div><div class="setup-pr-val sl">$'+fmtPx(s.sl)+'</div></div></div><div class="setup-foot"><span>R:R <span class="setup-rr">'+fmtN(s.rr,1)+'</span></span><span class="setup-dist">'+distEmoji+' '+pnlSign(dist)+dist.toFixed(1)+'%</span></div></div>';
+  return '<div class="setup-card '+side+'" onclick="showCoin(\''+escHtml(s.symbol)+'\')"><div class="setup-card-head"><div><div class="setup-sym">'+escHtml(s.short||s.symbol)+'</div><div class="setup-side '+side+'">'+side+'</div></div><span class="badge '+scoreCls+'">'+s.score+'</span></div><div class="setup-prices"><div class="setup-pr-cell"><div class="setup-pr-label">Вход</div><div class="setup-pr-val entry">$'+fmtPx(s.entry_low||s.price)+'</div></div><div class="setup-pr-cell"><div class="setup-pr-label">Тейк</div><div class="setup-pr-val tp">$'+fmtPx(s.tp)+'</div></div><div class="setup-pr-cell"><div class="setup-pr-label">Стоп</div><div class="setup-pr-val sl">$'+fmtPx(s.sl)+'</div></div></div><div class="setup-foot"><span>R:R <span class="setup-rr">'+fmtN(s.rr,1)+'</span></span><span class="setup-dist">'+distEmoji+' '+pnlSign(dist)+dist.toFixed(1)+'%</span></div></div>';
 }
 
 async function showCoin(sym){
@@ -859,7 +859,7 @@ function renderCoinModal(d){
   const momColor=d.mom>=10?'var(--green)':d.mom>=6?'var(--yellow)':'var(--red)';
   const fcColor=({bullish:'var(--green)',bearish:'var(--red)',neutral:'var(--text2)',squeeze:'var(--purple)',dip:'var(--accent)',breakout:'var(--green)'})[d.fc_class]||'var(--text2)';
   const fcIcon=({bullish:'🟢',bearish:'🔴',neutral:'⚪',squeeze:'⚡',dip:'💎',breakout:'🚀'})[d.fc_class]||'●';
-  body.innerHTML='<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px"><h2 style="font-size:22px;font-weight:700;font-family:monospace">'+escHtml(d.short||d.symbol)+'</h2>'+(d.side?badge(d.side==='LONG'?'long':'short',d.side):'')+' '+(d.score?'<span class="badge badge-info">Score '+d.score+'</span>':'')+'</div><div class="stat-grid" style="padding:0;margin-bottom:16px"><div class="stat-card"><div class="stat-label">Price</div><div class="stat-value">$'+fmtPx(d.price)+'</div></div><div class="stat-card"><div class="stat-label">24h</div><div class="stat-value '+chgCls(d.chg||0)+'">'+pnlSign(d.chg||0)+(d.chg||0).toFixed(2)+'%</div></div><div class="stat-card"><div class="stat-label">RSI(14)</div><div class="stat-value" style="color:'+rsiColor+'">'+fmtN(d.rsi,1)+'</div></div><div class="stat-card"><div class="stat-label">ATR(1h)</div><div class="stat-value">'+(d.atr_pct||'—')+'%</div></div><div class="stat-card"><div class="stat-label">Vol Ratio</div><div class="stat-value">'+fmtN(d.vol_ratio,2)+'</div></div><div class="stat-card"><div class="stat-label">Mom</div><div class="stat-value" style="color:'+momColor+'">'+(d.mom||0)+'/15</div></div></div>'+(d.sl&&d.tp?'<div class="modal-section"><div class="modal-section-title">📐 Trade Levels</div><div class="stat-grid" style="padding:0"><div class="stat-card"><div class="stat-label">Entry Zone</div><div class="stat-value" style="font-size:16px">$'+fmtPx(d.entry_low||d.price)+'</div><div class="stat-sub">→ $'+fmtPx(d.entry_high||d.price)+'</div></div><div class="stat-card" style="border-left:3px solid var(--green)"><div class="stat-label" style="color:var(--green)">Take Profit</div><div class="stat-value" style="color:var(--green);font-size:16px">$'+fmtPx(d.tp)+'</div><div class="stat-sub">+'+fmtN(d.tp_pct,1)+'%</div></div><div class="stat-card" style="border-left:3px solid var(--red)"><div class="stat-label" style="color:var(--red)">Stop Loss</div><div class="stat-value" style="color:var(--red);font-size:16px">$'+fmtPx(d.sl)+'</div><div class="stat-sub">-'+fmtN(d.sl_pct,1)+'%</div></div></div>'+(d.rr?'<div style="margin-top:8px;text-align:center;font-size:13px;color:var(--text2)">R:R <b style="color:var(--text)">'+fmtN(d.rr,2)+'</b></div>':'')+'</div>':'')+(d.forecast?'<div class="modal-section"><div class="modal-section-title">🔮 Forecast</div><div style="padding:12px 14px;border-radius:8px;background:'+fcColor+'22;border-left:3px solid '+fcColor+';font-size:13px;display:flex;align-items:center;gap:8px"><span style="font-size:18px">'+fcIcon+'</span><span>'+escHtml(d.forecast)+'</span></div></div>':'');
+  body.innerHTML='<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px"><h2 style="font-size:22px;font-weight:700;font-family:monospace">'+escHtml(d.short||d.symbol)+'</h2>'+(d.side?badge(d.side==='LONG'?'long':'short',d.side):'')+' '+(d.score?'<span class="badge badge-info">Скор '+d.score+'</span>':'')+'</div><div class="stat-grid" style="padding:0;margin-bottom:16px"><div class="stat-card"><div class="stat-label">Цена</div><div class="stat-value">$'+fmtPx(d.price)+'</div></div><div class="stat-card"><div class="stat-label">24ч</div><div class="stat-value '+chgCls(d.chg||0)+'">'+pnlSign(d.chg||0)+(d.chg||0).toFixed(2)+'%</div></div><div class="stat-card"><div class="stat-label">RSI(14)</div><div class="stat-value" style="color:'+rsiColor+'">'+fmtN(d.rsi,1)+'</div></div><div class="stat-card"><div class="stat-label">ATR(1ч)</div><div class="stat-value">'+(d.atr_pct||'—')+'%</div></div><div class="stat-card"><div class="stat-label">Объём</div><div class="stat-value">'+fmtN(d.vol_ratio,2)+'</div></div><div class="stat-card"><div class="stat-label">Моментум</div><div class="stat-value" style="color:'+momColor+'">'+(d.mom||0)+'/15</div></div></div>'+(d.sl&&d.tp?'<div class="modal-section"><div class="modal-section-title">📐 Уровни сделки</div><div class="stat-grid" style="padding:0"><div class="stat-card"><div class="stat-label">Зона входа</div><div class="stat-value" style="font-size:16px">$'+fmtPx(d.entry_low||d.price)+'</div><div class="stat-sub">→ $'+fmtPx(d.entry_high||d.price)+'</div></div><div class="stat-card" style="border-left:3px solid var(--green)"><div class="stat-label" style="color:var(--green)">Тейк-профит</div><div class="stat-value" style="color:var(--green);font-size:16px">$'+fmtPx(d.tp)+'</div><div class="stat-sub">+'+fmtN(d.tp_pct,1)+'%</div></div><div class="stat-card" style="border-left:3px solid var(--red)"><div class="stat-label" style="color:var(--red)">Стоп-лосс</div><div class="stat-value" style="color:var(--red);font-size:16px">$'+fmtPx(d.sl)+'</div><div class="stat-sub">-'+fmtN(d.sl_pct,1)+'%</div></div></div>'+(d.rr?'<div style="margin-top:8px;text-align:center;font-size:13px;color:var(--text2)">R:R <b style="color:var(--text)">'+fmtN(d.rr,2)+'</b></div>':'')+'</div>':'')+(d.forecast?'<div class="modal-section"><div class="modal-section-title">🔮 Прогноз</div><div style="padding:12px 14px;border-radius:8px;background:'+fcColor+'22;border-left:3px solid '+fcColor+';font-size:13px;display:flex;align-items:center;gap:8px"><span style="font-size:18px">'+fcIcon+'</span><span>'+escHtml(d.forecast)+'</span></div></div>':'');
   foot.innerHTML='<button class="btn btn-primary btn-block" onclick="window.open(\'https://www.tradingview.com/chart/?symbol=BINANCE:'+encodeURIComponent((d.symbol||'').replace('USDT',''))+'USDT.P\',\'_blank\')">📊 TradingView</button><button class="btn" onclick="showCoin(\''+escHtml(d.symbol)+'\')">🔄</button>';
 }
 
