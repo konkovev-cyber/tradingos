@@ -98,27 +98,41 @@ def _get_act(n=20):
         return [json.loads(l) for l in reversed(ACT_LOG.read_text().strip().split("\n")[-n:]) if l.strip()]
     except: return []
 
+def _refresh_loop():
+    while True: refresh(); time.sleep(_TTL)
+
 def collect_setups():
     try:
         from tradingos.signals.manual_scanner import score_symbol
         import httpx as hx
+        from concurrent.futures import ThreadPoolExecutor, as_completed
         res=[]
-        with hx.Client(timeout=15) as c:
-            for sym in pm.CANDIDATES:
+        # Scan top 10 in parallel (3-4s total vs 25s sequential)
+        limited = pm.CANDIDATES[:10]
+        with hx.Client(timeout=25) as c:
+            def _score(sym):
                 try:
                     sig=score_symbol(c,sym,min_score=50)
-                    if not sig or sig.get("score",0)<65: continue
+                    if not sig: return None
+                    if sig.get("score",0)<70: return None
+                    if sig.get("contour","NO_TRADE") not in ("MARKET","LIMIT"): return None
                     chg=pm.get_24h(sym).get("change",0)
                     setup="DIP" if chg<=-5 else "CORR" if chg<=-2 else "IMP" if chg>6 else "ACC"
-                    res.append({"symbol":sig["symbol"],"short":sig["symbol"].replace("USDT",""),
+                    return {"symbol":sig["symbol"],"short":sig["symbol"].replace("USDT",""),
                                 "side":sig.get("side",""),"score":sig.get("score",0),"rr":sig.get("rr",0),
                                 "price":sig.get("price",0),"sl":sig.get("sl",0),"tp":sig.get("final_tp",0),
                                 "rsi":sig.get("rsi",0),"mom":sig.get("parts",{}).get("momentum",0),
                                 "vol_ratio":sig.get("vol_ratio",0),"contour":sig.get("contour","NO_TRADE"),
-                                "setup":setup,"squeeze":sig.get("squeeze_on",False),"smc":sig.get("smc_sweep","")})
-                except: pass
+                                "setup":setup,"squeeze":sig.get("squeeze_on",False),"smc":sig.get("smc_sweep","")}
+                except: return None
+            with ThreadPoolExecutor(max_workers=5) as ex:
+                futures={ex.submit(_score,s):s for s in limited}
+                for f in as_completed(futures, timeout=15):
+                    r=f.result()
+                    if r: res.append(r)
+                    if len(res)>=5: break
         res.sort(key=lambda x:(-x["score"],-x["rr"]))
-        return res[:8]
+        return res[:5]
     except Exception as e: logger.warning(f"setups:{e}"); return []
 
 def coin_anal(sym):
@@ -158,6 +172,10 @@ def coin_anal(sym):
                 "range7d":f"{r7l:.4f}–{r7h:.4f}" if r7h and r7l else "—",
                 "forecast":fc,"fc_class":fccl,"ts":datetime.now().strftime("%H:%M:%S")}
 
+# Aliases for new Handler class
+_get_coin_analysis = coin_anal
+_get_activity = _get_act
+
 class H(BaseHTTPRequestHandler):
     def log_message(self,*a): pass
     def do_GET(self):
@@ -185,21 +203,6 @@ class H(BaseHTTPRequestHandler):
         self.send_response(200); self.send_header('Content-Type','text/html; charset=utf-8'); self.end_headers(); self.wfile.write(html.encode())
     def _j(self,data,code=200):
         self.send_response(code); self.send_header('Content-Type','application/json'); self.end_headers(); self.wfile.write(json.dumps(data,ensure_ascii=False).encode())
-
-def main():
-    def loop():
-        while True: refresh(); time.sleep(_TTL)
-    threading.Thread(target=loop,daemon=True).start()
-    srv=HTTPServer(('0.0.0.0',PORT),H)
-    ip="127.0.0.1"
-    try:
-        s=__import__('socket').socket(__import__('socket').AF_INET,__import__('socket').SOCK_DGRAM)
-        s.connect(("8.8.8.8",80)); ip=s.getsockname()[0]; s.close()
-    except: pass
-    print(f"\nTradingOS Control Center\n  http://localhost:{PORT}\n  http://{ip}:{PORT}\n")
-    srv.serve_forever()
-
-if __name__=="__main__": main()
 
 
 
@@ -491,17 +494,40 @@ tr:hover td{background:var(--bg3)}
 
 <!-- ═══ SCANNER PAGE ═══ -->
 <div class="page" id="page-scanner">
-  <div class="panel">
-    <div class="panel-hd">
-      <span class="panel-title">Scanner — All Candidates</span>
-      <span class="panel-count" id="scanTotal">0 candidates</span>
-    </div>
-    <div style="padding:12px 14px">
-      <div class="search-wrap" style="margin-bottom:12px">
-        <input class="search-input" id="scanSearch" placeholder="Filter symbols..." oninput="filterScan(this.value)" onkeydown="if(event.key==='Enter')filterScan(this.value)">
-        <div class="dropdown" id="scanDd"></div>
+  <div class="panel" style="margin-bottom:0">
+    <div class="scan-header-bar">
+      <div style="display:flex;align-items:center;gap:12px">
+        <span class="panel-title" style="margin:0">Scanner — Active Setups</span>
+        <span class="scan-stats">
+          <span>Passed: <strong id="scanPassed">0</strong></span>
+          <span>Scanned: <strong id="scanTotal">0</strong></span>
+        </span>
       </div>
-      <div id="scanBody"><div class="state">Loading<span class="loading-dots"></span></div></div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <div class="search-wrap" style="margin:0">
+          <input class="search-input" id="scanSearch" placeholder="Filter…" style="width:150px;padding:5px 10px;font-size:12px" oninput="filterScan(this.value)" onkeydown="if(event.key==='Enter')filterScan(this.value)">
+          <div class="search-dd" id="scanDd"></div>
+        </div>
+        <button class="setup-copy-all" onclick="copyAllSetups()" title="Copy all setups to clipboard">📋 Copy All</button>
+      </div>
+    </div>
+    <div class="scan-table-wrap">
+      <table class="scan-table">
+        <thead>
+          <tr>
+            <th style="width:100px">Symbol</th>
+            <th style="width:55px">Side</th>
+            <th style="width:50px">Score</th>
+            <th style="width:105px">Price</th>
+            <th style="width:95px">SL</th>
+            <th style="width:95px">TP</th>
+            <th style="width:50px">R:R</th>
+            <th style="width:60px">RSI</th>
+            <th style="width:100px">SMC / Type</th>
+          </tr>
+        </thead>
+        <tbody id="scanBody"><tr><td colspan="9" class="scan-loading" style="text-align:center;padding:40px">Loading<span class="loading-dots"></span></td></tr></tbody>
+      </table>
     </div>
   </div>
 </div>
@@ -893,8 +919,9 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def main():
-    threading.Thread(target=lambda: [_refresh_loop(), None][1], daemon=True).start()
+    threading.Thread(target=_refresh_loop, daemon=True).start()
     srv = HTTPServer(('0.0.0.0', PORT), Handler)
+    srv.socket.setsockopt(__import__('socket').SOL_SOCKET, __import__('socket').SO_REUSEADDR, 1)
     ip = "127.0.0.1"
     try:
         import socket
