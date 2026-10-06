@@ -648,6 +648,22 @@ body{min-height:100vh}
 #setBody>.empty .empty-cta{width:auto;display:inline-flex;margin:12px auto 0;padding:8px 16px;background:var(--accent);color:#fff;border:0;border-radius:var(--radius-sm);box-shadow:0 2px 8px var(--accent-soft)}
 .act-text,.act-detail{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 @media(max-width:1023px){#posBody>.empty,#ordBody>.empty{min-height:100px}}
+
+/* FINAL OVERRIDE: natural data panels; no filler, no stretched empty area. */
+@media(min-width:1024px){
+  .main{height:auto!important;min-height:calc(100vh - 48px)!important;overflow:visible!important}
+  #page-dashboard{height:auto!important;min-height:0!important;overflow:visible!important}
+  #page-dashboard>.grid{height:auto!important;min-height:0!important;overflow:visible!important;display:grid!important;align-items:start!important}
+  .col,.sidebar{height:auto!important;min-height:0!important;overflow:visible!important;display:flex!important;flex-direction:column!important}
+  .col>.panel,.sidebar>.panel{height:auto!important;min-height:0!important;flex:0 0 auto!important}
+  .panel-body{height:auto!important;min-height:0!important;overflow:visible!important}
+  #posWrap,#ordWrap,#marketBody,#setBody,#actBody{height:auto!important;min-height:0!important;overflow:visible!important}
+  #posBody,#ordBody{height:auto!important;min-height:0!important;display:block!important}
+  #posBody>table,#ordBody>table{height:auto!important;min-height:0!important;flex:none!important}
+  #posBody>.empty,#ordBody>.empty{height:auto!important;min-height:0!important;flex:none!important;background:transparent!important;border:0!important;margin:0!important}
+  #setBody>.empty{height:auto!important;min-height:0!important;padding:18px 12px!important}
+  #actBody{max-height:240px!important;overflow-y:auto!important}
+}
 </style>
 </head>
 <body>
