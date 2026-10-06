@@ -632,17 +632,20 @@ body{min-height:100vh}
 #actBodyFull{max-height:none!important}
 @media(max-width:1023px){html,body{overflow:auto}.app{height:auto;min-height:100vh;overflow:visible}.main{overflow:visible}.page.active{overflow:visible}.grid{display:block;overflow:visible}.col,.sidebar{overflow:visible}.col>.panel,.sidebar>.panel{min-height:auto}.topbar{position:relative}}
 
-/* Surgical empty-zone polish */
-.col>.panel{display:flex;flex-direction:column}
-.col>.panel>.panel-body{display:flex;flex:1;min-height:0;flex-direction:column;background:rgba(255,255,255,.015)}
-#posBody,#ordBody{display:flex;flex:1;min-height:0;flex-direction:column}
-#posBody>table,#ordBody>table{flex:1;min-height:120px}
-#posBody>.empty,#ordBody>.empty{flex:1;min-height:120px;background:rgba(255,255,255,.025)}
-#ordBody .empty,#posBody .empty{border:1px dashed var(--hairline-strong);margin:8px;border-radius:var(--radius-sm)}
-#setBody>.empty{min-height:120px;padding:20px 12px}
-#setBody>.empty .empty-cta{width:auto;margin:4px auto 0;padding:7px 16px;background:var(--accent);color:#fff;border:0;border-radius:var(--radius-sm);box-shadow:0 2px 8px var(--accent-soft)}
-.act-list{min-height:0;overflow-y:auto;overflow-x:hidden}
-.act-item{grid-template-columns:58px minmax(0,1fr) minmax(0,120px)}
+/* Natural-height tables and compact widgets. */
+@media(min-width:1024px){
+  .main{height:auto;min-height:calc(100vh - 48px);overflow:visible}
+  #page-dashboard{height:auto;min-height:0;overflow:visible}
+  #page-dashboard>.grid{height:auto;min-height:0}
+  .col,.sidebar{min-height:0;overflow:visible}
+  .col>.panel,.sidebar>.panel{flex:0 0 auto;min-height:0}
+  #actBody{max-height:300px;overflow-y:auto}
+}
+#posBody,#ordBody{display:block;min-height:0}
+#posBody>table,#ordBody>table{min-height:0}
+#posBody>.empty,#ordBody>.empty{min-height:0;flex:none;background:transparent;border:0;margin:0}
+#setBody>.empty{min-height:0;padding:16px 12px}
+#setBody>.empty .empty-cta{width:auto;display:inline-flex;margin:12px auto 0;padding:8px 16px;background:var(--accent);color:#fff;border:0;border-radius:var(--radius-sm);box-shadow:0 2px 8px var(--accent-soft)}
 .act-text,.act-detail{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 @media(max-width:1023px){#posBody>.empty,#ordBody>.empty{min-height:100px}}
 </style>
