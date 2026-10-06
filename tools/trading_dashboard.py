@@ -56,10 +56,10 @@ def get_ctl():
 def apply_ctl(action):
     if action=="pause":
         st=read_st("manual") or {}; st.update({"paused":True,"reason":"cc","updated_at":datetime.now(timezone.utc).isoformat(),"updated_by":"dashboard"})
-        write_st("manual",st); log_ev("Trading paused","from control center","warning"); return True,"Paused"
+        write_st("manual",st); log_ev("Торговля приостановлена","from control center","warning"); return True,"Paused"
     elif action=="resume":
         st=read_st("manual") or {}; st.update({"paused":False,"reason":"resumed","updated_at":datetime.now(timezone.utc).isoformat(),"updated_by":"dashboard"})
-        write_st("manual",st); log_ev("Trading resumed","from control center","ok"); return True,"Resumed"
+        write_st("manual",st); log_ev("Торговля возобновлена","from control center","ok"); return True,"Resumed"
     elif action=="set_manual":
         tm=read_st("trading") or {}; tm["mode"]="MANUAL"; tm["updated_at"]=datetime.now(timezone.utc).isoformat()
         write_st("trading",tm); log_ev("Mode set MANUAL","from control center","warning"); return True,"MANUAL"
@@ -195,7 +195,7 @@ class H(BaseHTTPRequestHandler):
             a,sym,side=b.get('action',''),b.get('symbol',''),b.get('side','LONG'); res={"msg":"","error":""}
             if a=='close' and sym:
                 try:
-                    import bingx_signal as bx; r=bx.bx_action(sym,side,'close'); res['msg']=r.get('msg','Closed'); log_ev(f"Closed {sym}",f"side={side}","warning")
+                    import bingx_signal as bx; r=bx.bx_action(sym,side,'close'); res['msg']=r.get('msg','Закрыто'); log_ev(f"Closed {sym}",f"side={side}","warning")
                 except Exception as e: res['error']=str(e)
             globals(); _ts=0; self._j(res)
         else: self._j({"error":"not found"},404)
@@ -220,7 +220,7 @@ HTML = r""""<!DOCTYPE html>
 <meta name="theme-color" content="#08090A">
 <title>TradingOS</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
   /* Surface — Linear Dark but BRIGHTER for readability */
@@ -231,25 +231,25 @@ HTML = r""""<!DOCTYPE html>
   --surface-3: #2C323E;
 
   /* Ink — warm white, not pure */
-  --ink: #EEF0F4;
-  --ink-muted: #9BA3B0;
-  --ink-subtle: #6B7280;
+  --ink: #F0F2F8;
+  --ink-muted: #A8AEB8;
+  --ink-subtle: #7A8190;
 
   /* Lines — subtle but visible */
-  --hairline: #363C4A;
-  --hairline-strong: #444B5C;
+  --hairline: #3D4452;
+  --hairline-strong: #505766;
 
   /* Accent — Linear purple, slightly brighter */
-  --accent: #6B7CF7;
-  --accent-strong: #818CF8;
+  --accent: #7C8AFF;
+  --accent-strong: #8B9AFF;
   --accent-soft: rgba(107, 124, 247, 0.12);
 
   /* Semantic */
-  --good: #34D399;
+  --good: #3DDC95;
   --good-soft: rgba(52, 211, 153, 0.1);
   --warn: #FBBF24;
   --warn-soft: rgba(251, 191, 36, 0.1);
-  --bad: #F87171;
+  --bad: #FA7070;
   --bad-soft: rgba(248, 113, 113, 0.1);
 
   /* Geometry */
@@ -286,7 +286,7 @@ body { background: var(--bg);
   color: var(--ink);
   font-family: 'Inter', 'PT Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 15px;
-  line-height: 1.5;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
@@ -309,7 +309,7 @@ a { color: var(--accent); text-decoration: none; }
 }
 .brand {
   display: flex; align-items: center; gap: 8px;
-  font-size: 14px; font-weight: 600; letter-spacing: -0.01em; color: var(--ink);
+  font-size: 14px; letter-spacing: -0.01em; font-weight: 600; letter-spacing: -0.01em; color: var(--ink);
 }
 .brand-mark {
   width: 20px; height: 20px;
@@ -395,7 +395,7 @@ a { color: var(--accent); text-decoration: none; }
 .icon-btn:hover { color: var(--ink); border-color: var(--hairline-strong); background: var(--surface-1); }
 
 /* ── Main ── */
-.main { padding: 16px; width: 100%; max-width: 1320px; margin: 0 auto; }
+.main { padding: 20px; width: 100%; max-width: 1400px; margin: 0 auto; }
 .page { display: none; }
 .page.active { display: block; animation: fadeIn .15s ease; }
 @keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:none} }
@@ -409,7 +409,7 @@ a { color: var(--accent); text-decoration: none; }
 }
 .panel-hd {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 8px 12px;
+  padding: 10px 14px;
   border-bottom: 1px solid var(--hairline);
   background: var(--surface-1);
 }
@@ -424,11 +424,12 @@ a { color: var(--accent); text-decoration: none; }
 
 /* ── Hero stat strip ── */
 .hero { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1px; background: var(--hairline); border: 1px solid var(--hairline); border-radius: var(--radius); margin-bottom: 12px; overflow: hidden; }
+.hero-card { min-height: 80px; }
 .hero-card {
-  background: var(--surface); padding: 18px 20px; position: relative;
+  background: var(--surface); padding: 20px 22px; position: relative;
 }
-.hero-label { font-size: 10px; color: var(--ink-subtle); text-transform: uppercase; letter-spacing: .1em; font-weight: 600; margin-bottom: 6px; }
-.hero-value { font-size: 30px; font-weight: 700; line-height: 1.1; letter-spacing: -.02em; font-family: 'JetBrains Mono', monospace; }
+.hero-label { font-size: 10px; color: var(--ink-subtle); text-transform: uppercase; letter-spacing: .12em; font-weight: 700; margin-bottom: 8px; }
+.hero-value { font-size: 32px; font-weight: 700; letter-spacing: -0.03em; line-height: 1.1; letter-spacing: -.02em; font-family: 'JetBrains Mono', monospace; }
 .hero-sub { font-size: 12px; color: var(--ink-muted); margin-top: 4px; font-family: 'JetBrains Mono', monospace; }
 
 /* ── Control bar ── */
@@ -464,14 +465,17 @@ a { color: var(--accent); text-decoration: none; }
 
 /* ── Grid layout ── */
 .grid { display: grid; gap: 1px; background: var(--hairline); border: 1px solid var(--hairline); border-radius: var(--radius); overflow: hidden; }
-@media(min-width:1024px){ .grid { grid-template-columns: 1fr 300px; } }
+@media(min-width:1024px){ .grid { grid-template-columns: 1fr 300px; align-items: start; } }
+.col { display: flex; flex-direction: column; gap: 1px; background: var(--hairline); }
+.panel { flex: 1; display: flex; flex-direction: column; }
+.panel-body { flex: 1; }
 .sidebar { display: flex; flex-direction: column; background: var(--hairline); }
 .col { display: flex; flex-direction: column; background: var(--hairline); }
 
 /* ── Tables ── */
 table { width: 100%; border-collapse: collapse; font-size: 13px; }
 thead th {
-  text-align: left; padding: 9px 14px;
+  text-align: left; padding: 10px 14px;
   color: var(--ink-subtle); font-weight: 500; font-size: 10px;
   text-transform: uppercase; letter-spacing: .08em;
   border-bottom: 1px solid var(--hairline); background: var(--surface-1);
@@ -479,7 +483,7 @@ thead th {
 }
 thead th.r { text-align: right; }
 thead th.c { text-align: center; }
-tbody td { padding: 9px 14px; border-bottom: 1px solid var(--hairline); vertical-align: middle; height: 36px; }
+tbody td { padding: 10px 14px; border-bottom: 1px solid var(--hairline); vertical-align: middle; height: 38px; }
 tbody td.r { text-align: right; }
 tbody td.c { text-align: center; }
 tbody tr:last-child td { border-bottom: none; }
@@ -511,7 +515,7 @@ tbody tr:hover td:first-child { color: var(--accent); }
 .empty svg { width: 28px; height: 28px; stroke: var(--ink-subtle); fill: none; stroke-width: 1.5; opacity: .5; }
 .empty-cta {
   display: inline-flex; align-items: center; gap: 5px;
-  padding: 8px 14px; border-radius: var(--radius-sm);
+  padding: 10px 14px; border-radius: var(--radius-sm);
   background: var(--accent-soft); color: var(--accent);
   font-size: 12px; font-weight: 500; cursor: pointer;
   border: 1px solid var(--accent); transition: all .15s;
@@ -521,7 +525,7 @@ tbody tr:hover td:first-child { color: var(--accent); }
 
 /* ── Activity ── */
 .act-list { max-height: 300px; overflow-y: auto; }
-.act-item { display: grid; grid-template-columns: 50px 1fr auto; gap: 10px; padding: 8px 14px; border-bottom: 1px solid var(--hairline); font-size: 12px; align-items: center; transition: background .1s; }
+.act-item { display: grid; grid-template-columns: 50px 1fr auto; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--hairline); font-size: 12px; align-items: center; transition: background .1s; }
 .act-item:last-child { border-bottom: none; }
 .act-item:hover { background: var(--surface-1); }
 .act-time { color: var(--ink-subtle); font-family: 'JetBrains Mono', monospace; font-size: 12px; }
@@ -534,7 +538,7 @@ tbody tr:hover td:first-child { color: var(--accent); }
 
 /* ── Setup cards ── */
 .setup-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 1px; background: var(--hairline); }
-.setup-card { background: var(--surface); padding: 12px 14px; cursor: pointer; transition: all .15s; position: relative; border-left: 2px solid var(--hairline-strong); }
+.setup-card { background: var(--surface); padding: 14px 16px; cursor: pointer; transition: all .15s; position: relative; border-left: 2px solid var(--hairline-strong); }
 .setup-card:hover { background: var(--surface-1); }
 .setup-card.long { border-left-color: var(--good); }
 .setup-card.short { border-left-color: var(--bad); }
@@ -546,7 +550,7 @@ tbody tr:hover td:first-child { color: var(--accent); }
 .setup-prices { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0; padding: 6px 0; border-top: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline); background: var(--surface-1); }
 .setup-pr-cell { text-align: center; padding: 0 4px; border-right: 1px solid var(--hairline); }
 .setup-pr-cell:last-child { border-right: none; }
-.setup-pr-label { font-size: 9px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 2px; font-weight: 600; }
+.setup-pr-label { font-size: 9px; color: var(--ink-subtle); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 2px; font-weight: 600; }
 .setup-pr-val { font-size: 12px; font-weight: 500; font-family: 'JetBrains Mono', monospace; }
 .setup-pr-val.entry { color: var(--ink); }
 .setup-pr-val.tp { color: var(--good); }
@@ -555,7 +559,7 @@ tbody tr:hover td:first-child { color: var(--accent); }
 .setup-rr { color: var(--ink); font-weight: 600; }
 
 /* ── Market rows ── */
-.market-row { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; padding: 7px 14px; border-bottom: 1px solid var(--hairline); font-size: 12px; align-items: center; transition: background .1s; }
+.market-row { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--hairline); font-size: 12px; align-items: center; transition: background .1s; }
 .market-row:last-child { border-bottom: none; }
 .market-row:hover { background: var(--surface-1); }
 .market-sym { font-weight: 500; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: -.01em; }
@@ -566,26 +570,26 @@ tbody tr:hover td:first-child { color: var(--accent); }
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px; }
 .modal-overlay.hidden { display: none; }
 .modal { background: var(--surface-1); border: 1px solid var(--hairline-strong); width: 100%; max-width: 500px; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column; }
-.modal-hd { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--hairline); background: var(--surface-2); }
-.modal-title { font-size: 14px; font-weight: 600; font-family: 'JetBrains Mono', monospace; letter-spacing: -.01em; display: flex; align-items: center; gap: 8px; }
-.modal-body { background: var(--bg);  padding: 16px; overflow-y: auto; flex: 1; }
+.modal-hd { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid var(--hairline); background: var(--surface-2); }
+.modal-title { font-size: 14px; letter-spacing: -0.01em; font-weight: 600; font-family: 'JetBrains Mono', monospace; letter-spacing: -.01em; display: flex; align-items: center; gap: 8px; }
+.modal-body { background: var(--bg);  padding: 18px; overflow-y: auto; flex: 1; }
 .modal-section { margin-bottom: 14px; }
 .modal-section-title { font-size: 10px; font-weight: 600; color: var(--ink-subtle); text-transform: uppercase; letter-spacing: .1em; margin-bottom: 8px; }
-.modal-foot { display: flex; gap: 0; padding: 0; border-top: 1px solid var(--hairline); background: var(--surface-2); height: 36px; }
+.modal-foot { display: flex; gap: 0; padding: 0; border-top: 1px solid var(--hairline); background: var(--surface-2); height: 38px; }
 .modal-foot .btn { border-right: 1px solid var(--hairline); }
 
 /* ── Toast ── */
-.toast { position: fixed; bottom: 16px; right: 16px; padding: 8px 12px; font-size: 13px; z-index: 300; font-weight: 500; display: flex; align-items: center; gap: 8px; max-width: 360px; font-family: 'JetBrains Mono', monospace; border: 1px solid; }
+.toast { position: fixed; bottom: 16px; right: 16px; padding: 10px 14px; font-size: 13px; z-index: 300; font-weight: 500; display: flex; align-items: center; gap: 8px; max-width: 360px; font-family: 'JetBrains Mono', monospace; border: 1px solid; }
 .toast-ok { background: var(--good-soft); color: var(--good); border-color: var(--good); }
 .toast-err { background: var(--bad-soft); color: var(--bad); border-color: var(--bad); }
 .toast-info { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
 .toast-warn { background: var(--warn-soft); color: var(--warn); border-color: var(--warn); }
 
 /* ── Misc ── */
-.loading-state { padding: 16px; display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--ink-subtle); font-size: 12px; }
+.loading-state { padding: 18px; display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--ink-subtle); font-size: 12px; }
 .spinner { width: 12px; height: 12px; border: 1.5px solid var(--hairline-strong); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
-.error-banner { background: var(--bad-soft); border: 1px solid var(--bad); color: var(--bad); padding: 8px 12px; font-size: 12px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; font-family: 'JetBrains Mono', monospace; border-radius: var(--radius-sm); }
+.error-banner { background: var(--bad-soft); border: 1px solid var(--bad); color: var(--bad); padding: 10px 14px; font-size: 12px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; font-family: 'JetBrains Mono', monospace; border-radius: var(--radius-sm); }
 
 /* ── Mobile ── */
 @media(max-width:768px){
@@ -596,11 +600,11 @@ tbody tr:hover td:first-child { color: var(--accent); }
   .clock { display: none; }
   .search-input { width: 120px; }
   .hero { grid-template-columns: 1fr 1fr; }
-  .hero-card { padding: 12px 14px; }
+  .hero-card { padding: 14px 16px; }
   .hero-value { font-size: 18px; }
   .grid { grid-template-columns: 1fr; }
   thead th, tbody td { padding: 5px 8px; font-size: 12px; height: 28px; }
-  .ctrl { height: 36px; }
+  .ctrl { height: 38px; }
   .seg-btn, .btn { padding: 0 8px; font-size: 12px; }
 }
 </style>
@@ -615,11 +619,11 @@ tbody tr:hover td:first-child { color: var(--accent); }
     <span>TradingOS</span>
   </div>
   <nav class="nav">
-    <div class="nav-link active" data-page="dashboard" onclick="switchPage('dashboard')">Dashboard</div>
+    <div class="nav-link active" data-page="dashboard" onclick="switchPage('dashboard')">Дашборд</div>
     <div class="nav-link" data-page="scanner" onclick="switchPage('scanner')">
-      Scanner<span class="badge" id="navSetupsCount" style="display:none">0</span>
+      Сканер — все сетапы<span class="badge" id="navSetupsCount" style="display:none">0</span>
     </div>
-    <div class="nav-link" data-page="activity" onclick="switchPage('activity')">Activity</div>
+    <div class="nav-link" data-page="activity" onclick="switchPage('activity')">История</div>
   </nav>
   <div class="top-right">
     <div class="search-wrap">
@@ -642,19 +646,19 @@ tbody tr:hover td:first-child { color: var(--accent); }
   <!-- Hero Stats -->
   <div class="hero" id="statStrip">
     <div class="hero-card">
-      <div class="hero-label">Status</div>
+      <div class="hero-label">Статус</div>
       <div class="hero-value" id="heroStatus" style="color:var(--ink-subtle)">—</div>
       <div class="hero-sub" id="heroMode">—</div>
     </div>
     <div class="hero-card">
-      <div class="hero-label">Equity</div>
+      <div class="hero-label">Баланс</div>
       <div class="hero-value mono" id="heroEquity">—</div>
-      <div class="hero-sub">Free: <span id="heroAvailable">—</span></div>
+      <div class="hero-sub">Свободно: <span id="heroAvailable">—</span></div>
     </div>
     <div class="hero-card">
-      <div class="hero-label">Margin Used</div>
+      <div class="hero-label">Заморожено</div>
       <div class="hero-value mono" id="heroPnl">—</div>
-      <div class="hero-sub">Locked in orders</div>
+      <div class="hero-sub">В ордерах и позициях</div>
     </div>
     <div class="hero-card">
       <div class="hero-label">BTC</div>
@@ -662,14 +666,14 @@ tbody tr:hover td:first-child { color: var(--accent); }
       <div class="hero-sub mono" id="heroBtcChg">—</div>
     </div>
     <div class="hero-card">
-      <div class="hero-label">Setups</div>
+      <div class="hero-label">Сетапы</div>
       <div class="hero-value mono" id="heroSetups">—</div>
-      <div class="hero-sub">Active signals</div>
+      <div class="hero-sub">Активных сигналов</div>
     </div>
     <div class="hero-card">
-      <div class="hero-label">Updated</div>
+      <div class="hero-label">Обновлено</div>
       <div class="hero-value mono" id="lastUpdate" style="font-size:14px;margin-top:4px">—</div>
-      <div class="hero-sub">Press [R]</div>
+      <div class="hero-sub">[R] перезагрузить</div>
     </div>
   </div>
 
@@ -686,9 +690,9 @@ tbody tr:hover td:first-child { color: var(--accent); }
         <span class="tag-dot" style="background:var(--warn)"></span>PAUSE
       </button>
     </div>
-    <button class="btn btn-accent" onclick="refreshNow()">↻ Refresh</button>
+    <button class="btn btn-accent" onclick="refreshNow()">↻ Обновить</button>
     <div class="btn-spacer"></div>
-    <button class="btn btn-bad" onclick="ctrlAction('kill')">⚠ Kill</button>
+    <button class="btn btn-bad" onclick="ctrlAction('kill')">⚠ KILL</button>
   </div>
 
   <div class="grid">
@@ -778,7 +782,7 @@ tbody tr:hover td:first-child { color: var(--accent); }
     <div class="panel-hd">
       <div class="panel-title">
         <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-        Activity Log
+        Журнал событий
       </div>
       <span class="panel-count" id="actCount">0</span>
     </div>
@@ -795,7 +799,7 @@ tbody tr:hover td:first-child { color: var(--accent); }
 <div class="modal-overlay hidden" id="modalOverlay" onclick="if(event.target===this)closeModal()">
   <div class="modal">
     <div class="modal-hd">
-      <span class="modal-title" id="modalTitle">Details</span>
+      <span class="modal-title" id="modalTitle">Детали</span>
       <button class="icon-btn" onclick="closeModal()" style="width:24px;height:24px">
         <svg viewBox="0 0 24 24" width="12" height="12"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
@@ -870,7 +874,7 @@ async function loadDashboard(){
   loading=true;
   const d=await api('');
   loading=false;
-  if(d&&d.error){showError('API unavailable: '+d.error);return}
+  if(d&&d.error){showError('API недоступен: '+d.error);return}
   if(!d)return;
   currentState=d;CANDIDATES=d.candidates||CANDIDATES;lastError=null;hideError();
   renderDashboard(d);
@@ -894,7 +898,7 @@ function renderDashboard(d){
   const heroStatus=document.getElementById('heroStatus');
   heroStatus.textContent=ctl.overall||'OFFLINE';
   heroStatus.style.color=ctl.cls==='ok'?'var(--good)':ctl.cls==='critical'?'var(--bad)':'var(--ink-subtle)';
-  document.getElementById('heroMode').textContent=(ctl.mode||'—')+' · '+(ctl.orders_disabled?'Orders OFF':'Orders ON');
+  document.getElementById('heroMode').textContent=(ctl.mode||'—')+' · '+(ctl.orders_disabled?'Ордера ВЫКЛ':'Ордера ВКЛ');
   const m=d.money||{};
   document.getElementById('heroEquity').textContent='$'+fmtPx(m.equity);
   document.getElementById('heroAvailable').textContent='$'+fmtPx(m.available);
@@ -934,10 +938,10 @@ function renderPositions(pos){
   const body=document.getElementById('posBody');
   document.getElementById('posCount').textContent=pos.length;
   if(!pos.length){
-    body.innerHTML='<div class="empty"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg><div>No open positions</div><button class="empty-cta" onclick="switchPage(\'scanner\')">Open Scanner</button></div>';
+    body.innerHTML='<div class="empty"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg><div>Нет открытых позиций</div><button class="empty-cta" onclick="switchPage(\'scanner\')">Открыть сканер</button></div>';
     return;
   }
-  body.innerHTML='<table><thead><tr><th>SYMBOL</th><th>SIDE</th><th class="r">SIZE</th><th class="r">ENTRY</th><th class="r">MARK</th><th class="r">PNL</th><th class="r">LIQ%</th><th class="c"></th></tr></thead><tbody>'+pos.map(p=>{
+  body.innerHTML='<table><thead><tr><th>МОНЕТА</th><th>СТОРОНА</th><th class="r">SIZE</th><th class="r">ENTRY</th><th class="r">MARK</th><th class="r">PNL</th><th class="r">LIQ%</th><th class="c"></th></tr></thead><tbody>'+pos.map(p=>{
     const pnl=p.upnl||0;
     const liqDist=p.liq&&p.mark?Math.abs((p.liq-p.mark)/p.mark*100):0;
     const liqCls=liqDist>50?'positive':liqDist>20?'':'negative';
@@ -951,10 +955,10 @@ function renderOrders(orders){
   const body=document.getElementById('ordBody');
   document.getElementById('ordCount').textContent=ord.length;
   if(!ord.length){
-    body.innerHTML='<div class="empty"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg><div>No active orders</div></div>';
+    body.innerHTML='<div class="empty"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg><div>Нет активных ордеров</div></div>';
     return;
   }
-  body.innerHTML='<table><thead><tr><th>SYMBOL</th><th>SIDE</th><th>TYPE</th><th class="r">PRICE</th><th class="r">QTY</th><th class="c"></th></tr></thead><tbody>'+ord.map(o=>{
+  body.innerHTML='<table><thead><tr><th>МОНЕТА</th><th>СТОРОНА</th><th>ТИП</th><th class="r">PRICE</th><th class="r">QTY</th><th class="c"></th></tr></thead><tbody>'+ord.map(o=>{
     const side=o.side==='BUY'?'buy':'sell';
     return '<tr><td><span class="sym">'+escHtml(o.symbol)+'</span></td><td><span class="tag tag-'+side+'">'+side.toUpperCase()+'</span></td><td><span class="tag tag-muted">'+escHtml(o.type)+'</span></td><td class="num r">'+fmtPx(o.price)+'</td><td class="num r">'+fmtN(o.qty,4)+'</td><td class="c"><button class="icon-btn" style="width:22px;height:22px;color:var(--ink-subtle)" onclick="cancelOrd(\''+escHtml(o.symbol)+'\','+(parseFloat(o.price)||0)+')" title="Cancel"><svg viewBox="0 0 24 24" width="10" height="10"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></td></tr>';
   }).join('')+'</tbody></table>';
@@ -974,7 +978,7 @@ function renderMarket(market){
 function renderSetupsPreview(setups){
   const body=document.getElementById('setBody');
   if(!setups.length){
-    body.innerHTML='<div class="empty"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><div>No setups — market is flat</div><button class="empty-cta" onclick="switchPage(\'scanner\')">Open Scanner</button></div>';
+    body.innerHTML='<div class="empty"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><div>Нет сетапов — рынок во флэте</div><button class="empty-cta" onclick="switchPage(\'scanner\')">Открыть сканер</button></div>';
     return;
   }
   body.innerHTML='<div class="setup-grid">'+setups.slice(0,6).map(renderSetupCard).join('')+'</div>';
@@ -989,7 +993,12 @@ function renderActivityPreview(acts){
 function renderActItem(a){
   const dotCls=a.level==='critical'?'act-dot-crit':a.level==='warning'?'act-dot-warn':'act-dot-ok';
   const time=a.ts?new Date(a.ts).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit',second:'2-digit'}):'—';
-  return '<div class="act-item"><span class="act-time">'+time+'</span><span class="act-text"><span class="act-dot '+dotCls+'"></span>'+escHtml(a.event||'')+'</span><span class="act-detail">'+(a.detail?escHtml(a.detail):'')+'</span></div>';
+  let evt=escHtml(a.event||'');
+  const map={'Trading resumed':'Торговля возобновлена','Trading paused':'Торговля приостановлена','from dashboard':'из панели','Closed':'Закрыто','Cancelled':'Отменено'};
+  for(const[k,v]of Object.entries(map))evt=evt.replace(new RegExp(k,'g'),v);
+  let det=escHtml(a.detail||'');
+  for(const[k,v]of Object.entries(map))det=det.replace(new RegExp(k,'g'),v);
+  return '<div class="act-item"><span class="act-time">'+time+'</span><span class="act-text"><span class="act-dot '+dotCls+'"></span>'+evt+'</span><span class="act-detail">'+det+'</span></div>';
 }
 
 function renderSetupCard(s){
@@ -1003,11 +1012,11 @@ async function showCoin(sym){
   const body=document.getElementById('modalBody');
   const foot=document.getElementById('modalFoot');
   document.getElementById('modalTitle').textContent=sym.replace('USDT','');
-  body.innerHTML='<div class="loading-state"><div class="spinner"></div>Loading…</div>';
+  body.innerHTML='<div class="loading-state"><div class="spinner"></div>Загрузка…</div>';
   foot.innerHTML='';
   overlay.classList.remove('hidden');
   const d=await api('/coin/'+encodeURIComponent(sym));
-  if(d.error||!d){body.innerHTML='<div class="empty"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg><div>'+escHtml(d.error||'Not found')+'</div></div>';return}
+  if(d.error||!d){body.innerHTML='<div class="empty"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg><div>'+escHtml(d.error||'Не найдено')+'</div></div>';return}
   renderCoinModal(d);
 }
 
@@ -1017,20 +1026,20 @@ function renderCoinModal(d){
   const rsiColor=d.rsi<30?'var(--good)':d.rsi>70?'var(--bad)':'var(--ink)';
   const momColor=d.mom>=10?'var(--good)':d.mom>=6?'var(--warn)':'var(--bad)';
   const side=d.side?d.side.toLowerCase():'';
-  body.innerHTML='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px"><div style="display:flex;align-items:center;gap:8px"><span class="sym" style="font-size:16px">'+escHtml(d.short||d.symbol)+'</span>'+(side?'<span class="tag tag-'+side+'">'+side.toUpperCase()+'</span>':'')+'</div>'+(d.score?'<span class="tag tag-info">SC '+d.score+'</span>':'')+'</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px"><div style="background:var(--surface-2);padding:8px 10px;border-radius:var(--radius-sm)"><div class="hero-label">PRICE</div><div class="num" style="font-size:14px;font-weight:600">'+fmtPx(d.price)+'</div></div><div style="background:var(--surface-2);padding:8px 10px;border-radius:var(--radius-sm)"><div class="hero-label">24H</div><div class="num" style="font-size:14px;font-weight:600;'+(d.chg>=0?'color:var(--good)':'color:var(--bad)')+'">'+pnlSign(d.chg||0)+(d.chg||0).toFixed(2)+'%</div></div><div style="background:var(--surface-2);padding:8px 10px;border-radius:var(--radius-sm)"><div class="hero-label">RSI(14)</div><div class="num" style="font-size:14px;font-weight:600;color:'+rsiColor+'">'+fmtN(d.rsi,1)+'</div></div><div style="background:var(--surface-2);padding:8px 10px;border-radius:var(--radius-sm)"><div class="hero-label">ATR(1H)</div><div class="num" style="font-size:14px;font-weight:600">'+(d.atr_pct||'—')+'%</div></div><div style="background:var(--surface-2);padding:8px 10px;border-radius:var(--radius-sm)"><div class="hero-label">VOL</div><div class="num" style="font-size:14px;font-weight:600">'+fmtN(d.vol_ratio,2)+'x</div></div><div style="background:var(--surface-2);padding:8px 10px;border-radius:var(--radius-sm)"><div class="hero-label">MOM</div><div class="num" style="font-size:14px;font-weight:600;color:'+momColor+'">'+(d.mom||0)+'/15</div></div></div>'+(d.sl&&d.tp?'<div class="modal-section"><div class="modal-section-title">LEVELS</div><table style="width:100%"><thead><tr><th>TYPE</th><th class="r">PRICE</th><th class="r">DELTA</th></tr></thead><tbody><tr><td>ENTRY</td><td class="num r">'+fmtPx(d.entry_low||d.price)+'</td><td class="num r" style="color:var(--ink-subtle)">—</td></tr><tr><td style="color:var(--good);font-weight:600">TP</td><td class="num r" style="color:var(--good)">'+fmtPx(d.tp)+'</td><td class="num r" style="color:var(--good)">+'+fmtN(d.tp_pct,1)+'%</td></tr><tr><td style="color:var(--bad);font-weight:600">SL</td><td class="num r" style="color:var(--bad)">'+fmtPx(d.sl)+'</td><td class="num r" style="color:var(--bad)">-'+fmtN(d.sl_pct,1)+'%</td></tr></tbody></table>'+(d.rr?'<div style="margin-top:8px;text-align:right;font-size:11px;color:var(--ink-muted)">R:R <b class="num" style="color:var(--ink)">'+fmtN(d.rr,2)+'</b></div>':'')+'</div>':'')+(d.forecast?'<div class="modal-section"><div class="modal-section-title">SIGNAL</div><div class="num" style="padding:8px 10px;background:var(--accent-soft);border-left:2px solid var(--accent);border-radius:0 var(--radius-sm) var(--radius-sm) 0;font-size:11px">'+escHtml(d.forecast)+'</div></div>':'');
-  foot.innerHTML='<button class="btn btn-accent" style="flex:1" onclick="window.open(\'https://www.tradingview.com/chart/?symbol=BINANCE:'+encodeURIComponent((d.symbol||'').replace('USDT',''))+'USDT.P\',\'_blank\')">TRADINGVIEW</button><button class="btn" onclick="showCoin(\''+escHtml(d.symbol)+'\')">REFRESH</button>';
+  body.innerHTML='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px"><div style="display:flex;align-items:center;gap:8px"><span class="sym" style="font-size:16px">'+escHtml(d.short||d.symbol)+'</span>'+(side?'<span class="tag tag-'+side+'">'+side.toUpperCase()+'</span>':'')+'</div>'+(d.score?'<span class="tag tag-info">SC '+d.score+'</span>':'')+'</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px"><div style="background:var(--surface-2);padding:8px 10px;border-radius:var(--radius-sm)"><div class="hero-label">PRICE</div><div class="num" style="font-size:14px;font-weight:600">'+fmtPx(d.price)+'</div></div><div style="background:var(--surface-2);padding:8px 10px;border-radius:var(--radius-sm)"><div class="hero-label">24H</div><div class="num" style="font-size:14px;font-weight:600;'+(d.chg>=0?'color:var(--good)':'color:var(--bad)')+'">'+pnlSign(d.chg||0)+(d.chg||0).toFixed(2)+'%</div></div><div style="background:var(--surface-2);padding:8px 10px;border-radius:var(--radius-sm)"><div class="hero-label">RSI(14)</div><div class="num" style="font-size:14px;font-weight:600;color:'+rsiColor+'">'+fmtN(d.rsi,1)+'</div></div><div style="background:var(--surface-2);padding:8px 10px;border-radius:var(--radius-sm)"><div class="hero-label">ATR(1H)</div><div class="num" style="font-size:14px;font-weight:600">'+(d.atr_pct||'—')+'%</div></div><div style="background:var(--surface-2);padding:8px 10px;border-radius:var(--radius-sm)"><div class="hero-label">VOL</div><div class="num" style="font-size:14px;font-weight:600">'+fmtN(d.vol_ratio,2)+'x</div></div><div style="background:var(--surface-2);padding:8px 10px;border-radius:var(--radius-sm)"><div class="hero-label">MOM</div><div class="num" style="font-size:14px;font-weight:600;color:'+momColor+'">'+(d.mom||0)+'/15</div></div></div>'+(d.sl&&d.tp?'<div class="modal-section"><div class="modal-section-title">LEVELS</div><table style="width:100%"><thead><tr><th>ТИП</th><th class="r">PRICE</th><th class="r">DELTA</th></tr></thead><tbody><tr><td>ENTRY</td><td class="num r">'+fmtPx(d.entry_low||d.price)+'</td><td class="num r" style="color:var(--ink-subtle)">—</td></tr><tr><td style="color:var(--good);font-weight:600">TP</td><td class="num r" style="color:var(--good)">'+fmtPx(d.tp)+'</td><td class="num r" style="color:var(--good)">+'+fmtN(d.tp_pct,1)+'%</td></tr><tr><td style="color:var(--bad);font-weight:600">SL</td><td class="num r" style="color:var(--bad)">'+fmtPx(d.sl)+'</td><td class="num r" style="color:var(--bad)">-'+fmtN(d.sl_pct,1)+'%</td></tr></tbody></table>'+(d.rr?'<div style="margin-top:8px;text-align:right;font-size:11px;color:var(--ink-muted)">R:R <b class="num" style="color:var(--ink)">'+fmtN(d.rr,2)+'</b></div>':'')+'</div>':'')+(d.forecast?'<div class="modal-section"><div class="modal-section-title">SIGNAL</div><div class="num" style="padding:8px 10px;background:var(--accent-soft);border-left:2px solid var(--accent);border-radius:0 var(--radius-sm) var(--radius-sm) 0;font-size:11px">'+escHtml(d.forecast)+'</div></div>':'');
+  foot.innerHTML='<button class="btn btn-accent" style="flex:1" onclick="window.open(\'https://www.tradingview.com/chart/?symbol=BINANCE:'+encodeURIComponent((d.symbol||'').replace('USDT',''))+'USDT.P\',\'_blank\')">TRADINGVIEW</button><button class="btn" onclick="showCoin(\''+escHtml(d.symbol)+'\')">ОБНОВИТЬ</button>';
 }
 
 function closeModal(){document.getElementById('modalOverlay').classList.add('hidden')}
 
 async function loadScanner(){
   const body=document.getElementById('scanBody');
-  body.innerHTML='<div class="loading-state"><div class="spinner"></div>Scanning…</div>';
+  body.innerHTML='<div class="loading-state"><div class="spinner"></div>Сканирование…</div>';
   const setups=await api('/setups');
   filteredSetups=setups||[];
   document.getElementById('scanStats').textContent=filteredSetups.length+' setups';
   if(!filteredSetups.length){
-    body.innerHTML='<div class="empty"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><div>No qualifying setups</div><div style="font-size:11px;color:var(--ink-subtle);margin-top:4px">All candidates failed filters. Market is flat.</div><button class="empty-cta" onclick="loadScanner()">Retry</button></div>';
+    body.innerHTML='<div class="empty"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><div>Нет квалифицированных сетапов</div><div style="font-size:11px;color:var(--ink-subtle);margin-top:4px">Все кандидаты не прошли фильтры. Рынок в боковике.</div><button class="empty-cta" onclick="loadScanner()">Повторить</button></div>';
     return;
   }
   body.innerHTML='<div class="setup-grid">'+filteredSetups.map(renderSetupCard).join('')+'</div>';
@@ -1038,7 +1047,7 @@ async function loadScanner(){
 
 async function loadActivity(){
   const body=document.getElementById('actBodyFull');
-  body.innerHTML='<div class="loading-state"><div class="spinner"></div>Loading…</div>';
+  body.innerHTML='<div class="loading-state"><div class="spinner"></div>Загрузка…</div>';
   const acts=await api('/activity');
   const list=Array.isArray(acts)?acts:[];
   document.getElementById('actCount').textContent=list.length;
@@ -1047,24 +1056,24 @@ async function loadActivity(){
 }
 
 async function ctrlAction(action){
-  if(action==='kill'){if(!confirm('KILL SWITCH?\n\nDisable all trading?'))return;if(!confirm('Confirm? Bot will stop.'))return}
-  else if(action==='pause'){if(!confirm('Pause trading?'))return}
-  else if(action==='set_auto'){if(!confirm('Switch to AUTO?'))return}
-  else if(action==='set_manual'){if(!confirm('Switch to MANUAL?'))return}
+  if(action==='kill'){if(!confirm('KILL SWITCH?\n\nDisable all trading?'))return;if(!confirm('Точно? Бот перестанет торговать.'))return}
+  else if(action==='pause'){if(!confirm('Поставить на паузу?'))return}
+  else if(action==='set_auto'){if(!confirm('Переключить в AUTO?'))return}
+  else if(action==='set_manual'){if(!confirm('Переключить в MANUAL?'))return}
   try{
     const r=await fetch(API+'/control',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action})});
     const d=await r.json();
     if(d.error)toast('⚠ '+d.error,'err');else{toast(d.msg||'OK','ok');loadDashboard()}
-  }catch(e){toast('Network error','err')}
+  }catch(e){toast('Ошибка сети','err')}
 }
 
 async function closePos(sym,side){
   if(!confirm('Close '+sym+' '+side+'?'))return;
-  try{const r=await fetch(API+'/action',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'close',symbol:sym,side})});const d=await r.json();toast(d.error?'⚠ '+d.error:'Closed',d.error?'err':'ok');loadDashboard()}catch(e){toast('Network error','err')}
+  try{const r=await fetch(API+'/action',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'close',symbol:sym,side})});const d=await r.json();toast(d.error?'⚠ '+d.error:'Закрыто',d.error?'err':'ok');loadDashboard()}catch(e){toast('Ошибка сети','err')}
 }
 async function cancelOrd(sym,price){
   if(!confirm('Cancel '+sym+' @ '+price+'?'))return;
-  try{const r=await fetch(API+'/action',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'cancel',symbol:sym,price})});const d=await r.json();toast(d.error?'⚠ '+d.error:'Cancelled',d.error?'err':'ok');loadDashboard()}catch(e){toast('Network error','err')}
+  try{const r=await fetch(API+'/action',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'cancel',symbol:sym,price})});const d=await r.json();toast(d.error?'⚠ '+d.error:'Отменено',d.error?'err':'ok');loadDashboard()}catch(e){toast('Ошибка сети','err')}
 }
 
 function refreshNow(){loadDashboard();if(document.getElementById('page-scanner').classList.contains('active'))loadScanner();if(document.getElementById('page-activity').classList.contains('active'))loadActivity()}
@@ -1075,7 +1084,7 @@ function onGlobalSearch(q){
   const upper=q.toUpperCase().replace(/[^A-Z0-9]/g,'');
   if(!upper){dd.classList.remove('show');dd.innerHTML='';return}
   const matches=CANDIDATES.filter(s=>s.includes(upper)).slice(0,8);
-  if(!matches.length){dd.innerHTML='<div class="search-item" style="color:var(--ink-subtle);cursor:default"><span>Not found</span></div>'}
+  if(!matches.length){dd.innerHTML='<div class="search-item" style="color:var(--ink-subtle);cursor:default"><span>Не найдено</span></div>'}
   else{dd.innerHTML=matches.map(s=>'<div class="search-item" onclick="selectCoin(\''+s+'\')"><span class="sym-name">'+s.replace('USDT','')+'</span><span class="sym-type">USDT PERP</span></div>').join('')}
   dd.classList.add('show');
 }
@@ -1101,7 +1110,7 @@ document.addEventListener('keydown',e=>{
 async function init(){
   const meta=await api('');
   if(meta&&!meta.error){CANDIDATES=meta.candidates||[];renderDashboard(meta);renderSetupsPreview(meta.setups||[]);renderActivityPreview(meta.activity||[])}
-  else{showError('API unavailable')}
+  else{showError('API недоступен')}
   if(refreshTimer)clearInterval(refreshTimer);
   refreshTimer=setInterval(loadDashboard,10000);
 }
@@ -1172,7 +1181,7 @@ class Handler(BaseHTTPRequestHandler):
                 try:
                     import bingx_signal as bx
                     r = bx.bx_action(sym, side, 'close')
-                    result['msg'] = r.get('msg', 'Closed')
+                    result['msg'] = r.get('msg', 'Закрыто')
                     log_event(f"Position closed {sym}", f"side={side}", "ok")
                 except Exception as e:
                     result['error'] = str(e)
