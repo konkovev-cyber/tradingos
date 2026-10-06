@@ -630,23 +630,6 @@ body{min-height:100vh}
 #page-scanner>.panel,#page-activity>.panel{min-height:0;flex:1;display:flex;flex-direction:column}
 #scanWrap,#actBodyFull{min-height:0;flex:1;overflow:auto}
 #actBodyFull{max-height:none!important}
-/* Surgical layout fix: keep desktop columns aligned without stretching empty widgets. */
-@media(min-width:1024px){
-  .main{height:calc(100vh - 48px);overflow:hidden}
-  #page-dashboard{height:100%;min-height:0;overflow:hidden}
-  #page-dashboard>.grid{height:calc(100% - 126px);min-height:0}
-  .col{min-height:0;overflow:hidden}
-  .col>.panel:first-child{flex:0 0 auto}
-  .col>.panel:nth-child(2){flex:1;min-height:0}
-  .sidebar{min-height:0;overflow:hidden}
-  .sidebar>.panel{flex:0 0 auto}
-  .sidebar>.panel:last-child{flex:1;min-height:0}
-  #actBody{height:100%;max-height:none;overflow-y:auto}
-}
-@media(max-width:1023px){
-  #page-dashboard>.grid{height:auto}
-  .col>.panel,.sidebar>.panel{flex:none}
-}
 @media(max-width:1023px){html,body{overflow:auto}.app{height:auto;min-height:100vh;overflow:visible}.main{overflow:visible}.page.active{overflow:visible}.grid{display:block;overflow:visible}.col,.sidebar{overflow:visible}.col>.panel,.sidebar>.panel{min-height:auto}.topbar{position:relative}}
 
 /* Surgical empty-zone polish */
@@ -1033,7 +1016,7 @@ function renderMarket(market){
 function renderSetupsPreview(setups){
   const body=document.getElementById('setBody');
   if(!setups.length){
-    body.innerHTML='<div class="empty compact-empty"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><div>Нет сетапов — рынок во флэте</div><button class="empty-cta" onclick="switchPage(\'scanner\')">Открыть сканер</button></div>';
+    body.innerHTML='<div class="empty"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><div>Нет сетапов — рынок во флэте</div><button class="empty-cta" onclick="switchPage(\'scanner\')">Открыть сканер</button></div>';
     return;
   }
   body.innerHTML='<div class="setup-grid">'+setups.slice(0,6).map(renderSetupCard).join('')+'</div>';
