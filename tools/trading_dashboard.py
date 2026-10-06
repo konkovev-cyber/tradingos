@@ -607,6 +607,30 @@ tbody tr:hover td:first-child { color: var(--accent); }
   .ctrl { height: 38px; }
   .seg-btn, .btn { padding: 0 8px; font-size: 12px; }
 }
+
+/* Fixed viewport terminal layout */
+html,body{height:100%;overflow:hidden}
+body{min-height:100vh}
+.app{height:100vh;min-height:0;overflow:hidden;display:flex;flex-direction:column}
+.topbar{flex:0 0 48px}
+.main{flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;padding:16px}
+.page{flex:1;min-height:0;overflow:hidden;display:none}
+.page.active{display:flex;flex-direction:column}
+#page-dashboard{gap:12px}
+.hero{flex:0 0 auto;margin-bottom:0}
+.ctrl{flex:0 0 34px;margin-bottom:0}
+.grid{flex:1;min-height:0;overflow:hidden;grid-template-columns:minmax(0,1fr) 300px}
+.col,.sidebar{min-height:0;overflow:hidden}
+.col>.panel{min-height:0;flex:1}
+.sidebar>.panel{min-height:0;flex:1}
+.panel-body{min-height:0;overflow:hidden}
+#posWrap,#ordWrap{min-height:0;overflow:auto}
+#marketBody,#setBody,#actBody{min-height:0;overflow:auto}
+#page-scanner,#page-activity{min-height:0;overflow:hidden}
+#page-scanner>.panel,#page-activity>.panel{min-height:0;flex:1;display:flex;flex-direction:column}
+#scanWrap,#actBodyFull{min-height:0;flex:1;overflow:auto}
+#actBodyFull{max-height:none!important}
+@media(max-width:1023px){html,body{overflow:auto}.app{height:auto;min-height:100vh;overflow:visible}.main{overflow:visible}.page.active{overflow:visible}.grid{display:block;overflow:visible}.col,.sidebar{overflow:visible}.col>.panel,.sidebar>.panel{min-height:auto}.topbar{position:relative}}
 </style>
 </head>
 <body>
