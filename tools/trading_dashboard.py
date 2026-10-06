@@ -631,6 +631,20 @@ body{min-height:100vh}
 #scanWrap,#actBodyFull{min-height:0;flex:1;overflow:auto}
 #actBodyFull{max-height:none!important}
 @media(max-width:1023px){html,body{overflow:auto}.app{height:auto;min-height:100vh;overflow:visible}.main{overflow:visible}.page.active{overflow:visible}.grid{display:block;overflow:visible}.col,.sidebar{overflow:visible}.col>.panel,.sidebar>.panel{min-height:auto}.topbar{position:relative}}
+
+/* Surgical empty-zone polish */
+.col>.panel{display:flex;flex-direction:column}
+.col>.panel>.panel-body{display:flex;flex:1;min-height:0;flex-direction:column;background:rgba(255,255,255,.015)}
+#posBody,#ordBody{display:flex;flex:1;min-height:0;flex-direction:column}
+#posBody>table,#ordBody>table{flex:1;min-height:120px}
+#posBody>.empty,#ordBody>.empty{flex:1;min-height:120px;background:rgba(255,255,255,.025)}
+#ordBody .empty,#posBody .empty{border:1px dashed var(--hairline-strong);margin:8px;border-radius:var(--radius-sm)}
+#setBody>.empty{min-height:120px;padding:20px 12px}
+#setBody>.empty .empty-cta{width:auto;margin:4px auto 0;padding:7px 16px;background:var(--accent);color:#fff;border:0;border-radius:var(--radius-sm);box-shadow:0 2px 8px var(--accent-soft)}
+.act-list{min-height:0;overflow-y:auto;overflow-x:hidden}
+.act-item{grid-template-columns:58px minmax(0,1fr) minmax(0,120px)}
+.act-text,.act-detail{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:1023px){#posBody>.empty,#ordBody>.empty{min-height:100px}}
 </style>
 </head>
 <body>
